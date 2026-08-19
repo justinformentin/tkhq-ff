@@ -1,0 +1,161 @@
+syntax = "proto3";
+
+package operator_agent.v1;
+
+// TODO: Replace this placeholder with the actual compiled proto from:
+// tkhq/mono/proto/services/operator_agent/v1/operator_agent.proto
+// This file mirrors the expected interface. Dropping in the real proto
+// (and adjusting the package path if needed) is all that's required.
+
+service OperatorAgentService {
+  rpc ListFeatureFlags(ListFeatureFlagsRequest) returns (ListFeatureFlagsResponse);
+  rpc GetFeatureFlag(GetFeatureFlagRequest) returns (GetFeatureFlagResponse);
+  rpc SetFeatureFlag(SetFeatureFlagRequest) returns (SetFeatureFlagResponse);
+  rpc AddFeatureFlagOrg(AddFeatureFlagOrgRequest) returns (AddFeatureFlagOrgResponse);
+  rpc RemoveFeatureFlagOrg(RemoveFeatureFlagOrgRequest) returns (RemoveFeatureFlagOrgResponse);
+  rpc AddFeatureFlagProduct(AddFeatureFlagProductRequest) returns (AddFeatureFlagProductResponse);
+  rpc RemoveFeatureFlagProduct(RemoveFeatureFlagProductRequest) returns (RemoveFeatureFlagProductResponse);
+}
+
+enum FeatureFlag {
+  FEATURE_FLAG_UNSPECIFIED = 0;
+  FEATURE_FLAG_SEND_SMS = 1;
+  FEATURE_FLAG_FIAT_ON_RAMP_COINBASE = 2;
+  FEATURE_FLAG_SEND_GRID_EMAIL = 3;
+  FEATURE_FLAG_ASYNC_SIGNING = 4;
+  FEATURE_FLAG_ETH_SEND_RAW_TRANSACTION = 5;
+  FEATURE_FLAG_GAS_SPONSORSHIP = 6;
+  FEATURE_FLAG_DASHBOARD_V2 = 7;
+  FEATURE_FLAG_TVC = 8;
+  FEATURE_FLAG_SOL_SEND_TRANSACTION = 9;
+  FEATURE_FLAG_WEBHOOKS_V2 = 10;
+  FEATURE_FLAG_IP_ALLOWLIST = 11;
+  FEATURE_FLAG_CHAINALYSIS_SCREENING = 12;
+  FEATURE_FLAG_MFA_POLICIES = 13;
+  FEATURE_FLAG_SESSION_PROFILES = 14;
+  FEATURE_FLAG_EARN_V1 = 15;
+  FEATURE_FLAG_SWAP = 16;
+  FEATURE_FLAG_TVC_EGRESS = 17;
+  FEATURE_FLAG_EMAIL_EVENTS = 18;
+  FEATURE_FLAG_SHADOW_AUTH = 19;
+  FEATURE_FLAG_TRANSACTION_HISTORY = 20;
+  FEATURE_FLAG_SECRETS_API = 21;
+  FEATURE_FLAG_AUTH_PROXY_CAPTCHA = 22;
+  FEATURE_FLAG_VELOCITY_POLICIES = 23;
+  FEATURE_FLAG_WALLET_ACCOUNT_NAMES = 24;
+  FEATURE_FLAG_WALLET_ACCOUNT_BALANCES = 25;
+  FEATURE_FLAG_TIME_BASED_POLICIES = 26;
+  FEATURE_FLAG_SEND_WHATSAPP = 27;
+  FEATURE_FLAG_AUTH_PROXY = 28;       // deprecated
+  FEATURE_FLAG_ACCOUNT_SETTINGS = 29; // deprecated
+  FEATURE_FLAG_CREATE_PRIVATE_KEY = 30; // deprecated
+  FEATURE_FLAG_OAUTH = 31;            // deprecated
+  FEATURE_FLAG_SEND_EMAILS = 32;      // deprecated
+  FEATURE_FLAG_SES_EMAIL = 33;        // deprecated
+  FEATURE_FLAG_SUB_ORGS_UI = 34;     // deprecated
+  FEATURE_FLAG_APP_PROOFS = 35;       // deprecated
+  FEATURE_FLAG_WALLET_CONNECT = 36;
+  FEATURE_FLAG_STAKING = 37;
+  FEATURE_FLAG_OAUTH_PROVIDER = 38;
+  FEATURE_FLAG_POLICY_V2 = 39;
+  FEATURE_FLAG_CONSENSUS = 40;
+  FEATURE_FLAG_DEV_TOOLS = 41;
+  FEATURE_FLAG_ANALYTICS = 42;
+  FEATURE_FLAG_BILLING = 43;
+  FEATURE_FLAG_IMPORT_PRIVATE_KEY = 44;
+  FEATURE_FLAG_EXPORT_PRIVATE_KEY = 45;
+  FEATURE_FLAG_PASSKEYS = 46;
+  FEATURE_FLAG_RESOURCE_TAGS = 47;
+  FEATURE_FLAG_BATCH_SIGNING = 48;
+  FEATURE_FLAG_SOL_STAKING = 49;
+  FEATURE_FLAG_ETH_STAKING = 50;
+  FEATURE_FLAG_MULTICHAIN = 51;
+  FEATURE_FLAG_ADVANCED_SECURITY = 52;
+  FEATURE_FLAG_SELF_CUSTODY = 53;
+  FEATURE_FLAG_NETWORK_SELECTION = 54;
+}
+
+message FeatureFlagInfo {
+  string flag = 1;
+  bool enabled = 2;
+  int32 rollout_percent = 3;
+  repeated OrgRule allowed_orgs = 4;
+  repeated OrgRule disallowed_orgs = 5;
+  repeated ProductRule allowed_products = 6;
+  repeated ProductRule disallowed_products = 7;
+}
+
+message OrgRule {
+  string org_id = 1;
+  bool enabled = 2;
+}
+
+message ProductRule {
+  int32 product_type = 1;
+  int32 product_sub_type = 2;
+  bool enabled = 3;
+}
+
+message ListFeatureFlagsRequest {}
+
+message ListFeatureFlagsResponse {
+  repeated FeatureFlagInfo flags = 1;
+}
+
+message GetFeatureFlagRequest {
+  string flag = 1;
+}
+
+message GetFeatureFlagResponse {
+  FeatureFlagInfo flag = 1;
+}
+
+message SetFeatureFlagRequest {
+  string flag = 1;
+  bool enabled = 2;
+  int32 rollout_percent = 3;
+}
+
+message SetFeatureFlagResponse {
+  FeatureFlagInfo flag = 1;
+}
+
+message AddFeatureFlagOrgRequest {
+  string flag = 1;
+  string org_id = 2;
+  bool enabled = 3;
+}
+
+message AddFeatureFlagOrgResponse {
+  FeatureFlagInfo flag = 1;
+}
+
+message RemoveFeatureFlagOrgRequest {
+  string flag = 1;
+  string org_id = 2;
+}
+
+message RemoveFeatureFlagOrgResponse {
+  FeatureFlagInfo flag = 1;
+}
+
+message AddFeatureFlagProductRequest {
+  string flag = 1;
+  int32 product_type = 2;
+  int32 product_sub_type = 3;
+  bool enabled = 4;
+}
+
+message AddFeatureFlagProductResponse {
+  FeatureFlagInfo flag = 1;
+}
+
+message RemoveFeatureFlagProductRequest {
+  string flag = 1;
+  int32 product_type = 2;
+  int32 product_sub_type = 3;
+}
+
+message RemoveFeatureFlagProductResponse {
+  FeatureFlagInfo flag = 1;
+}
