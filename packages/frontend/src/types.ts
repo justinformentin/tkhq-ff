@@ -1,0 +1,83 @@
+export type Environment = "local" | "dev" | "staging" | "prod";
+
+export interface FlagSummary {
+  name: string;
+  enabled: boolean;
+  rolloutPercent: number;
+  allowCount: number;
+  disallowCount: number;
+}
+
+export interface OrgRule {
+  orgId: string;
+  enabled: boolean; // true=allow, false=disallow
+}
+
+export interface ProductRule {
+  productType: string;
+  productSubType?: string;
+  enabled: boolean; // true=allow, false=disallow
+}
+
+export interface FlagDetail extends FlagSummary {
+  orgRules: OrgRule[];
+  productRules: ProductRule[];
+  rawOutput?: string;
+}
+
+export const PRODUCT_TYPES = ["free", "payg", "pro", "enterprise"] as const;
+export type ProductType = (typeof PRODUCT_TYPES)[number];
+
+export const ENTERPRISE_SUB_TYPES = ["scale", "growth", "strategic"] as const;
+export type EnterpriseSubType = (typeof ENTERPRISE_SUB_TYPES)[number];
+
+export const ALL_FLAGS = [
+  "FEATURE_FLAG_SEND_SMS",
+  "FEATURE_FLAG_FIAT_ON_RAMP_COINBASE",
+  "FEATURE_FLAG_FIAT_ON_RAMP_MOONPAY",
+  "FEATURE_FLAG_SEND_GRID_EMAIL",
+  "FEATURE_FLAG_ASYNC_SIGNING",
+  "FEATURE_FLAG_ETH_SEND_RAW_TRANSACTION",
+  "FEATURE_FLAG_ETH_SEND_TRANSACTION",
+  "FEATURE_FLAG_EMAIL_VALIDATION",
+  "FEATURE_FLAG_EMAIL_VALIDATION_MX",
+  "FEATURE_FLAG_EMAIL_VALIDATION_RESEND",
+  "FEATURE_FLAG_GAS_SPONSORSHIP",
+  "FEATURE_FLAG_EMAIL_VERIFICATION",
+  "FEATURE_FLAG_EMAIL_VERIFICATION_RESEND",
+  "FEATURE_FLAG_CIRCUIT_BREAKER_EMAIL",
+  "FEATURE_FLAG_DASHBOARD_V2",
+  "FEATURE_FLAG_TVC",
+  "FEATURE_FLAG_SOL_SEND_TRANSACTION",
+  "FEATURE_FLAG_GET_WALLET_ADDRESS_BALANCES",
+  "FEATURE_FLAG_LOCAL_REGION_HANDLE_API",
+  "FEATURE_FLAG_LOCAL_REGION_HANDLE_ENCLAVE",
+  "FEATURE_FLAG_ETH_SEND_TRANSACTION_DISABLED",
+  "FEATURE_FLAG_WEBHOOKS_V2",
+  "FEATURE_FLAG_IP_ALLOWLIST",
+  "FEATURE_FLAG_ENCLAVE_BACKOFF",
+  "FEATURE_FLAG_INTERDICTOR_PIPELINED_EXISTS",
+  "FEATURE_FLAG_SPARK_SUPPORT_ENABLED",
+  "FEATURE_FLAG_TVC_MANIFEST_V2",
+  "FEATURE_FLAG_CHAINALYSIS_SCREENING",
+  "FEATURE_FLAG_ETH_SEND_TRANSACTION_V2",
+  "FEATURE_FLAG_MFA_POLICIES",
+  "FEATURE_FLAG_SESSION_PROFILES",
+  "FEATURE_FLAG_EARN_V1",
+  "FEATURE_FLAG_SWAP",
+  "FEATURE_FLAG_TVC_EGRESS",
+  "FEATURE_FLAG_EARN_AAVE",
+  "FEATURE_FLAG_TVC_CLUSTER",
+  "FEATURE_FLAG_EMAIL_EVENTS",
+  "FEATURE_FLAG_SHADOW_AUTH",
+  "FEATURE_FLAG_TRANSACTION_HISTORY",
+  "FEATURE_FLAG_SECRETS_API",
+  "FEATURE_FLAG_AUTH_PROXY_CAPTCHA",
+  "FEATURE_FLAG_VELOCITY_POLICIES",
+  "FEATURE_FLAG_WALLET_ACCOUNT_NAMES",
+  "FEATURE_FLAG_WALLET_ACCOUNT_BALANCES",
+  "FEATURE_FLAG_TIME_BASED_POLICIES",
+  "FEATURE_FLAG_SEND_WHATSAPP",
+] as const;
+
+export type FlagName = (typeof ALL_FLAGS)[number];
