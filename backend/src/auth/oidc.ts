@@ -8,6 +8,7 @@
  * each user in through Keycloak and calls the operator agent as them.
  */
 import crypto from 'crypto';
+import { OAuthErrorBody, readTokenBody, tokenErrorDetail } from './oauth';
 
 const DEFAULT_ISSUER =
   'https://keycloak.admin.turnkey.engineering/realms/staff';
@@ -47,12 +48,10 @@ interface DiscoveryDocument {
   end_session_endpoint?: string;
 }
 
-interface TokenEndpointResponse {
+interface TokenEndpointResponse extends OAuthErrorBody {
   id_token?: string;
   refresh_token?: string;
   expires_in?: number;
-  error?: string;
-  error_description?: string;
 }
 
 export class OidcError extends Error {
@@ -167,15 +166,12 @@ async function callTokenEndpoint(
     body: params,
   });
 
-  const result = (await response
-    .json()
-    .catch(() => ({}))) as TokenEndpointResponse;
+  const result = await readTokenBody<TokenEndpointResponse>(response);
 
   if (!response.ok) {
     throw new OidcError(
-      `Keycloak rejected the token request (${response.status} ${
-        result.error || ''
-      } ${result.error_description || ''})`.trim()
+      `Keycloak rejected the token request ` +
+        `(${tokenErrorDetail(response.status, result)})`
     );
   }
 
@@ -237,9 +233,11 @@ export function claimsOf(idToken: string): {
   name?: string;
 } {
   try {
+    const [, encodedPayload] = idToken.split('.');
     const payload = JSON.parse(
-      Buffer.from(idToken.split('.')[1], 'base64url').toString()
+      Buffer.from(encodedPayload, 'base64url').toString()
     );
+
     return {
       username: payload.preferred_username,
       email: payload.email,

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Request, Router } from 'express';
 import {
   authorizationUrl,
   claimsOf,
@@ -16,6 +16,7 @@ import {
   rememberPendingLogin,
 } from '../auth/session';
 import { getIdToken as getCachedIdToken } from '../grpc/auth';
+import { handler } from './handler';
 
 const router = Router();
 
@@ -38,7 +39,11 @@ function safePath(value: unknown): string {
  * own port, so it needs an absolute URL to get back to the app; we take it
  * from the page the user clicked from.
  */
-function appOrigin(req: Request, redirectUri: string, loopback: boolean): string {
+function appOrigin(
+  req: Request,
+  redirectUri: string,
+  loopback: boolean
+): string {
   if (!loopback) return new URL(redirectUri).origin;
 
   const referer = req.get('referer');
@@ -66,8 +71,9 @@ function cookieOptions(redirectUri: string) {
 }
 
 // GET /api/auth/me — who the backend will act as, or 401 with a way to fix it.
-router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
-  try {
+router.get(
+  '/me',
+  handler(async (req, res) => {
     const config = getOidcConfig();
     const session = getSession(req.cookies?.[SESSION_COOKIE]);
 
@@ -79,7 +85,8 @@ router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
     if (config.loopback) {
       try {
         // No session, but a warm tkinfra cache is just as good locally.
-        res.json({ source: 'tkinfra', user: claimsOf(await getCachedIdToken()) });
+        const idToken = await getCachedIdToken();
+        res.json({ source: 'tkinfra', user: claimsOf(idToken) });
         return;
       } catch {
         // Stale or absent — fall through to the sign-in prompt.
@@ -87,106 +94,81 @@ router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     res.status(401).json(NOT_SIGNED_IN);
-  } catch (err) {
-    next(err);
-  }
-});
+  })
+);
 
 // GET /api/auth/login — hand off to Keycloak.
 router.get(
   '/login',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const config = getOidcConfig();
-      const origin = appOrigin(req, config.redirectUri, config.loopback);
-      const pending = startLogin(
-        new URL(safePath(req.query.returnTo), origin).toString()
-      );
+  handler(async (req, res) => {
+    const config = getOidcConfig();
+    const origin = appOrigin(req, config.redirectUri, config.loopback);
+    const returnTo = new URL(safePath(req.query.returnTo), origin).toString();
 
-      rememberPendingLogin(
-        pending.state,
-        pending.codeVerifier,
-        pending.returnTo
-      );
-      res.redirect(await authorizationUrl(config, pending));
-    } catch (err) {
-      next(err);
-    }
-  }
+    const pending = startLogin(returnTo);
+    rememberPendingLogin(pending.state, pending.codeVerifier, pending.returnTo);
+
+    res.redirect(await authorizationUrl(config, pending));
+  })
 );
 
 // GET /api/auth/callback — used when a deployment has its own Keycloak client.
 // The local loopback flow is answered by auth/loopback.ts instead.
 router.get(
   '/callback',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const config = getOidcConfig();
+  handler(async (req, res) => {
+    const config = getOidcConfig();
 
-      if (req.query.error) {
-        res.status(400).json({
-          error: String(req.query.error_description || req.query.error),
-        });
-        return;
-      }
-
-      const code = req.query.code;
-      const state = req.query.state;
-
-      if (typeof code !== 'string' || typeof state !== 'string') {
-        res.status(400).json({ error: 'Missing code or state.' });
-        return;
-      }
-
-      // An unknown state means a replayed, forged, or long-abandoned callback.
-      const login = consumePendingLogin(state);
-      if (!login) {
-        res.status(400).json({ error: 'Login expired — please try again.' });
-        return;
-      }
-
-      const tokens = await exchangeCode(config, code, login.codeVerifier);
-
-      res.cookie(
-        SESSION_COOKIE,
-        createSession(tokens),
-        cookieOptions(config.redirectUri)
-      );
-      res.redirect(login.returnTo);
-    } catch (err) {
-      next(err);
+    if (req.query.error) {
+      res.status(400).json({
+        error: String(req.query.error_description || req.query.error),
+      });
+      return;
     }
-  }
+
+    const { code, state } = req.query;
+
+    if (typeof code !== 'string' || typeof state !== 'string') {
+      res.status(400).json({ error: 'Missing code or state.' });
+      return;
+    }
+
+    // An unknown state means a replayed, forged, or long-abandoned callback.
+    const login = consumePendingLogin(state);
+    if (!login) {
+      res.status(400).json({ error: 'Login expired — please try again.' });
+      return;
+    }
+
+    const tokens = await exchangeCode(config, code, login.codeVerifier);
+    const sessionId = createSession(tokens);
+
+    res.cookie(SESSION_COOKIE, sessionId, cookieOptions(config.redirectUri));
+    res.redirect(login.returnTo);
+  })
 );
 
 // POST /api/auth/logout — drop the session, and end it at Keycloak too.
 router.post(
   '/logout',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const config = getOidcConfig();
-      const session = destroySession(req.cookies?.[SESSION_COOKIE]);
+  handler(async (req, res) => {
+    const config = getOidcConfig();
+    const session = destroySession(req.cookies?.[SESSION_COOKIE]);
 
-      res.clearCookie(SESSION_COOKIE, cookieOptions(config.redirectUri));
+    res.clearCookie(SESSION_COOKIE, cookieOptions(config.redirectUri));
 
-      if (!session) {
-        res.json({ logoutUrl: null });
-        return;
-      }
-
-      // Ending the Keycloak session too, so signing out doesn't silently sign
-      // straight back in on the next click.
-      res.json({
-        logoutUrl: await logoutUrl(
-          config,
-          session.tokens.idToken,
-          appOrigin(req, config.redirectUri, config.loopback)
-        ),
-      });
-    } catch (err) {
-      next(err);
+    if (!session) {
+      res.json({ logoutUrl: null });
+      return;
     }
-  }
+
+    // Ending the Keycloak session too, so signing out doesn't silently sign
+    // straight back in on the next click.
+    const origin = appOrigin(req, config.redirectUri, config.loopback);
+    res.json({
+      logoutUrl: await logoutUrl(config, session.tokens.idToken, origin),
+    });
+  })
 );
 
 export default router;

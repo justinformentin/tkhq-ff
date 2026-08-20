@@ -44,13 +44,8 @@ export function startLoopbackListener(config: OidcConfig): http.Server[] {
 
     const error = url.searchParams.get('error');
     if (error) {
-      reply(
-        res,
-        400,
-        `Sign-in failed: ${
-          url.searchParams.get('error_description') || error
-        }. You can close this tab.`
-      );
+      const detail = url.searchParams.get('error_description') || error;
+      reply(res, 400, `Sign-in failed: ${detail}. You can close this tab.`);
       return;
     }
 
@@ -70,9 +65,8 @@ export function startLoopbackListener(config: OidcConfig): http.Server[] {
     }
 
     try {
-      const sessionId = createSession(
-        await exchangeCode(config, code, pending.codeVerifier)
-      );
+      const tokens = await exchangeCode(config, code, pending.codeVerifier);
+      const sessionId = createSession(tokens);
 
       reply(res, 302, 'Signed in. Returning to the app…', {
         // Host-only cookie: ports are not part of cookie scope, so the app on
@@ -81,11 +75,8 @@ export function startLoopbackListener(config: OidcConfig): http.Server[] {
         Location: pending.returnTo,
       });
     } catch (err) {
-      reply(
-        res,
-        500,
-        `Sign-in failed: ${err instanceof Error ? err.message : String(err)}`
-      );
+      const detail = err instanceof Error ? err.message : String(err);
+      reply(res, 500, `Sign-in failed: ${detail}`);
     }
   };
 
