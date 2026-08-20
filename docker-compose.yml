@@ -10,10 +10,7 @@ services:
       - "3001:3001"
     environment:
       - OPERATOR_AGENT_GRPC_HOST=${OPERATOR_AGENT_GRPC_HOST:-localhost}
-      - OPERATOR_AGENT_GRPC_PORT=${OPERATOR_AGENT_GRPC_PORT:-9090}
-      - OPERATOR_AGENT_PROTOCOL=${OPERATOR_AGENT_PROTOCOL:-grpc}
+      - OPERATOR_AGENT_GRPC_PORT=${OPERATOR_AGENT_GRPC_PORT:-4452}
+      - DEFAULT_ENVIRONMENT=${DEFAULT_ENVIRONMENT:-dev}
       - PORT=3001
     restart: unless-stopped
-    # Uncomment to mount a custom proto file (replaces placeholder):
-    # volumes:
-    #   - ./operator_agent.proto:/app/dist/grpc/operator_agent.proto:ro

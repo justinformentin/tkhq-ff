@@ -39,7 +39,14 @@ export function FlagTable() {
     },
   });
 
-  const filtered = (flags || []).filter(
+  // The flag name is the row's identity — it keys the React list and the detail
+  // route — so collapse any repeats the agent reports rather than rendering
+  // rows that can't be told apart.
+  const unique = Array.from(
+    new Map((flags || []).map((f) => [f.flag, f])).values()
+  );
+
+  const filtered = unique.filter(
     (f) =>
       f.flag.toLowerCase().includes(search.toLowerCase()) ||
       formatFlagName(f.flag).toLowerCase().includes(search.toLowerCase())

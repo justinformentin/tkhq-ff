@@ -15,6 +15,11 @@ import {
 
 const router = Router();
 
+// Rows whose enum value the agent can't name come back as the zero value. They
+// carry distinct ids but no addressable name, so every route keyed on :flag
+// would hit the same nonexistent flag — drop them from the list instead.
+const UNNAMED_FLAG = 'FEATURE_FLAG_UNSPECIFIED';
+
 // Backstop for deployments that don't populate FeatureFlagDefinition.is_deprecated.
 const DEPRECATED_FLAGS = new Set([
   'FEATURE_FLAG_AUTH_PROXY',
@@ -59,7 +64,13 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
       {}
     );
     const flags = (response.flags || [])
-      .filter((f) => !f.is_deprecated && !DEPRECATED_FLAGS.has(f.flag))
+      .filter(
+        (f) =>
+          f.flag &&
+          f.flag !== UNNAMED_FLAG &&
+          !f.is_deprecated &&
+          !DEPRECATED_FLAGS.has(f.flag)
+      )
       .map(toFeatureFlag);
     res.json({ flags });
   } catch (err) {
