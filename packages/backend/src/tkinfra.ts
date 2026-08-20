@@ -30,11 +30,11 @@ export interface FlagDetail extends FlagSummary {
 function runTkinfra(args: string, env: Environment = "local"): string {
   const cmd = `tkinfra ff ${args} -e=${env}`;
   try {
+    // NOTE: do not force OPERATOR_AGENT_PROTOCOL here. tkinfra defaults to the
+    // right transport per environment; pinning it to grpc makes every non-local
+    // env fail with "permission denied / server closed the stream".
     const output = execSync(cmd, {
-      env: {
-        ...process.env,
-        OPERATOR_AGENT_PROTOCOL: "grpc",
-      },
+      env: process.env,
       timeout: 30000,
       encoding: "utf8",
     });
@@ -48,24 +48,52 @@ function runTkinfra(args: string, env: Environment = "local"): string {
   }
 }
 
-// Parse the output of `tkinfra ff list`
-// Expected output format (lines like):
-//   FEATURE_FLAG_SEND_SMS: enabled=true percent=100
-//   FEATURE_FLAG_FIAT_ON_RAMP_COINBASE: enabled=false percent=0
-// Actual format may vary — we handle multiple known patterns
+// tkinfra colorizes its output; strip escape sequences before matching.
+// eslint-disable-next-line no-control-regex
+const ANSI_RE = /\x1b\[[0-9;]*m/g;
+
+function stripAnsi(s: string): string {
+  return s.replace(ANSI_RE, "");
+}
+
+// The status line tkinfra prints for a flag, in both `list` and `get`:
+//   FEATURE_FLAG_TVC  (ENABLED)  100% Rollout
+const STATUS_RE = /^(FEATURE_FLAG_\w+)\s+\((ENABLED|DISABLED)\)\s+(\d+)%/i;
+
+function parseStatusLine(
+  line: string
+): { name: string; enabled: boolean; rolloutPercent: number } | null {
+  const m = line.match(STATUS_RE);
+  if (!m) return null;
+  return {
+    name: m[1],
+    enabled: m[2].toUpperCase() === "ENABLED",
+    rolloutPercent: parseInt(m[3], 10),
+  };
+}
+
+// Parse the output of `tkinfra ff list`, one flag per line:
+//   FEATURE_FLAG_TVC  (ENABLED)  100% Rollout
+//   FEATURE_FLAG_CIRCUIT_BREAKER_EMAIL  (ENABLED)  0% Rollout
+// A key=value form is also accepted as a fallback in case the CLI changes.
 export function parseListOutput(output: string): FlagSummary[] {
-  const lines = output.split("\n").filter((l) => l.trim());
   const flags: FlagSummary[] = [];
 
-  for (const line of lines) {
-    // Skip header lines or empty lines
+  for (const raw of output.split("\n")) {
+    const line = stripAnsi(raw).trim();
     if (!line.includes("FEATURE_FLAG_")) continue;
 
-    // Try to match: FEATURE_FLAG_NAME enabled=true percent=50 orgs_allow=2 orgs_disallow=1
+    const status = parseStatusLine(line);
+    if (status) {
+      // Org/product counts aren't in the list output — `get` fills them in.
+      flags.push({ ...status, allowCount: 0, disallowCount: 0 });
+      continue;
+    }
+
+    // Fallback: FEATURE_FLAG_NAME enabled=true percent=50 orgs_allow=2
     const nameMatch = line.match(/FEATURE_FLAG_\w+/);
     if (!nameMatch) continue;
 
-    const name = nameMatch[0];
     const enabledMatch = line.match(/enabled\s*[:=]\s*(true|false)/i);
     const percentMatch = line.match(/percent\s*[:=]\s*(\d+)/i);
     const allowMatch = line.match(/(?:orgs?_allow|allow_count)\s*[:=]\s*(\d+)/i);
@@ -74,7 +102,7 @@ export function parseListOutput(output: string): FlagSummary[] {
     );
 
     flags.push({
-      name,
+      name: nameMatch[0],
       enabled: enabledMatch ? enabledMatch[1].toLowerCase() === "true" : false,
       rolloutPercent: percentMatch ? parseInt(percentMatch[1], 10) : 0,
       allowCount: allowMatch ? parseInt(allowMatch[1], 10) : 0,
@@ -85,67 +113,80 @@ export function parseListOutput(output: string): FlagSummary[] {
   return flags;
 }
 
-// Parse the output of `tkinfra ff get -f FLAG`
+// Parse the output of `tkinfra ff get -f FLAG`:
+//
+//   FEATURE_FLAG_TVC  (ENABLED)  100% Rollout
+//   Whitelisted Orgs ✅:
+//     - 69febc39-7ac1-42c1-9786-f20f9cc52c5b
+//   Blacklisted Orgs ❌:
+//     (none)
+//   Whitelisted Products ✅:
+//     (none)
+//   Blacklisted Products ❌:
+//     (none)
+const SECTION_RE = /^(Whitelisted|Blacklisted)\s+(Orgs|Products)\b/i;
+const UUID_RE =
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
 export function parseGetOutput(flagName: string, output: string): FlagDetail {
-  const lines = output.split("\n").filter((l) => l.trim());
-
-  const enabledMatch = output.match(/enabled\s*[:=]\s*(true|false)/i);
-  const percentMatch = output.match(/(?:rollout_)?percent\s*[:=]\s*(\d+)/i);
-
   const orgRules: OrgRule[] = [];
   const productRules: ProductRule[] = [];
 
-  // Parse org rules - look for UUID-like patterns with allow/disallow
-  for (const line of lines) {
-    // Org line: org_id=<uuid> enabled=true|false  or  allow: <uuid>  or  disallow: <uuid>
-    const orgUuidMatch = line.match(
-      /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
-    );
-    if (orgUuidMatch) {
-      const orgEnabled =
-        line.match(/enabled\s*[:=]\s*(true|false)/i)?.[1]?.toLowerCase() ===
-          "true" ||
-        /\ballow\b/i.test(line.replace(/disallow/gi, ""));
-      const isDisallow = /\bdisallow\b/i.test(line);
-      orgRules.push({
-        orgId: orgUuidMatch[1],
-        enabled: !isDisallow,
-      });
+  let enabled = false;
+  let rolloutPercent = 0;
+  // null until a section header is seen; true=whitelist, false=blacklist
+  let sectionAllows: boolean | null = null;
+  let sectionKind: "orgs" | "products" | null = null;
+
+  for (const raw of output.split("\n")) {
+    const line = stripAnsi(raw).trim();
+    if (!line) continue;
+
+    const status = parseStatusLine(line);
+    if (status) {
+      enabled = status.enabled;
+      rolloutPercent = status.rolloutPercent;
       continue;
     }
 
-    // Product rules: type=free sub_type=scale enabled=true
-    const productTypeMatch = line.match(
-      /(?:product_)?type\s*[:=]\s*(\w+)/i
-    );
-    if (productTypeMatch) {
-      const subTypeMatch = line.match(/sub_?type\s*[:=]\s*(\w+)/i);
-      const prodEnabled =
-        line.match(/enabled\s*[:=]\s*(true|false)/i)?.[1]?.toLowerCase() ===
-        "true";
-      const isDisallow = /\bdisallow\b/i.test(line);
-      productRules.push({
-        productType: productTypeMatch[1],
-        productSubType: subTypeMatch?.[1],
-        enabled: !isDisallow,
-      });
+    const section = line.match(SECTION_RE);
+    if (section) {
+      sectionAllows = section[1].toLowerCase() === "whitelisted";
+      sectionKind = section[2].toLowerCase() === "orgs" ? "orgs" : "products";
+      continue;
+    }
+
+    if (sectionAllows === null || line === "(none)") continue;
+
+    const item = line.replace(/^[-*•]\s*/, "").trim();
+    if (!item || item === "(none)") continue;
+
+    if (sectionKind === "orgs") {
+      const uuid = item.match(UUID_RE);
+      if (uuid) orgRules.push({ orgId: uuid[0], enabled: sectionAllows });
+      continue;
+    }
+
+    // Products render as "TYPE", "TYPE / SUBTYPE", or "TYPE (SUBTYPE)".
+    const [productType, productSubType] = item
+      .split(/\s*[/(]\s*/)
+      .map((part) => part.replace(/\)$/, "").trim())
+      .filter(Boolean);
+    if (productType) {
+      productRules.push({ productType, productSubType, enabled: sectionAllows });
     }
   }
 
-  const detail: FlagDetail = {
+  return {
     name: flagName,
-    enabled: enabledMatch
-      ? enabledMatch[1].toLowerCase() === "true"
-      : false,
-    rolloutPercent: percentMatch ? parseInt(percentMatch[1], 10) : 0,
+    enabled,
+    rolloutPercent,
     allowCount: orgRules.filter((o) => o.enabled).length,
     disallowCount: orgRules.filter((o) => !o.enabled).length,
     orgRules,
     productRules,
     rawOutput: output,
   };
-
-  return detail;
 }
 
 // API functions

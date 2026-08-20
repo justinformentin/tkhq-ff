@@ -57,9 +57,11 @@ export function FlagTable({
 
       {/* Rows */}
       <div className="overflow-y-auto max-h-[calc(100vh-160px)]">
-        {flags.map((flag) => (
+        {/* Names aren't unique: flags whose enum this tkinfra build doesn't
+            know all render as FEATURE_FLAG_UNSPECIFIED. */}
+        {flags.map((flag, i) => (
           <FlagRow
-            key={flag.name}
+            key={`${flag.name}-${i}`}
             flag={flag}
             isSelected={selectedFlag === flag.name}
             onSelect={onSelect}
