@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { agentCall } from '../grpc/client';
+import { idTokenOf } from '../auth/identity';
 import { EmptyResponse } from '../grpc/types';
 import { listFlags, listFlagsWithOrgs, readFlag } from '../services/flags';
 import { envOf } from './env';
@@ -13,10 +14,11 @@ const router = Router();
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const env = envOf(req);
+    const idToken = await idTokenOf(req);
     const flags =
       req.query.with_orgs === 'true'
-        ? await listFlagsWithOrgs(env)
-        : await listFlags(env);
+        ? await listFlagsWithOrgs(env, idToken)
+        : await listFlags(env, idToken);
     res.json({ flags });
   } catch (err) {
     next(err);
@@ -28,7 +30,7 @@ router.get(
   '/:flag',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag, await idTokenOf(req)) });
     } catch (err) {
       next(err);
     }
@@ -47,12 +49,13 @@ router.put(
       await agentCall<
         { flag: string; enabled: boolean; rollout_percent: number },
         EmptyResponse
-      >(envOf(req), 'SetFeatureFlag', {
-        flag: req.params.flag,
-        enabled,
-        rollout_percent,
-      });
-      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
+      >(
+        envOf(req),
+        'SetFeatureFlag',
+        { flag: req.params.flag, enabled, rollout_percent },
+        await idTokenOf(req)
+      );
+      res.json({ flag: await readFlag(envOf(req), req.params.flag, await idTokenOf(req)) });
     } catch (err) {
       next(err);
     }
@@ -72,12 +75,13 @@ router.post(
       await agentCall<
         { flag: string; org_id: string; enabled: boolean },
         EmptyResponse
-      >(envOf(req), 'AddFeatureFlagOrg', {
-        flag: req.params.flag,
-        org_id,
-        enabled,
-      });
-      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
+      >(
+        envOf(req),
+        'AddFeatureFlagOrg',
+        { flag: req.params.flag, org_id, enabled },
+        await idTokenOf(req)
+      );
+      res.json({ flag: await readFlag(envOf(req), req.params.flag, await idTokenOf(req)) });
     } catch (err) {
       next(err);
     }
@@ -92,12 +96,10 @@ router.delete(
       await agentCall<{ flag: string; org_id: string }, EmptyResponse>(
         envOf(req),
         'RemoveFeatureFlagOrg',
-        {
-          flag: req.params.flag,
-          org_id: req.params.org_id,
-        }
+        { flag: req.params.flag, org_id: req.params.org_id },
+        await idTokenOf(req)
       );
-      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag, await idTokenOf(req)) });
     } catch (err) {
       next(err);
     }
@@ -125,13 +127,18 @@ router.post(
           enabled: boolean;
         },
         EmptyResponse
-      >(envOf(req), 'AddFeatureFlagProduct', {
-        flag: req.params.flag,
-        product_type,
-        product_sub_type: product_sub_type || 'PRODUCT_SUB_TYPE_UNSPECIFIED',
-        enabled,
-      });
-      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
+      >(
+        envOf(req),
+        'AddFeatureFlagProduct',
+        {
+          flag: req.params.flag,
+          product_type,
+          product_sub_type: product_sub_type || 'PRODUCT_SUB_TYPE_UNSPECIFIED',
+          enabled,
+        },
+        await idTokenOf(req)
+      );
+      res.json({ flag: await readFlag(envOf(req), req.params.flag, await idTokenOf(req)) });
     } catch (err) {
       next(err);
     }
@@ -147,12 +154,17 @@ router.delete(
       await agentCall<
         { flag: string; product_type: string; product_sub_type: string },
         EmptyResponse
-      >(envOf(req), 'RemoveFeatureFlagProduct', {
-        flag: req.params.flag,
-        product_type: req.params.product_type,
-        product_sub_type: req.params.product_sub_type,
-      });
-      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
+      >(
+        envOf(req),
+        'RemoveFeatureFlagProduct',
+        {
+          flag: req.params.flag,
+          product_type: req.params.product_type,
+          product_sub_type: req.params.product_sub_type,
+        },
+        await idTokenOf(req)
+      );
+      res.json({ flag: await readFlag(envOf(req), req.params.flag, await idTokenOf(req)) });
     } catch (err) {
       next(err);
     }

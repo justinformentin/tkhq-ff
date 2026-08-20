@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { listFlagsWithOrgs } from '../services/flags';
 import { envOf } from './env';
+import { idTokenOf } from '../auth/identity';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ router.get(
     try {
       // Org ids are UUIDs; the agent's casing need not match what was pasted in.
       const orgId = req.params.org_id.trim().toLowerCase();
-      const matches = (await listFlagsWithOrgs(envOf(req)))
+      const matches = (await listFlagsWithOrgs(envOf(req), await idTokenOf(req)))
         .map((flag) => ({
           flag,
           in_allowed: flag.allowed_orgs.some(

@@ -1,21 +1,35 @@
 import 'dotenv/config';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
+import authRouter from './routes/auth';
 import flagsRouter from './routes/flags';
 import orgsRouter from './routes/orgs';
 import { errorHandler } from './middleware/errorHandler';
+import { requireIdentity } from './auth/identity';
+import { getOidcConfig } from './auth/oidc';
+import { startLoopbackListener } from './auth/loopback';
 import { DEFAULT_ENVIRONMENT, listEnvironments } from './config/environments';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// Credentials are a session cookie, so a wildcard origin would be both
+// rejected by browsers and unsafe. Deployments name their own origin.
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(',') ?? true,
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
 
 // API routes
-app.use('/api/flags', flagsRouter);
-app.use('/api/orgs', orgsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/flags', requireIdentity, flagsRouter);
+app.use('/api/orgs', requireIdentity, orgsRouter);
 
 // Environments the UI can switch between.
 app.get('/api/environments', (_req, res) => {
@@ -46,6 +60,11 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
+  const oidc = getOidcConfig();
+  console.log(
+    `Sign-in: ${oidc.loopback ? 'loopback (local dev)' : oidc.redirectUri}`
+  );
+  if (oidc.loopback) startLoopbackListener(oidc);
   console.log(`Default environment: ${DEFAULT_ENVIRONMENT}`);
   for (const { name, transport, target } of listEnvironments()) {
     console.log(`  ${name.padEnd(8)} ${transport.padEnd(5)} ${target}`);

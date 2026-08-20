@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import * as grpc from '@grpc/grpc-js';
 import { AuthError } from '../grpc/auth';
+import { NotLoggedInError } from '../auth/identity';
+import { OidcError } from '../auth/oidc';
 import { AgentHttpError } from '../grpc/http';
 import { InvalidEnvironmentError } from '../config/environments';
 
@@ -11,6 +13,18 @@ export function errorHandler(
   _next: NextFunction
 ): void {
   console.error('Error:', err);
+
+  // No session yet — the UI turns this into a sign-in prompt.
+  if (err instanceof NotLoggedInError) {
+    res.status(401).json({ error: err.message, loginUrl: err.loginUrl });
+    return;
+  }
+
+  // Misconfigured OIDC is an operator problem, not a caller problem.
+  if (err instanceof OidcError) {
+    res.status(500).json({ error: err.message });
+    return;
+  }
 
   // Couldn't get a Keycloak token at all — the caller needs to log in, which
   // is actionable in a way a generic 500 isn't.

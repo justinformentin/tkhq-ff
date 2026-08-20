@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { Flag } from 'lucide-react';
 import { EnvSelector } from './EnvSelector';
+import { UserMenu } from './UserMenu';
 
 const navItems = [
   { href: '/flags', label: 'Feature Flags' },
@@ -50,7 +51,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
             </nav>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-4">
+              <UserMenu />
               <EnvSelector />
             </div>
           </div>

@@ -39,22 +39,28 @@ const MAX_CONCURRENT_READS = 8;
 
 export async function readFlag(
   env: Environment,
-  flag: string
+  flag: string,
+  idToken: string
 ): Promise<FeatureFlag> {
   const response = await agentCall<{ flag: string }, GetFeatureFlagResponse>(
     env,
     'GetFeatureFlag',
-    { flag }
+    { flag },
+    idToken
   );
   return toFeatureFlag(response.flag);
 }
 
 /** ListFeatureFlags, minus the unnamed and deprecated rows. Org lists are empty. */
-export async function listFlags(env: Environment): Promise<FeatureFlag[]> {
+export async function listFlags(
+  env: Environment,
+  idToken: string
+): Promise<FeatureFlag[]> {
   const response = await agentCall<object, ListFeatureFlagsResponse>(
     env,
     'ListFeatureFlags',
-    {}
+    {},
+    idToken
   );
   return (response.flags || [])
     .filter(
@@ -72,15 +78,16 @@ export async function listFlags(env: Environment): Promise<FeatureFlag[]> {
  * overrides are populated. Order matches `listFlags`.
  */
 export async function listFlagsWithOrgs(
-  env: Environment
+  env: Environment,
+  idToken: string
 ): Promise<FeatureFlag[]> {
-  const names = (await listFlags(env)).map((f) => f.flag);
+  const names = (await listFlags(env, idToken)).map((f) => f.flag);
   const hydrated = new Array<FeatureFlag>(names.length);
   let next = 0;
 
   async function worker(): Promise<void> {
     for (let i = next++; i < names.length; i = next++) {
-      hydrated[i] = await readFlag(env, names[i]);
+      hydrated[i] = await readFlag(env, names[i], idToken);
     }
   }
 

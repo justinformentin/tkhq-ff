@@ -5,8 +5,6 @@
  * matching tkinfra's HTTP transport
  * (mono: src/go/tkinfra/internal/agent/client/transport.go).
  */
-import { getIdToken } from './auth';
-
 const SERVICE_PATH = '/services.operator_agent.v1.OperatorAgentService';
 const REQUEST_TIMEOUT_MS = 30_000;
 
@@ -43,7 +41,8 @@ function toSnakeCase(value: unknown): unknown {
 export async function httpCall<TReq, TRes>(
   baseUrl: string,
   method: string,
-  request: TReq
+  request: TReq,
+  idToken: string
 ): Promise<TRes> {
   const response = await fetch(`${baseUrl}${SERVICE_PATH}/${method}`, {
     method: 'POST',
@@ -52,7 +51,7 @@ export async function httpCall<TReq, TRes>(
       Accept: 'application/json',
       // protojson accepts either the proto field names or their lowerCamelCase
       // forms, so requests go out as-is.
-      'X-ID-Token': await getIdToken(),
+      'X-ID-Token': idToken,
     },
     body: JSON.stringify(request ?? {}),
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
