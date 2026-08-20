@@ -30,6 +30,17 @@ export interface GetFlagResponse {
   flag: FeatureFlag;
 }
 
+export interface OrgFlagMatch {
+  flag: FeatureFlag;
+  in_allowed: boolean;
+  in_disallowed: boolean;
+}
+
+export interface OrgSearchResponse {
+  org_id: string;
+  matches: OrgFlagMatch[];
+}
+
 export const ANY_SUB_TYPE = 'PRODUCT_SUB_TYPE_UNSPECIFIED';
 
 export const PRODUCT_TYPE_NAMES: Record<string, string> = {

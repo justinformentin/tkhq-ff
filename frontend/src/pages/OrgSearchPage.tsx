@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { listFlags } from '../lib/api';
+import { searchOrg } from '../lib/api';
 import { formatFlagName } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
@@ -11,33 +11,15 @@ export function OrgSearchPage() {
   const [searchedOrg, setSearchedOrg] = useState('');
   const { env } = useEnvironment();
 
-  const { data: flags, isLoading } = useQuery({
-    queryKey: ['flags', env],
-    queryFn: () => listFlags(env),
+  const {
+    data: results,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['org-search', env, searchedOrg],
+    queryFn: () => searchOrg(searchedOrg, env),
     enabled: !!searchedOrg,
   });
-
-  const results =
-    searchedOrg && flags
-      ? flags
-          .filter((flag) => {
-            const inAllowed = flag.allowed_orgs?.some(
-              (o) => o.org_id === searchedOrg
-            );
-            const inDisallowed = flag.disallowed_orgs?.some(
-              (o) => o.org_id === searchedOrg
-            );
-            return inAllowed || inDisallowed;
-          })
-          .map((flag) => ({
-            flag,
-            inAllowed:
-              flag.allowed_orgs?.some((o) => o.org_id === searchedOrg) || false,
-            inDisallowed:
-              flag.disallowed_orgs?.some((o) => o.org_id === searchedOrg) ||
-              false,
-          }))
-      : [];
 
   function handleSearch() {
     if (orgInput.trim()) setSearchedOrg(orgInput.trim());
@@ -89,14 +71,24 @@ export function OrgSearchPage() {
             >
               Searching...
             </div>
+          ) : error ? (
+            <div
+              className="rounded-lg border px-4 py-3 text-sm"
+              style={{
+                borderColor: 'var(--color-danger)',
+                color: 'var(--color-danger)',
+              }}
+            >
+              {error instanceof Error ? error.message : 'Search failed'}
+            </div>
           ) : (
             <>
               <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                {results.length === 0
+                {!results?.length
                   ? `No flag overrides found for ${searchedOrg}`
                   : `${results.length} flag${results.length !== 1 ? 's' : ''} with overrides for this org`}
               </p>
-              {results.map(({ flag, inAllowed, inDisallowed }) => (
+              {(results ?? []).map(({ flag, in_allowed, in_disallowed }) => (
                 <Link
                   key={flag.flag}
                   to={`/flags/${flag.flag}`}
@@ -123,7 +115,7 @@ export function OrgSearchPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      {inAllowed && (
+                      {in_allowed && (
                         <span
                           className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                           style={{
@@ -134,7 +126,7 @@ export function OrgSearchPage() {
                           Allowed
                         </span>
                       )}
-                      {inDisallowed && (
+                      {in_disallowed && (
                         <span
                           className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                           style={{

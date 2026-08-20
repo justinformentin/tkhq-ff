@@ -15,9 +15,11 @@ export function FlagTable() {
   const { toast } = useToast();
   const { env } = useEnvironment();
 
+  // withOrgs: the Overrides column counts org rules, which the plain list
+  // response doesn't carry.
   const { data: flags, isLoading, error } = useQuery({
     queryKey: ['flags', env],
-    queryFn: () => listFlags(env),
+    queryFn: () => listFlags(env, true),
   });
 
   const toggleMutation = useMutation({

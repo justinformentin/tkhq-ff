@@ -1,5 +1,11 @@
 import axios from 'axios';
-import type { FeatureFlag, ListFlagsResponse, GetFlagResponse } from '../types';
+import type {
+  FeatureFlag,
+  ListFlagsResponse,
+  GetFlagResponse,
+  OrgFlagMatch,
+  OrgSearchResponse,
+} from '../types';
 import type { Environment } from './environment';
 
 const api = axios.create({
@@ -13,9 +19,30 @@ function forEnv(env: Environment) {
   return { params: { env } };
 }
 
-export async function listFlags(env: Environment): Promise<FeatureFlag[]> {
-  const res = await api.get<ListFlagsResponse>('/flags', forEnv(env));
+// The upstream list RPC leaves every flag's org lists empty, so anything that
+// renders override counts has to ask for `with_orgs` — it costs the backend one
+// extra read per flag.
+export async function listFlags(
+  env: Environment,
+  withOrgs = false
+): Promise<FeatureFlag[]> {
+  const res = await api.get<ListFlagsResponse>('/flags', {
+    params: { env, ...(withOrgs ? { with_orgs: 'true' } : {}) },
+  });
   return res.data.flags;
+}
+
+// Org overrides are only populated by the per-flag read, so this search runs
+// on the backend rather than by filtering the flag list here.
+export async function searchOrg(
+  org_id: string,
+  env: Environment
+): Promise<OrgFlagMatch[]> {
+  const res = await api.get<OrgSearchResponse>(
+    `/orgs/${encodeURIComponent(org_id)}/flags`,
+    forEnv(env)
+  );
+  return res.data.matches;
 }
 
 export async function getFlag(

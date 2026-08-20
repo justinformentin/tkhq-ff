@@ -1,77 +1,22 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { agentCall } from '../grpc/client';
-import {
-  DEFAULT_ENVIRONMENT,
-  Environment,
-  InvalidEnvironmentError,
-  isEnvironment,
-} from '../config/environments';
-import {
-  EmptyResponse,
-  GetFeatureFlagResponse,
-  ListFeatureFlagsResponse,
-  toFeatureFlag,
-} from '../grpc/types';
+import { EmptyResponse } from '../grpc/types';
+import { listFlags, listFlagsWithOrgs, readFlag } from '../services/flags';
+import { envOf } from './env';
 
 const router = Router();
 
-// Rows whose enum value the agent can't name come back as the zero value. They
-// carry distinct ids but no addressable name, so every route keyed on :flag
-// would hit the same nonexistent flag — drop them from the list instead.
-const UNNAMED_FLAG = 'FEATURE_FLAG_UNSPECIFIED';
-
-// Backstop for deployments that don't populate FeatureFlagDefinition.is_deprecated.
-const DEPRECATED_FLAGS = new Set([
-  'FEATURE_FLAG_AUTH_PROXY',
-  'FEATURE_FLAG_ACCOUNT_SETTINGS',
-  'FEATURE_FLAG_CREATE_PRIVATE_KEY',
-  'FEATURE_FLAG_OAUTH',
-  'FEATURE_FLAG_SEND_EMAILS',
-  'FEATURE_FLAG_SES_EMAIL',
-  'FEATURE_FLAG_SUB_ORGS_UI',
-]);
-
-// Every route is scoped to one environment, chosen by ?env=. An unknown value
-// is rejected rather than silently falling back, so a typo can't send a write
-// to the wrong environment.
-function envOf(req: Request): Environment {
-  const value = req.query.env ?? DEFAULT_ENVIRONMENT;
-
-  if (!isEnvironment(value)) {
-    throw new InvalidEnvironmentError(String(value));
-  }
-
-  return value;
-}
-
-// The mutating RPCs return empty messages, so re-read the flag to hand the
-// caller its new state.
-async function readFlag(env: Environment, flag: string) {
-  const response = await agentCall<{ flag: string }, GetFeatureFlagResponse>(
-    env,
-    'GetFeatureFlag',
-    { flag }
-  );
-  return toFeatureFlag(response.flag);
-}
-
 // GET /api/flags → ListFeatureFlags
+// ?with_orgs=true re-reads every flag so the org override lists are filled in;
+// the plain list leaves them empty. It costs one upstream call per flag, so
+// it's opt-in.
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const response = await agentCall<object, ListFeatureFlagsResponse>(
-      envOf(req),
-      'ListFeatureFlags',
-      {}
-    );
-    const flags = (response.flags || [])
-      .filter(
-        (f) =>
-          f.flag &&
-          f.flag !== UNNAMED_FLAG &&
-          !f.is_deprecated &&
-          !DEPRECATED_FLAGS.has(f.flag)
-      )
-      .map(toFeatureFlag);
+    const env = envOf(req);
+    const flags =
+      req.query.with_orgs === 'true'
+        ? await listFlagsWithOrgs(env)
+        : await listFlags(env);
     res.json({ flags });
   } catch (err) {
     next(err);

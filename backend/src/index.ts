@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import flagsRouter from './routes/flags';
+import orgsRouter from './routes/orgs';
 import { errorHandler } from './middleware/errorHandler';
 import { DEFAULT_ENVIRONMENT, listEnvironments } from './config/environments';
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 // API routes
 app.use('/api/flags', flagsRouter);
+app.use('/api/orgs', orgsRouter);
 
 // Environments the UI can switch between.
 app.get('/api/environments', (_req, res) => {
