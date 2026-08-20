@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package external.data.v1;
+
+import "external/data/v1/common.proto";
+import "immutable/common/v1/common.proto";
+import "immutable/models/v1/models.proto";
+import "vendor/google/api/field_behavior.proto";
+import "vendor/protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/tkhq/mono/src/go/gen/pkg/external/data/v1";
+
+message BootProof {
+  string ephemeral_public_key_hex = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The hex encoded Ephemeral Public Key."}
+  ];
+  string aws_attestation_doc_b64 = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The DER encoded COSE Sign1 struct Attestation doc."}
+  ];
+  string qos_manifest_b64 = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The base64 encoded QOS manifest. Encoding depends on qos_manifest_version."}
+  ];
+  string qos_manifest_envelope_b64 = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version."}
+  ];
+  string deployment_label = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The label under which the enclave app was deployed."}
+  ];
+  string enclave_app = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Name of the enclave app"}
+  ];
+  string owner = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Owner of the app i.e. 'tkhq'"}
+  ];
+  Timestamp created_at = 8 [(google.api.field_behavior) = REQUIRED];
+  optional string qos_manifest_version = 9 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "QOS manifest schema version."}];
+}
+
+message AppProof {
+  SignatureScheme scheme = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Scheme of signing key."}
+  ];
+  string public_key = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Ephemeral public key."}
+  ];
+  string proof_payload = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "JSON serialized AppProofPayload."}
+  ];
+  string signature = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Signature over hashed proof_payload."}
+  ];
+}
+
+enum SignatureScheme {
+  SIGNATURE_SCHEME_UNSPECIFIED = 0;
+  // Scheme used by our enclave applications
+  SIGNATURE_SCHEME_EPHEMERAL_KEY_P256 = 1;
+}
+
+message AppProofPayload {
+  AppProofType type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Type of App Proof"}
+  ];
+  string timestamp_ms = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Timestamp of App Proof creation. Comes directly from the NSM (Nitro Secure Module)."}
+  ];
+  oneof proof_payload {
+    AddressDerivationProofPayload address_derivation_proof = 3;
+    PolicyOutcomeProofPayload policy_outcome_proof = 4;
+  }
+}
+
+enum AppProofType {
+  APP_PROOF_TYPE_UNSPECIFIED = 0;
+  APP_PROOF_TYPE_ADDRESS_DERIVATION = 1;
+  APP_PROOF_TYPE_POLICY_OUTCOME = 2;
+}
+
+message AddressDerivationProofPayload {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  optional string wallet_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Wallet."}];
+  optional string derivation_path = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Path corresponding to a wallet Account."}];
+  string address = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Derived cryptocurrency address."}
+  ];
+}
+
+message PolicyOutcomeProofPayload {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  immutable.common.v1.Outcome outcome = 2;
+  string decision_context_digest = 3;
+  string organization_data_digest = 4;
+  string parent_organization_data_digest = 5;
+  repeated immutable.models.v1.Signature user_request_approvals = 6;
+}

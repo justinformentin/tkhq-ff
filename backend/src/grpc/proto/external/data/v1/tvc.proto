@@ -1,0 +1,270 @@
+syntax = "proto3";
+
+package external.data.v1;
+
+import "external/data/v1/common.proto";
+import "immutable/common/v1/common.proto";
+import "vendor/google/api/field_behavior.proto";
+import "vendor/protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/tkhq/mono/src/go/gen/pkg/external/data/v1";
+
+message TvcApp {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier for this TVC App."}
+  ];
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier of the Organization for this TVC App"}
+  ];
+  string name = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Name for this TVC App."}
+  ];
+  string quorum_public_key = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Public key for the Quorum Key associated with this TVC App"}
+  ];
+  TvcOperatorSet manifest_set = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Manifest Set (people who can approve manifests)"}
+  ];
+  TvcOperatorSet share_set = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Share Set (people who have a share of the Quorum Key)"}
+  ];
+  bool enable_egress = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Whether or not this TVC App has network egress enabled."}
+  ];
+  Timestamp created_at = 8 [(google.api.field_behavior) = REQUIRED];
+  Timestamp updated_at = 9 [(google.api.field_behavior) = REQUIRED];
+  optional string live_deployment_id = 10 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The deployment currently designated to receive traffic. Null if no deployment for this app is deployed."}];
+  string public_domain = 11 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The public domain for ingress to this TVC App (in the format \"app-<ID>.turnkey.cloud\")."}
+  ];
+  bool enable_debug_mode_deployments = 12 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture."}
+  ];
+}
+
+message TvcDeployment {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier for this TVC Deployment."}
+  ];
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier of the Organization for this TVC Deployment"}
+  ];
+  string app_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier of the TVC App for this deployment"}
+  ];
+  TvcOperatorSet manifest_set = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Set of TVC operators who can approve this deployment"}
+  ];
+  TvcOperatorSet share_set = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Set of TVC operators who have a share of the Quorum Key"}
+  ];
+  TvcManifest manifest = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The manifest used for this deployment"}
+  ];
+  repeated TvcOperatorApproval manifest_approvals = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "List of operator approvals for this manifest"}
+  ];
+  string qos_version = 8 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "QOS Version used for this deployment"}
+  ];
+  TvcContainerSpec pivot_container = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The pivot container spec for this deployment"}
+  ];
+  reserved 11;
+  reserved "stage";
+  Timestamp created_at = 12 [(google.api.field_behavior) = REQUIRED];
+  Timestamp updated_at = 13 [(google.api.field_behavior) = REQUIRED];
+  bool delete = 14 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Whether or not the user wants this deployment deleted from the cluster."}
+  ];
+  bool debug_mode = 15 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Whether this deployment is running in debug mode. Debug-mode deployments expose enclave logs and cannot be remotely attested."}
+  ];
+}
+
+message TvcContainerSpec {
+  string container_url = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The URL for this container image."}
+  ];
+  string path = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The path (in-container) to the executable binary."}
+  ];
+  repeated string args = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The arguments to pass to the executable."}
+  ];
+  bool has_pull_secret = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Whether or not this container requires a pull secret to access."}
+  ];
+  immutable.common.v1.TvcHealthCheckType health_check_type = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The type of health check to perform against this executable."}
+  ];
+  uint32 health_check_port = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The port to use for health checks against this executable."}
+  ];
+  uint32 public_ingress_port = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The port to use for public ingress to this executable."}
+  ];
+}
+
+message TvcOperatorApproval {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique ID for this approval"}
+  ];
+  string manifest_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier of the TVC Manifest being approved"}
+  ];
+  TvcOperator operator = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The TVC Operator who made this approval"}
+  ];
+  bytes approval = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Signature of the operator over the deployment manifest"}
+  ];
+  Timestamp created_at = 7 [(google.api.field_behavior) = REQUIRED];
+  Timestamp updated_at = 8 [(google.api.field_behavior) = REQUIRED];
+}
+
+message TvcOperatorSet {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier for this TVC Operator Set."}
+  ];
+  string name = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Name of this TVC Operator Set."}
+  ];
+  string organization_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier of the Organization for this TVC Operator Set"}
+  ];
+  repeated TvcOperator operators = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "List of TVC Operators in this set"}
+  ];
+  uint32 threshold = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Threshold number of operators required for quorum."}
+  ];
+  Timestamp created_at = 7 [(google.api.field_behavior) = REQUIRED];
+  Timestamp updated_at = 8 [(google.api.field_behavior) = REQUIRED];
+}
+
+message TvcOperator {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier for this TVC Operator."}
+  ];
+  string name = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Name of this TVC Operator."}
+  ];
+  string public_key = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Public key for this TVC Operator."}
+  ];
+  Timestamp created_at = 4 [(google.api.field_behavior) = REQUIRED];
+  Timestamp updated_at = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message TvcManifest {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique Identifier for this TVC Manifest."}
+  ];
+  bytes manifest = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The manifest content (raw UTF-8 JSON bytes)"}
+  ];
+  Timestamp created_at = 3 [(google.api.field_behavior) = REQUIRED];
+  Timestamp updated_at = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ProvisioningState describes the observed quorum-key provisioning progress of
+// a TVC deployment.
+enum ProvisioningState {
+  // The provisioning state was not reported. This value supports responses
+  // produced before provisioning state reporting was introduced.
+  PROVISIONING_STATE_UNSPECIFIED = 0;
+
+  // The deployment is starting up and provisioning details are not yet
+  // available.
+  PROVISIONING_STATE_PENDING = 1;
+
+  // A deployment replica is ready to accept quorum key provisioning.
+  PROVISIONING_STATE_AWAITING_PROVISION = 2;
+
+  // At least one deployment replica has a provisioned quorum key.
+  PROVISIONING_STATE_PROVISIONED = 3;
+}
+
+message DeploymentStatus {
+  string deployment_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for this deployment (corresponds to k8s deployment label)"}
+  ];
+  int32 ready_replicas = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Number of ready replicas"}
+  ];
+  int32 desired_replicas = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Desired number of replicas"}
+  ];
+  Timestamp last_updated_time = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Last time this deployment was updated"}
+  ];
+}
+
+message AppStatus {
+  string app_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for this TVC App"}
+  ];
+  repeated DeploymentStatus deployments = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "List of deployment statuses for this app"}
+  ];
+  string targeted_deployment_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The deployment ID currently serving traffic for this app"}
+  ];
+}
+
+message LogLine {
+  string content = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "One log line, exactly as the application printed it (without the trailing newline)"}
+  ];
+  Timestamp ts = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "When the line was logged. Stable across replays, so lines can be chronologically merged across pods"}];
+}

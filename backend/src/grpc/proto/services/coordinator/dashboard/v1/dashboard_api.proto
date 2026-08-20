@@ -1,0 +1,2664 @@
+syntax = "proto3";
+
+package services.coordinator.dashboard.v1;
+
+import "external/activity/v1/activity.proto";
+import "external/data/v1/earn.proto";
+import "external/data/v1/mfa_status.proto";
+import "external/data/v1/organization_data.proto";
+import "external/data/v1/proofs.proto";
+import "external/data/v1/session_profile.proto";
+import "external/data/v1/smart_contract_interface.proto";
+import "external/data/v1/tvc.proto";
+import "external/data/v1/wallet_account.proto";
+import "external/options/v1/options.proto";
+import "external/webauthn/v1/webauthn.proto";
+import "google/protobuf/timestamp.proto";
+import "immutable/activity/v1/activity.proto";
+import "immutable/common/v1/common.proto";
+import "immutable/common/v1/product.proto";
+import "immutable/data/v1/earn.proto";
+import "immutable/webauthn/v1/webauthn.proto";
+import "vendor/google/api/annotations.proto";
+import "vendor/google/api/field_behavior.proto";
+import "vendor/google/api/visibility.proto";
+import "vendor/protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/tkhq/mono/src/go/gen/pkg/services/coordinator/dashboard/v1";
+
+service DashboardApiService {
+  option (google.api.api_visibility).restriction = "INTERNAL";
+
+  rpc Whoami(WhoamiRequest) returns (WhoamiResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/whoami"};
+  }
+
+  rpc InitialSignup(InitialSignupRequest) returns (InitialSignupResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/initial-signup"
+      body: "*"
+    };
+  }
+
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/logout"
+      body: "*"
+    };
+  }
+
+  rpc MagicLinkAuth(MagicLinkAuthRequest) returns (MagicLinkAuthResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/magic-link-auth"
+      body: "*"
+    };
+  }
+
+  rpc SendLoginMagicLink(SendLoginMagicLinkRequest) returns (SendLoginMagicLinkResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/send-login-magic-link"
+      body: "*"
+    };
+  }
+
+  rpc GetSignupContext(GetSignupContextRequest) returns (GetSignupContextResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/signup-context"};
+  }
+
+  rpc GetInvitationContext(GetInvitationContextRequest) returns (GetInvitationContextResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/invitation-context"};
+  }
+
+  rpc GetLoginContext(GetLoginContextRequest) returns (GetLoginContextResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/login-context"};
+  }
+
+  rpc GetPreflightContext(GetPreflightContextRequest) returns (GetPreflightContextResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/preflight-context"};
+  }
+
+  rpc ParseTransaction(ParseTransactionRequest) returns (ParseTransactionResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/parse-transaction"};
+  }
+
+  rpc ClearPreflightSession(ClearPreflightSessionRequest) returns (ClearPreflightSessionResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/preflight-sessions/delete"
+      body: "*"
+    };
+  }
+
+  rpc Health(HealthRequest) returns (HealthResponse) {
+    option (google.api.http) = {get: "/health"};
+  }
+
+  rpc CreatePrivateKeys(external.activity.v1.CreatePrivateKeysRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_keys"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreatePrivateKeys(external.activity.v1.CreatePrivateKeysRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_keys/validate"
+      body: "*"
+    };
+  }
+
+  rpc GetPrivateKeys(GetPrivateKeysRequest) returns (GetPrivateKeysResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/private_keys"};
+  }
+
+  rpc GetPrivateKey(GetPrivateKeyRequest) returns (GetPrivateKeyResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/private_keys/{private_key_id}"};
+  }
+
+  rpc GetWallets(GetWalletsRequest) returns (GetWalletsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/wallets"};
+  }
+
+  rpc GetWallet(GetWalletRequest) returns (GetWalletResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/wallets/{wallet_id}"};
+  }
+
+  rpc CreateWallet(external.activity.v1.CreateWalletRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/wallets"
+      body: "*"
+    };
+  }
+
+  rpc CreateWalletAccounts(external.activity.v1.CreateWalletAccountsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/wallet_accounts"
+      body: "*"
+    };
+  }
+
+  rpc UpdateWalletAccountName(external.activity.v1.UpdateWalletAccountNameRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/wallet_accounts/update_name"
+      body: "*"
+    };
+  }
+
+  rpc GetWalletAccounts(GetWalletAccountsRequest) returns (GetWalletAccountsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/wallets/{wallet_id}/accounts"};
+  }
+
+  rpc GetWalletAccountCount(GetWalletAccountCountRequest) returns (GetWalletAccountCountResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/wallets/{wallet_id}/accountsCount"};
+  }
+
+  rpc GetWalletAddressBalances(GetWalletAddressBalancesRequest) returns (GetWalletAddressBalancesResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_wallet_address_balances"
+      body: "*"
+    };
+  }
+
+  rpc ListSupportedAssets(ListSupportedAssetsRequest) returns (ListSupportedAssetsResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/list_supported_assets"
+      body: "*"
+    };
+  }
+
+  rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}"};
+  }
+
+  rpc CreateOrganization(external.activity.v1.CreateOrganizationRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/organizations"
+      body: "*"
+    };
+  }
+
+  rpc CreateInvitations(external.activity.v1.CreateInvitationsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/invitations"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreateInvitations(external.activity.v1.CreateInvitationsRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/invitations/validate"
+      body: "*"
+    };
+  }
+
+  rpc DeleteInvitation(external.activity.v1.DeleteInvitationRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/invitations/delete"
+      body: "*"
+    };
+  }
+
+  rpc AcceptInvitation(external.activity.v1.AcceptInvitationRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/invitations/accept"
+      body: "*"
+    };
+  }
+
+  rpc CreateUsers(external.activity.v1.CreateUsersRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreateUsers(external.activity.v1.CreateUsersRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/validate"
+      body: "*"
+    };
+  }
+
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/users"};
+  }
+
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/users/{user_id}"};
+  }
+
+  rpc UpdateUser(external.activity.v1.UpdateUserRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/update"
+      body: "*"
+    };
+  }
+
+  rpc UpdateUserName(external.activity.v1.UpdateUserNameRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/update_name"
+      body: "*"
+    };
+  }
+
+  rpc UpdateUserEmail(external.activity.v1.UpdateUserEmailRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/update_email"
+      body: "*"
+    };
+  }
+
+  rpc UpdateUserPhoneNumber(external.activity.v1.UpdateUserPhoneNumberRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/update_phone_number"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateUpdateUser(external.activity.v1.UpdateUserRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/update/validate"
+      body: "*"
+    };
+  }
+
+  rpc DeleteUsers(external.activity.v1.DeleteUsersRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/delete"
+      body: "*"
+    };
+  }
+
+  rpc CreateAuthenticators(external.activity.v1.CreateAuthenticatorsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/authenticators"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreateAuthenticators(external.activity.v1.CreateAuthenticatorsRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/authenticators/validate"
+      body: "*"
+    };
+  }
+
+  rpc DeleteAuthenticators(external.activity.v1.DeleteAuthenticatorsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/authenticators/delete"
+      body: "*"
+    };
+  }
+
+  rpc CreateApiKeys(external.activity.v1.CreateApiKeysRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/api_keys"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreateApiKeys(external.activity.v1.CreateApiKeysRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/api_keys/validate"
+      body: "*"
+    };
+  }
+
+  rpc DeleteApiKeys(external.activity.v1.DeleteApiKeysRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/api_keys/delete"
+      body: "*"
+    };
+  }
+
+  rpc EnableAuthProxy(external.activity.v1.EnableAuthProxyRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/enable_auth_proxy"
+      body: "*"
+    };
+  }
+
+  rpc DisableAuthProxy(external.activity.v1.DisableAuthProxyRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/disable_auth_proxy"
+      body: "*"
+    };
+  }
+
+  rpc UpdateAuthProxyConfig(external.activity.v1.UpdateAuthProxyConfigRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/users/update_auth_proxy_config"
+      body: "*"
+    };
+  }
+
+  rpc CreateTvcApp(external.activity.v1.CreateTvcAppRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/tvc_apps"
+      body: "*"
+    };
+  }
+
+  rpc DeleteTvcAppAndDeployments(external.activity.v1.DeleteTvcAppAndDeploymentsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/tvc_apps/delete"
+      body: "*"
+    };
+  }
+
+  rpc CreateTvcDeployment(external.activity.v1.CreateTvcDeploymentRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/tvc_deployments"
+      body: "*"
+    };
+  }
+
+  rpc UpdateTvcAppLiveDeployment(external.activity.v1.UpdateTvcAppLiveDeploymentRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/tvc_deployments/set_live"
+      body: "*"
+    };
+  }
+
+  rpc DeleteTvcDeployment(external.activity.v1.DeleteTvcDeploymentRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/tvc_deployments/delete"
+      body: "*"
+    };
+  }
+
+  rpc RestoreTvcDeployment(external.activity.v1.RestoreTvcDeploymentRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/tvc_deployments/restore"
+      body: "*"
+    };
+  }
+
+  rpc ValidateTvcImage(ValidateTvcImageRequest) returns (ValidateTvcImageResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/tvc_deployments/validate_image"
+      body: "*"
+    };
+  }
+
+  rpc GetTvcApps(GetTvcAppsRequest) returns (GetTvcAppsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/tvc_apps"};
+  }
+
+  rpc GetTvcApp(GetTvcAppRequest) returns (GetTvcAppResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/tvc_apps/{app_id}"};
+  }
+
+  rpc GetTvcAppDeployments(GetTvcAppDeploymentsRequest) returns (GetTvcAppDeploymentsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/tvc_apps/{app_id}/deployments"};
+  }
+
+  rpc GetTvcDeployment(GetTvcDeploymentRequest) returns (GetTvcDeploymentResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/tvc_deployments/{deployment_id}"};
+  }
+
+  rpc GetTvcDeploymentDebugLogs(GetTvcDeploymentDebugLogsRequest) returns (GetTvcDeploymentDebugLogsResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_tvc_deployment_debug_logs"
+      body: "*"
+    };
+  }
+
+  rpc GetAppStatus(GetAppStatusRequest) returns (GetAppStatusResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_app_status"
+      body: "*"
+    };
+  }
+
+  rpc GetAssetsMetadata(GetAssetsMetadataRequest) returns (GetAssetsMetadataResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_assets_metadata"
+      body: "*"
+    };
+  }
+
+  rpc ListEarnVaults(ListEarnVaultsRequest) returns (ListEarnVaultsResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/list_earn_vaults"
+      body: "*"
+    };
+  }
+
+  rpc ListEarnEnabledVaults(ListEarnEnabledVaultsRequest) returns (ListEarnEnabledVaultsResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/list_earn_enabled_vaults"
+      body: "*"
+    };
+  }
+
+  rpc GetEarnVaultExposure(GetEarnVaultExposureRequest) returns (GetEarnVaultExposureResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_earn_vault_exposure"
+      body: "*"
+    };
+  }
+
+  rpc GetEarnDeployStatus(GetEarnDeployStatusRequest) returns (GetEarnDeployStatusResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_earn_deploy_status"
+      body: "*"
+    };
+  }
+
+  rpc GetClaimEarnFeesStatus(GetClaimEarnFeesStatusRequest) returns (GetClaimEarnFeesStatusResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_claim_earn_fees_status"
+      body: "*"
+    };
+  }
+
+  rpc EarnDeployWrapper(external.activity.v1.EarnDeployWrapperRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/earn_deploy_wrapper"
+      body: "*"
+    };
+  }
+
+  rpc EarnSetWrapperState(external.activity.v1.EarnSetWrapperStateRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/earn_set_wrapper_state"
+      body: "*"
+    };
+  }
+
+  rpc ClaimEarnFees(external.activity.v1.ClaimEarnFeesRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/claim_earn_fees"
+      body: "*"
+    };
+  }
+
+  rpc GetAuthProxyConfig(GetAuthProxyConfigRequest) returns (GetAuthProxyConfigResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/authProxyConfig"};
+  }
+
+  rpc GetActivities(GetActivitiesRequest) returns (GetActivitiesResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/activities"};
+  }
+
+  rpc GetActivityCount(GetActivityCountRequest) returns (GetActivityCountResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/activityCount"};
+  }
+
+  rpc GetActivityCountInRangeWithInterval(GetActivityCountInRangeWithIntervalRequest) returns (GetActivityCountInRangeWithIntervalResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/activityCountInRangeWithInterval"};
+  }
+
+  rpc GetActivityCountInRange(GetActivityCountInRangeRequest) returns (GetActivityCountInRangeResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/activityCountInRange"};
+  }
+
+  rpc GetActivity(GetActivityRequest) returns (ActivityResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/activities/{activity_id}"};
+  }
+
+  rpc ApproveActivity(external.activity.v1.ApproveActivityRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/activities/approve"
+      body: "*"
+    };
+  }
+
+  rpc RejectActivity(external.activity.v1.RejectActivityRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/activities/reject"
+      body: "*"
+    };
+  }
+
+  rpc CreatePolicy(external.activity.v1.CreatePolicyRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/policies"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreatePolicy(external.activity.v1.CreatePolicyRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/policies/validate"
+      body: "*"
+    };
+  }
+
+  rpc UpdatePolicy(external.activity.v1.UpdatePolicyRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/policies/update"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Update an existing Policy"
+      summary: "Update Policy"
+      tags: "Policies"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateUpdatePolicy(external.activity.v1.UpdatePolicyRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/policies/update/validate"
+      body: "*"
+    };
+  }
+
+  rpc GetPolicies(GetPoliciesRequest) returns (GetPoliciesResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/policies"};
+  }
+
+  rpc GetPolicy(GetPolicyRequest) returns (GetPolicyResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/policies/{policy_id}"};
+  }
+
+  rpc DeletePolicy(external.activity.v1.DeletePolicyRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/policies/delete"
+      body: "*"
+    };
+  }
+
+  rpc CreateSmartContractInterface(external.activity.v1.CreateSmartContractInterfaceRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/smart_contract_interfaces"
+      body: "*"
+    };
+  }
+
+  rpc DeleteSmartContractInterface(external.activity.v1.DeleteSmartContractInterfaceRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/smart_contract_interfaces/delete"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreateSmartContractInterface(external.activity.v1.CreateSmartContractInterfaceRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/smart_contract_interfaces/validate"
+      body: "*"
+    };
+  }
+
+  rpc GetSmartContractInterfaces(GetSmartContractInterfacesRequest) returns (GetSmartContractInterfacesResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/smart_contract_interfaces"};
+  }
+
+  rpc GetSmartContractInterface(GetSmartContractInterfaceRequest) returns (GetSmartContractInterfaceResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/smart_contract_interfaces/{smart_contract_interface_id}"};
+  }
+
+  rpc GetTags(GetTagsRequest) returns (GetTagsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/tags"};
+  }
+
+  rpc GetTag(GetTagRequest) returns (GetTagResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/tags/{tag_id}"};
+  }
+
+  rpc CreateUserTag(external.activity.v1.CreateUserTagRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/user_tags"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreateUserTag(external.activity.v1.CreateUserTagRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/user_tags/validate"
+      body: "*"
+    };
+  }
+
+  rpc UpdateUserTag(external.activity.v1.UpdateUserTagRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/user_tags/update"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateUpdateUserTag(external.activity.v1.UpdateUserTagRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/user_tags/update/validate"
+      body: "*"
+    };
+  }
+
+  rpc DeleteUserTags(external.activity.v1.DeleteUserTagsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/user_tags/delete"
+      body: "*"
+    };
+  }
+
+  rpc CreatePrivateKeyTag(external.activity.v1.CreatePrivateKeyTagRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_key_tags"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateCreatePrivateKeyTag(external.activity.v1.CreatePrivateKeyTagRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_key_tags/validate"
+      body: "*"
+    };
+  }
+
+  rpc UpdatePrivateKeyTag(external.activity.v1.UpdatePrivateKeyTagRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_key_tags/update"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateUpdatePrivateKeyTag(external.activity.v1.UpdatePrivateKeyTagRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_key_tags/update/validate"
+      body: "*"
+    };
+  }
+
+  rpc DeletePrivateKeyTags(external.activity.v1.DeletePrivateKeyTagsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_key_tags/delete"
+      body: "*"
+    };
+  }
+
+  rpc DeletePrivateKeys(external.activity.v1.DeletePrivateKeysRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/private_keys/delete"
+      body: "*"
+    };
+  }
+
+  rpc DeleteWallets(external.activity.v1.DeleteWalletsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/wallets/delete"
+      body: "*"
+    };
+  }
+
+  rpc UpdateWallet(external.activity.v1.UpdateWalletRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/submit/update_wallet"
+      body: "*"
+    };
+  }
+
+  rpc GetStripeContext(GetStripeContextRequest) returns (GetStripeContextResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/stripe/context"};
+  }
+
+  rpc GetSubOrgs(GetSubOrgsRequest) returns (GetSubOrgsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/subOrgs"};
+  }
+
+  rpc GetSubOrgCount(GetSubOrgCountRequest) returns (GetSubOrgCountResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/subOrgsCount"};
+  }
+
+  rpc GetBillingTiers(GetBillingTiersRequest) returns (GetBillingTiersResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/billing/tiers"};
+  }
+
+  rpc GetPaymentMethod(GetPaymentMethodRequest) returns (GetPaymentMethodResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/payment_method"};
+  }
+
+  rpc SetPaymentMethod(external.activity.v1.SetPaymentMethodRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/payment_method"
+      body: "*"
+    };
+  }
+
+  rpc DeletePaymentMethod(external.activity.v1.DeletePaymentMethodRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/payment_method/delete"
+      body: "*"
+    };
+  }
+
+  rpc ActivateBillingTier(external.activity.v1.ActivateBillingTierRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/billing/tiers/activate"
+      body: "*"
+    };
+  }
+
+  rpc GetSubscription(GetSubscriptionRequest) returns (GetSubscriptionResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/subscription"};
+  }
+
+  rpc GetFeatureGates(GetFeatureGatesRequest) returns (GetFeatureGatesResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/feature_gates"};
+  }
+
+  rpc ListWebhookEndpoints(ListWebhookEndpointsRequest) returns (ListWebhookEndpointsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/webhook_endpoints"};
+  }
+
+  rpc CreateWebhookEndpoint(external.activity.v1.CreateWebhookEndpointRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/webhook_endpoints"
+      body: "*"
+    };
+  }
+
+  rpc UpdateWebhookEndpoint(external.activity.v1.UpdateWebhookEndpointRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/webhook_endpoints/update"
+      body: "*"
+    };
+  }
+
+  rpc DeleteWebhookEndpoint(external.activity.v1.DeleteWebhookEndpointRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/webhook_endpoints/delete"
+      body: "*"
+    };
+  }
+
+  rpc GetInvoices(GetInvoicesRequest) returns (GetInvoicesResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/invoices"};
+  }
+
+  rpc GetUpcomingInvoice(GetUpcomingInvoiceRequest) returns (GetUpcomingInvoiceResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/upcoming_invoice"};
+  }
+
+  rpc UpdateRootQuorum(external.activity.v1.UpdateRootQuorumRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/submit/update_root_quorum"
+      body: "*"
+    };
+  }
+
+  rpc UpdateOrganizationName(external.activity.v1.UpdateOrganizationNameRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/submit/update_organization_name"
+      body: "*"
+    };
+  }
+
+  // This route does nothing and does not need an implementation, but please don't remove it.
+  // It's used at compile time for generating extra OpenAPI/TypeScript types
+  // that are not directly referenced in requests.
+  rpc NOOPCodegenAnchor(NOOPCodegenAnchorRequest) returns (NOOPCodegenAnchorResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/noop-codegen-anchor"};
+  }
+
+  rpc GetSubOrgCountInRange(GetSubOrgCountInRangeRequest) returns (GetSubOrgCountInRangeResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/sub_org_count_in_range"};
+  }
+
+  rpc ExportPrivateKey(external.activity.v1.ExportPrivateKeyRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/organizations/export_private_key"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Exports a Private Key"
+      summary: "Export Private Key"
+      tags: "Private Keys"
+    };
+  }
+
+  rpc ExportWallet(external.activity.v1.ExportWalletRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/organizations/export_wallet"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Exports a Wallet"
+      summary: "Export Wallet"
+      tags: "Wallets"
+    };
+  }
+
+  rpc ExportWalletAccount(external.activity.v1.ExportWalletAccountRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/organizations/export_wallet_account"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Exports a Wallet Account"
+      summary: "Export Wallet Account"
+      tags: "Wallets"
+    };
+  }
+  rpc GetSMSUsageCost(GetSMSUsageCostRequest) returns (GetSMSUsageCostResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/sms_usage_cost"};
+  }
+
+  rpc GetAllWalletsAndPrivateKeysCount(GetAllWalletsAndPrivateKeysCountRequest) returns (GetAllWalletsAndPrivateKeysCountResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/wallets_and_private_keys"};
+  }
+  rpc GetPolicyEvaluations(GetPolicyEvaluationsRequest) returns (GetPolicyEvaluationsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/activities/{activity_id}/get_policy_evaluations"};
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Get the policy evaluations for an Activity"
+      summary: "Get Policy Evaluations"
+      tags: "Activities"
+    };
+  }
+
+  rpc GetRootQuorumThreshold(GetRootQuorumThresholdRequest) returns (GetRootQuorumThresholdResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/root_quorum_threshold"};
+  }
+
+  rpc CreateOauth2Credential(external.activity.v1.CreateOauth2CredentialRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/oauth2/create_oauth2_credential"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Enable authentication for end users with an OAuth 2.0 provider"
+      summary: "Create an OAuth 2.0 Credential"
+      tags: "User Auth"
+    };
+  }
+
+  rpc UpdateOauth2Credential(external.activity.v1.UpdateOauth2CredentialRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/oauth2/update_oauth2_credential"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Update an OAuth 2.0 provider credential"
+      summary: "Update an OAuth 2.0 Credential"
+      tags: "User Auth"
+    };
+  }
+
+  rpc DeleteOauth2Credential(external.activity.v1.DeleteOauth2CredentialRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/oauth2/delete_oauth2_credential"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Disable authentication for end users with an OAuth 2.0 provider"
+      summary: "Delete an OAuth 2.0 Credential"
+      tags: "User Auth"
+    };
+  }
+
+  rpc ListOauth2Credentials(ListOauth2CredentialsRequest) returns (ListOauth2CredentialsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/oauth2/list_oauth2_credentials"};
+  }
+
+  rpc GetOauth2Credential(GetOauth2CredentialRequest) returns (GetOauth2CredentialResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/oauth2/credentials/{oauth2_credential_id}"};
+  }
+
+  rpc CreateFiatOnRampCredential(external.activity.v1.CreateFiatOnRampCredentialRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/fiat_on_ramp/create_fiat_on_ramp_credential"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Create a fiat on ramp provider credential"
+      summary: "Create a Fiat On Ramp Credential"
+      tags: "On Ramp"
+    };
+  }
+
+  rpc UpdateFiatOnRampCredential(external.activity.v1.UpdateFiatOnRampCredentialRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/fiat_on_ramp/update_fiat_on_ramp_credential"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Update a fiat on ramp provider credential"
+      summary: "Update a Fiat On Ramp Credential"
+      tags: "On Ramp"
+    };
+  }
+
+  rpc DeleteFiatOnRampCredential(external.activity.v1.DeleteFiatOnRampCredentialRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/fiat_on_ramp/delete_fiat_on_ramp_credential"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Delete a fiat on ramp provider credential"
+      summary: "Delete a Fiat On Ramp Credential"
+      tags: "On Ramp"
+    };
+  }
+
+  rpc UpsertGasUsageConfig(external.activity.v1.UpsertGasUsageConfigRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/gas/upsert_gas_usage_config"
+      body: "*"
+    };
+  }
+
+  rpc GetGasUsage(GetGasUsageRequest) returns (GetGasUsageResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/gas/get_gas_usage"};
+  }
+
+  rpc GetSwapFeeBalances(GetSwapFeeBalancesRequest) returns (GetSwapFeeBalancesResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/swap_fee_balances"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Fetch Relay swap fee balances for the organization's configured fee receiver wallet from the SwapConfig feature."
+      summary: "Get swap fee balances"
+      tags: "Swaps"
+    };
+  }
+
+  rpc ListClaimHistory(ListClaimHistoryRequest) returns (ListClaimHistoryResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/claim_history"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "List completed Relay swap fee claims for an organization, newest first."
+      summary: "List claim history"
+      tags: "Swaps"
+    };
+  }
+
+  rpc UpsertSwapConfig(external.activity.v1.UpsertSwapConfigRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/submit/upsert_swap_config"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Create or update swap fee configuration for an organization."
+      summary: "Upsert swap config"
+      tags: "Swaps"
+    };
+  }
+
+  rpc ClaimSwapFees(external.activity.v1.ClaimSwapFeesRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/submit/claim_swap_fees"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Claim accrued Relay swap app fees for the organization's configured fee receiver."
+      summary: "Claim swap fees"
+      tags: "Swaps"
+    };
+  }
+
+  rpc ListFiatOnRampCredentials(ListFiatOnRampCredentialsRequest) returns (ListFiatOnRampCredentialsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/fiat_on_ramp/list_fiat_on_ramp_credentials"};
+  }
+
+  rpc GetParentOrganizationId(GetParentOrganizationIdRequest) returns (GetParentOrganizationIdResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/parent_organization_id"};
+  }
+
+  rpc DeleteWalletAccounts(external.activity.v1.DeleteWalletAccountsRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/wallet_accounts/delete"
+      body: "*"
+    };
+  }
+
+  rpc DeletePolicies(external.activity.v1.DeletePoliciesRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/policies/delete_policies"
+      body: "*"
+    };
+  }
+
+  rpc GetBootProof(GetBootProofRequest) returns (BootProofResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/query/get_boot_proof"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Get the boot proof for a given ephemeral key."
+      summary: "Get a specific boot proof"
+      tags: "Boot Proof"
+    };
+  }
+
+  rpc GetIpAllowlist(GetIpAllowlistRequest) returns (GetIpAllowlistResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/ip-allowlist"};
+  }
+
+  rpc SetIpAllowlist(external.activity.v1.SetIpAllowlistRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/ip-allowlist/set"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateSetIpAllowlist(external.activity.v1.SetIpAllowlistRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/ip-allowlist/set/validate"
+      body: "*"
+    };
+  }
+
+  rpc RemoveIpAllowlist(external.activity.v1.RemoveIpAllowlistRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/ip-allowlist/remove"
+      body: "*"
+    };
+  }
+
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc ValidateRemoveIpAllowlist(external.activity.v1.RemoveIpAllowlistRequest) returns (ValidateIntentResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/ip-allowlist/remove/validate"
+      body: "*"
+    };
+  }
+
+  rpc CreateSessionProfile(external.activity.v1.CreateSessionProfileRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/session_profiles"
+      body: "*"
+    };
+  }
+
+  rpc GetSessionProfiles(GetSessionProfilesRequest) returns (GetSessionProfilesResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/session_profiles"};
+  }
+
+  rpc GetSessionProfile(GetSessionProfileRequest) returns (GetSessionProfileResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/session_profiles/{session_profile_id}"};
+  }
+
+  rpc GetMfaStatus(GetMfaStatusRequest) returns (GetMfaStatusResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/mfa_status"};
+  }
+
+  rpc GetEmailEvents(GetEmailEventsRequest) returns (GetEmailEventsResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/email_events"};
+  }
+
+  rpc GetEmailEventCount(GetEmailEventCountRequest) returns (GetEmailEventCountResponse) {
+    option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/email_events/count"};
+  }
+}
+
+message GetParentOrganizationIdRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string suborganization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Sub-Organization."}
+  ];
+}
+
+message GetParentOrganizationIdResponse {
+  string parent_organization_id = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The parent organization ID, if it exists."}
+  ];
+}
+
+message GetRootQuorumThresholdRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetRootQuorumThresholdResponse {
+  int32 threshold = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The current root quorum threshold for the organization."}
+  ];
+}
+
+message GetAllWalletsAndPrivateKeysCountRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetAllWalletsAndPrivateKeysCountResponse {
+  int64 count = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The total number of wallets and private keys for the organization."}
+  ];
+}
+
+message GetSMSUsageCostRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetSMSUsageCostResponse {
+  int64 cost = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The total cost of SMS usage for the organization."}
+  ];
+}
+
+message GetActivityCountInRangeRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  repeated immutable.activity.v1.ActivityStatus filter_by_status = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Filter by activity status."}
+  ];
+  repeated immutable.activity.v1.ActivityType filter_by_type = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Filter by activity type."}
+  ];
+  google.protobuf.Timestamp after = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The start time for filtering activities."}
+  ];
+  google.protobuf.Timestamp until = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The end time for filtering activities."}
+  ];
+}
+
+message GetActivityCountInRangeResponse {
+  int64 count = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSubOrgCountInRangeRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  google.protobuf.Timestamp after = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The start time for filtering activities."}
+  ];
+  google.protobuf.Timestamp until = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The end time for filtering activities."}
+  ];
+}
+
+message GetSubOrgCountInRangeResponse {
+  int64 count = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSubOrgsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  external.options.v1.Pagination pagination_options = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Parameters used for cursor-based pagination."}
+  ];
+}
+
+message SubOrgStub {
+  string id = 1;
+  repeated external.data.v1.User root_users = 2;
+  uint32 num_users = 3;
+  uint32 num_keys = 4;
+  uint32 num_wallets = 5;
+  string org_name = 6;
+}
+
+message GetSubOrgsResponse {
+  repeated SubOrgStub sub_orgs = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSubOrgCountRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetSubOrgCountResponse {
+  int64 count = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetStripeContextRequest {}
+
+message GetStripeContextResponse {
+  string stripe_publishable_api_key = 1;
+}
+
+message FeatureGate {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated string allowed_org_ids = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetFeatureGatesRequest {}
+
+message GetFeatureGatesResponse {
+  repeated FeatureGate feature_gates = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+enum Currency {
+  CURRENCY_UNSPECIFIED = 0;
+  CURRENCY_USD = 1;
+}
+
+message GetInvoicesRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message Invoice {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string status = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 amount_due = 3 [(google.api.field_behavior) = REQUIRED];
+  int64 amount_paid = 4 [(google.api.field_behavior) = REQUIRED];
+  int64 amount_remaining = 5 [(google.api.field_behavior) = REQUIRED];
+  int64 period_start = 6 [(google.api.field_behavior) = REQUIRED];
+  int64 period_end = 7 [(google.api.field_behavior) = REQUIRED];
+  int64 paid_at = 8 [(google.api.field_behavior) = REQUIRED];
+  string invoice_url = 9 [(google.api.field_behavior) = REQUIRED];
+  BillingTier product = 10 [(google.api.field_behavior) = REQUIRED];
+  repeated InvoiceLineItem lines = 11 [(google.api.field_behavior) = OPTIONAL];
+  int64 subtotal = 12 [(google.api.field_behavior) = OPTIONAL];
+  int64 minimum_amount = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message InvoiceLineItem {
+  string id = 1;
+  int64 amount = 2;
+  string currency = 3;
+  string description = 4;
+  LinePrice price = 5;
+  int64 quantity = 6;
+}
+
+message LinePrice {
+  string id = 1;
+  bool active = 2;
+  string lookup_key = 3;
+  string meter = 4;
+  repeated Tier tiers = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message Tier {
+  int64 flat_amount = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 unit_amount = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 up_to = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetInvoicesResponse {
+  repeated Invoice invoices = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetUpcomingInvoiceRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetUpcomingInvoiceResponse {
+  Invoice invoice = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The upcoming invoice for the organization."}
+  ];
+}
+
+message GetSubscriptionRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetSubscriptionResponse {
+  optional BillingTier billing_tier = 1 [(google.api.field_behavior) = OPTIONAL];
+}
+
+enum PriceType {
+  PRICE_TYPE_UNSPECIFIED = 0;
+  PRICE_TYPE_SIG_COUNT = 1;
+  PRICE_TYPE_KEY_COUNT = 2;
+  PRICE_TYPE_GAS_COUNT = 3;
+}
+
+message BillingTier {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string description = 2 [(google.api.field_behavior) = REQUIRED];
+  Price price = 3 [(google.api.field_behavior) = REQUIRED];
+  string product_id = 4 [(google.api.field_behavior) = REQUIRED];
+  immutable.common.v1.ProductType type = 5 [(google.api.field_behavior) = REQUIRED];
+  int64 current_period_start = 6;
+  int64 current_period_end = 7;
+  bool cancel_at_period_end = 8;
+  optional string orb_plan_id = 9 [(google.api.field_behavior) = OPTIONAL];
+  immutable.common.v1.ProductSubType sub_type = 10 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Price {
+  int64 base_amount = 1 [(google.api.field_behavior) = REQUIRED];
+  Currency currency = 2 [(google.api.field_behavior) = REQUIRED];
+  string description = 3 [(google.api.field_behavior) = REQUIRED];
+  repeated PriceTier price_tiers = 4 [(google.api.field_behavior) = REQUIRED];
+  PriceType type = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message PriceTier {
+  int64 flat_amount = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 unit_amount = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // the maximum amout of units that the customer can perform until the roll up
+  // to the next tier
+  int64 up_to = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message PaymentMethod {
+  string payment_email = 1 [(google.api.field_behavior) = REQUIRED];
+  string card_number_last_four = 2 [(google.api.field_behavior) = REQUIRED];
+  string id = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetBillingTiersRequest {}
+
+message GetBillingTiersResponse {
+  repeated BillingTier tiers = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPaymentMethodRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetPaymentMethodResponse {
+  optional PaymentMethod payment_method = 1 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message WhoamiRequest {}
+
+message WhoamiResponse {
+  string user_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given User."}
+  ];
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  repeated immutable.webauthn.v1.PublicKeyCredentialDescriptor webauthn_credentials = 3 [(google.api.field_behavior) = REQUIRED];
+  string username = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Human-readable name for a User."}
+  ];
+  string organization_name = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message InitialSignupRequest {
+  // @inject_tag: validate:"required,max=256"
+  string email = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message InitialSignupResponse {
+  bool ok = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message LogoutRequest {
+  string session_id = 1 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message LogoutResponse {
+  // TODO
+}
+
+message MagicLinkAuthRequest {
+  string token = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MagicLinkAuthResponse {
+  string destination = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSignupContextRequest {}
+
+message GetSignupContextResponse {
+  string email = 1 [(google.api.field_behavior) = REQUIRED];
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ParseTransactionRequest {
+  string unsigned_transaction = 1 [(google.api.field_behavior) = REQUIRED];
+  immutable.common.v1.TransactionType type = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {title: ""}
+  ];
+}
+
+message ParseTransactionResponse {
+  string parsed_transaction = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetInvitationContextRequest {}
+
+message GetInvitationContextResponse {
+  string email = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string organization_name = 3 [(google.api.field_behavior) = REQUIRED];
+  string invited_by = 4 [(google.api.field_behavior) = REQUIRED];
+  string invitation_id = 5 [(google.api.field_behavior) = REQUIRED];
+  sint32 member_count = 6 [(google.api.field_behavior) = REQUIRED];
+  string user_id = 7 [(google.api.field_behavior) = REQUIRED];
+}
+
+message SendLoginMagicLinkRequest {
+  string email = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message SendLoginMagicLinkResponse {}
+
+message GetLoginContextRequest {
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetLoginContextResponse {
+  bool ok = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated external.webauthn.v1.AuthenticatorType authenticator_types = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ClearPreflightSessionRequest {
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// The list of valid sessions _after_ clearing are returned here for convenience, to let the frontend
+// display an accurate list without having to re-fetch that list after clearing
+message ClearPreflightSessionResponse {
+  repeated PreflightSession sessions = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPreflightContextRequest {}
+
+message PreflightSession {
+  string email = 1 [(google.api.field_behavior) = REQUIRED];
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string org_name = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPreflightContextResponse {
+  repeated PreflightSession sessions = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  // Return the current time to gauge caching behavior. GET requests can get cached for all kinds of reasons.
+  string current_time = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CreateUsersResponse {
+  external.activity.v1.Activity activity = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message WebauthnSignature {
+  // Public key associated with an authenticator. Base64-encoded, COSE-encoded string.
+  // E.g. "WVn4nUvVfXQ17uXlDckw7e9zKaMEZYNhRBctJGdfSQkfvMG4MxQERyvnV5LW-bILkvnEKhf9i-KzFcBosIq19SYVCpjS3OiEIYgtMkBxH02OYHteY0xoWQ"
+  string credential_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // This is "clientDataJSON" in the spec. See https://www.w3.org/TR/webauthn-2/#dictionary-client-data
+  string client_data_json = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // https://www.w3.org/TR/webauthn-2/#authenticator-data
+  // Sample authenticatorData blob: pvqb5kSxaXGGfGF_ud-tqXBtqYvQkakFq1Va0AJ0flgFAAAAAA
+  string authenticator_data = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // This is the encoded signature as returned by the authenticator
+  string signature = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetActivitiesRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  repeated immutable.activity.v1.ActivityStatus filter_by_status = 2 [(google.api.field_behavior) = OPTIONAL];
+  repeated immutable.activity.v1.ActivityType filter_by_type = 3 [(google.api.field_behavior) = OPTIONAL];
+  external.options.v1.Pagination pagination_options = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Legacy pagination parameters. Cursors are activity IDs."}
+  ];
+  external.activity.v1.ActivityFilter filter = 5 [(google.api.field_behavior) = OPTIONAL];
+  external.activity.v1.ActivityPagination activity_pagination = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message GetActivitiesResponse {
+  repeated external.activity.v1.Activity activities = 1 [(google.api.field_behavior) = REQUIRED];
+  external.options.v1.PageInfo page_info = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message GetActivityCountRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  repeated immutable.activity.v1.ActivityStatus filter_by_status = 2 [(google.api.field_behavior) = OPTIONAL];
+  repeated immutable.activity.v1.ActivityType filter_by_type = 3 [(google.api.field_behavior) = OPTIONAL];
+  external.options.v1.Pagination pagination_options = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Parameters used for cursor-based pagination."}
+  ];
+  external.activity.v1.ActivityFilter filter = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message GetActivityCountInRangeWithIntervalRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  repeated immutable.activity.v1.ActivityStatus filter_by_status = 2 [(google.api.field_behavior) = OPTIONAL];
+  repeated immutable.activity.v1.ActivityType filter_by_type = 3 [(google.api.field_behavior) = OPTIONAL];
+  google.protobuf.Timestamp after = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The start time for filtering activities."}
+  ];
+  google.protobuf.Timestamp until = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The end time for filtering activities."}
+  ];
+  string interval = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Intervals for the keys of counter in range return."}
+  ];
+}
+
+message GetActivityCountResponse {
+  int64 count = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetActivityCountInRangeWithIntervalResponse {
+  message ActivityCountPerInterval {
+    google.protobuf.Timestamp interval = 1;
+    int64 count = 2;
+  }
+  repeated ActivityCountPerInterval counts = 1 [(google.api.field_behavior) = REQUIRED];
+  string interval = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Intervals for the keys of counter in range return."}
+  ];
+}
+
+message GetActivityRequest {
+  string activity_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ActivityResponse {
+  external.activity.v1.Activity activity = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetUsersRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetUsersResponse {
+  repeated external.data.v1.User users = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetUserRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetUserResponse {
+  external.data.v1.User user = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPoliciesRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetPoliciesResponse {
+  repeated external.data.v1.Policy policies = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPolicyRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string policy_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPolicyResponse {
+  external.data.v1.Policy policy = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSmartContractInterfacesRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetSmartContractInterfacesResponse {
+  repeated external.data.v1.SmartContractInterface smart_contract_interfaces = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSmartContractInterfaceRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string smart_contract_interface_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSmartContractInterfaceResponse {
+  external.data.v1.SmartContractInterface smart_contract_interface = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetTagsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  optional external.data.v1.TagType tag_type = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message GetTagsResponse {
+  repeated external.data.v1.Tag tags = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetTagRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string tag_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetTagResponse {
+  external.data.v1.Tag tag = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message NOOPCodegenAnchorRequest {}
+
+message NOOPCodegenAnchorResponse {
+  WebauthnSignature signature = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPrivateKeysRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetPrivateKeyRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string private_key_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPrivateKeysResponse {
+  repeated external.data.v1.PrivateKey private_keys = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetPrivateKeyResponse {
+  external.data.v1.PrivateKey private_key = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetOrganizationRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetOrganizationResponse {
+  external.data.v1.OrganizationData organization_data = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetWalletsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetWalletsResponse {
+  repeated external.data.v1.Wallet wallets = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A list of Wallets."}
+  ];
+}
+
+message GetWalletRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string wallet_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Wallet."}
+  ];
+}
+
+message GetWalletResponse {
+  external.data.v1.Wallet wallet = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A collection of deterministically generated cryptographic public / private key pairs that share a common seed"}
+  ];
+}
+
+message GetWalletAccountsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string wallet_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Wallet."}
+  ];
+  external.options.v1.Pagination pagination_options = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Parameters used for cursor-based pagination."}
+  ];
+}
+
+message GetWalletAccountsResponse {
+  repeated external.data.v1.WalletAccount accounts = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A list of Accounts generated from a Wallet that share a common seed"}
+  ];
+}
+
+message GetWalletAccountCountRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string wallet_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Wallet."}
+  ];
+}
+
+message GetWalletAccountCountResponse {
+  int64 count = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ValidateIntentResponse {}
+
+message ValidateTvcImageRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string pivot_container_image_url = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "URL of the container image."}
+  ];
+  optional string pivot_container_encrypted_pull_secret = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "HPKE-encrypted pull secret for private images."}
+  ];
+}
+
+message ValidateTvcImageResponse {
+  string resolved_image_digest = 1 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message GetAuthProxyConfigRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetAuthProxyConfigResponse {
+  AuthProxyConfig auth_proxy_config = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Proxy authentication configuration (e.g., allowed origins)."}
+  ];
+}
+
+message GetPolicyEvaluationsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+
+  string activity_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Activity."}
+  ];
+}
+
+message GetPolicyEvaluationsResponse {
+  repeated external.activity.v1.PolicyEvaluation policy_evaluations = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message AuthProxyConfig {
+  string organization_id = 1;
+  repeated string allowed_origins = 2;
+  repeated string allowed_auth_methods = 3;
+  string encrypted_api_key = 4;
+  string turnkey_signer_user_id = 5;
+
+  optional string send_from_email_address = 6;
+  optional string reply_to_email_address = 7;
+  optional string email_auth_template_id = 8;
+  optional string otp_template_id = 9;
+
+  optional immutable.activity.v1.EmailCustomizationParams email_customization_params = 10 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional parameters for customizing emails. If not provided, the default email will be used."}
+  ];
+  optional immutable.activity.v1.SmsCustomizationParams sms_customization_params = 11 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional parameters for customizing SMS. If not provided, the default SMS will be used."}
+  ];
+
+  optional int32 otp_expiration_seconds = 12;
+  optional int32 verification_token_expiration_seconds = 13;
+  optional int32 session_expiration_seconds = 14;
+
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+
+  optional bool otp_alphanumeric = 17;
+  optional int32 otp_length = 18;
+  string proxy_id = 19;
+
+  optional immutable.activity.v1.WalletKitSettingsParams wallet_kit_settings = 20;
+  optional string send_from_email_sender_name = 21;
+  optional bool verification_token_required_for_get_account_pii = 22;
+  repeated string social_linking_client_ids = 23;
+  optional bool captcha_enabled = 24;
+}
+
+message ListOauth2CredentialsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message ListOauth2CredentialsResponse {
+  repeated external.data.v1.Oauth2Credential oauth2_credentials = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListWebhookEndpointsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message ListWebhookEndpointsResponse {
+  repeated immutable.activity.v1.WebhookEndpointData webhook_endpoints = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetOauth2CredentialRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string oauth2_credential_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given OAuth 2.0 Credential."}
+  ];
+}
+
+message GetOauth2CredentialResponse {
+  external.data.v1.Oauth2Credential oauth2_credential = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetBootProofRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string ephemeral_key = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Hex encoded ephemeral public key."}
+  ];
+}
+
+message ListFiatOnRampCredentialsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message BootProofResponse {
+  external.data.v1.BootProof boot_proof = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListFiatOnRampCredentialsResponse {
+  repeated external.data.v1.FiatOnRampCredential fiat_on_ramp_credentials = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetGasUsageRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetGasUsageResponse {
+  int32 window_duration_minutes = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The window duration (in minutes) for the organization or sub-organization."}
+  ];
+  string window_limit_usd = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The window limit (in USD) for the business organization"}
+  ];
+  string usage_usd = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes`"}
+  ];
+  string suborg_window_limit_usd = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The window limit (in USD) for sub-organizations."}
+  ];
+  bool enabled = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Whether gas sponsorship is enabled for the organization."}
+  ];
+  immutable.activity.v1.SolanaConfig solana_config = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Solana sponsorship settings for the organization."}
+  ];
+}
+
+message GetSwapFeeBalancesRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message SwapFeeBalanceCurrency {
+  int64 chain_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string address = 2 [(google.api.field_behavior) = REQUIRED];
+  string symbol = 3 [(google.api.field_behavior) = REQUIRED];
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
+  int32 decimals = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message SwapFeeBalance {
+  SwapFeeBalanceCurrency currency = 1 [(google.api.field_behavior) = REQUIRED];
+  string amount = 2 [(google.api.field_behavior) = REQUIRED];
+  string amount_formatted = 3 [(google.api.field_behavior) = REQUIRED];
+  string amount_usd = 4 [(google.api.field_behavior) = REQUIRED];
+  string minimum_amount = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSwapFeeBalancesResponse {
+  string wallet = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Fee receiver wallet from the organization SwapConfig feature."}
+  ];
+  repeated SwapFeeBalance balances = 2 [(google.api.field_behavior) = REQUIRED];
+  string total_balance_usd = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Total Relay swap fee balance in USD across all currencies. Frontend should prefer wallet_usdc_balance_usd for displayed Total balance."}
+  ];
+  string outstanding_fast_fill_balance_usd = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Outstanding fast fill balance in USD that has not yet settled."}
+  ];
+  string available_balance_usd = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Claimable balance in USD from Relay (total Relay balance minus outstanding fast fill balance)."}
+  ];
+  string wallet_id = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Wallet UUID for the fee receiver account. Empty if not found."}
+  ];
+  string wallet_usdc_balance_usd = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "On-chain USDC USD balance on Base (eip155:8453) for the fee receiver wallet. \"0\" if unavailable."}
+  ];
+}
+
+message ListClaimHistoryRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message ClaimHistoryEntry {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string org_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string claim_amount = 3 [(google.api.field_behavior) = REQUIRED];
+  string tx_hash = 4 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListClaimHistoryResponse {
+  repeated ClaimHistoryEntry claims = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpsertGasUsageConfigRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for the organization making the request."}
+  ];
+
+  double org_window_limit_usd = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The USD limit applied to the billing organization window."}
+  ];
+
+  double sub_org_window_limit_usd = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The USD limit applied to sub-organization windows under the billing organization."}
+  ];
+
+  int32 window_duration_minutes = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The sliding window duration (in minutes) used for gas sponsorship calculation. This value can't exceed 30 days (43200 minutes)."}
+  ];
+
+  string notes = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional notes for administrators configuring the gas limit."}];
+}
+
+message UpsertGasUsageConfigResponse {
+  bool success = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Indicates whether the configuration was successfully upserted."}
+  ];
+}
+
+message GetTvcAppsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+}
+
+message GetTvcAppsResponse {
+  repeated external.data.v1.TvcApp apps = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A list of TVC Apps."}
+  ];
+}
+
+message GetTvcAppRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string app_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given TVC App."}
+  ];
+}
+
+message GetTvcAppResponse {
+  external.data.v1.TvcApp app = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A collection of deterministically generated cryptographic public / private key pairs that share a common seed"}
+  ];
+}
+
+message GetTvcAppDeploymentsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string app_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given TVC App."}
+  ];
+}
+
+message GetTvcAppDeploymentsResponse {
+  repeated external.data.v1.TvcDeployment tvc_deployments = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "List of deployments for this TVC App"}
+  ];
+}
+
+message GetTvcDeploymentRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string deployment_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given TVC Deployment."}
+  ];
+}
+
+message GetTvcDeploymentResponse {
+  external.data.v1.TvcDeployment tvc_deployment = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Details about a single TVC Deployment"}
+  ];
+}
+
+message GetTvcDeploymentDebugLogsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string deployment_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given TVC Deployment. The deployment must be running in debug mode."}
+  ];
+  int32 tail_lines = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Limit returned history to the last N lines per replica. If unset or zero, no tail-line limit is applied."}];
+  int64 since_seconds = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Return logs newer than this many seconds ago. If unset or zero, no since-time limit is applied. Useful for clients that poll to follow logs."}];
+}
+
+message TvcDeploymentDebugLogEntry {
+  external.data.v1.LogLine line = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Application log line with its platform timestamp."}
+  ];
+  string replica_label = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Public replica label that produced this log line, for example 'replica 2/3'."}
+  ];
+}
+
+message GetTvcDeploymentDebugLogsResponse {
+  repeated TvcDeploymentDebugLogEntry entries = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Application log entries sorted by platform timestamp."}
+  ];
+}
+
+message GetAppStatusRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string app_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given TVC App."}
+  ];
+}
+
+message GetAppStatusResponse {
+  external.data.v1.AppStatus app_status = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Live runtime status for the TVC App"}
+  ];
+}
+
+message GetIpAllowlistRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  optional string public_key = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "If provided, return only the allowlist for this specific API key."}
+  ];
+}
+
+message IpAllowlistRule {
+  string cidr = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "CIDR block (e.g., \"192.168.1.0/24\")."}
+  ];
+  string label = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional human-readable label for this rule."}];
+  string created_at = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Creation timestamp in RFC3339 format."}];
+}
+
+message IpAllowlist {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for the organization this allowlist belongs to."}
+  ];
+  repeated IpAllowlistRule rules = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "List of IP allowlist rules with their metadata."}
+  ];
+  optional string public_key = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Public key of the API key this allowlist applies to. Null means the allowlist applies to the entire organization."}];
+  optional bool enabled = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Whether the IP allowlist is enabled. Only present for organization-level policies. Null for API key-level policies (presence of the allowlist implies enablement)."}];
+  optional string on_evaluation_error = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY."}];
+}
+
+message GetIpAllowlistResponse {
+  IpAllowlist allowlist = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetSessionProfileRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string session_profile_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a session profile."}
+  ];
+}
+
+message GetSessionProfileResponse {
+  external.data.v1.SessionProfile session_profile = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies."}
+  ];
+}
+
+message GetSessionProfilesRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+}
+
+message GetSessionProfilesResponse {
+  repeated external.data.v1.SessionProfile session_profiles = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A list of session profiles for users in the organization."}
+  ];
+}
+
+message GetMfaStatusRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string activity_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The unique identifier of the activity to get MFA status for."}
+  ];
+  optional string user_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional user ID to filter MFA status for a specific user."}];
+}
+
+message GetMfaStatusResponse {
+  repeated external.data.v1.MfaStatus mfa_statuses = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A list of MFA statuses for the activity's votes."}
+  ];
+}
+
+message GetEmailEventsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string email = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The email address to retrieve events for."}
+  ];
+  string event_type = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The type of email event to filter by."}
+  ];
+  external.options.v1.Pagination pagination_options = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Parameters used for cursor-based pagination."}
+  ];
+}
+
+message GetEmailEventsResponse {
+  repeated EmailEvent email_events = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "A list of email events matching the request criteria."}
+  ];
+}
+
+message GetEmailEventCountRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string email = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The email address to retrieve event counts for."}
+  ];
+}
+
+message GetEmailEventCountResponse {
+  int64 total_count = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The total count of email events matching the request criteria."}
+  ];
+  int64 delivery_count = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The count of Delivery email events matching the request criteria."}
+  ];
+  int64 bounce_count = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The count of Bounce email events matching the request criteria."}
+  ];
+  int64 delivery_delay_count = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The count of DeliveryDelay email events matching the request criteria."}
+  ];
+  int64 complained_count = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The count of Complained email events matching the request criteria."}
+  ];
+}
+
+message EmailEvent {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for the email event"}
+  ];
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for the organization associated with the email event"}
+  ];
+  string message_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Provider message identifier. Multiple events can share the same message ID"}
+  ];
+  string event_type = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Email event type, such as Send, Delivery, Bounce, or DeliveryDelay"}
+  ];
+  string from_address = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Sender email address"}
+  ];
+  string to_address = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Recipient email address"}
+  ];
+  string sender_tenant = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "SES tenant that sent the email, when available"}
+  ];
+  string timestamp = 8 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Event timestamp as millisecond epoch string"}
+  ];
+  string created_at = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Creation timestamp as millisecond epoch string"}
+  ];
+  EmailEventDetails details = 10 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Parsed email event details. Fields are populated based on event type and available provider metadata"}
+  ];
+}
+
+message EmailEventDetails {
+  string bounce_type = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Bounce type for Bounce events"}
+  ];
+  string bounce_sub_type = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Bounce subtype for Bounce events"}
+  ];
+  string diagnostic_code = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Diagnostic text for Bounce or DeliveryDelay events"}
+  ];
+  string delivery_smtp_response = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "SMTP response for Delivery events"}
+  ];
+  uint64 delivery_processing_time_millis = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Processing time in milliseconds for Delivery events"}
+  ];
+  string delivery_delay_type = 6 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Delay type for DeliveryDelay events"}
+  ];
+  string complaint_feedback_type = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Feedback type for Complaint events"}
+  ];
+}
+
+message GetWalletAddressBalancesRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string address = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Address corresponding to a wallet account. Private key addresses are not supported."}
+  ];
+  string caip2 = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "CAIP-2 chain ID."
+      enum: [
+        "eip155:1",
+        "eip155:11155111",
+        "eip155:8453",
+        "eip155:84532",
+        "eip155:137",
+        "eip155:80002",
+        "eip155:56",
+        "eip155:97",
+        "eip155:10",
+        "eip155:11155420",
+        "eip155:143",
+        "eip155:10143",
+        "eip155:42161",
+        "eip155:4217",
+        "eip155:42431",
+        "eip155:421614",
+        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      ]
+    }
+  ];
+}
+
+message GetWalletAddressBalancesResponse {
+  repeated AssetBalance balances = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "List of non-zero asset balances."}
+  ];
+}
+
+message AssetBalance {
+  string caip19 = 1 [(google.api.field_behavior) = REQUIRED];
+  string symbol = 2 [(google.api.field_behavior) = REQUIRED];
+  string balance = 3 [(google.api.field_behavior) = REQUIRED];
+  int32 decimals = 4 [(google.api.field_behavior) = REQUIRED];
+  AssetBalanceDisplay display = 5 [(google.api.field_behavior) = REQUIRED];
+  string name = 6 [(google.api.field_behavior) = REQUIRED];
+}
+
+message AssetBalanceDisplay {
+  string usd = 1 [(google.api.field_behavior) = REQUIRED];
+  string crypto = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListSupportedAssetsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  string caip2 = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "CAIP-2 chain ID."
+      enum: [
+        "eip155:1",
+        "eip155:11155111",
+        "eip155:8453",
+        "eip155:84532",
+        "eip155:137",
+        "eip155:80002",
+        "eip155:56",
+        "eip155:97",
+        "eip155:10",
+        "eip155:11155420",
+        "eip155:143",
+        "eip155:10143",
+        "eip155:42161",
+        "eip155:4217",
+        "eip155:42431",
+        "eip155:421614",
+        "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+        "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      ]
+    }
+  ];
+}
+
+message ListSupportedAssetsResponse {
+  repeated external.data.v1.AssetMetadata assets = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "List of asset metadata."}
+  ];
+}
+
+message ListEarnVaultsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization. Annotates which vaults the organization has already enabled."}
+  ];
+  immutable.data.v1.EarnProvider provider = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."}];
+  string caip19 = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier."}
+  ];
+  external.options.v1.Pagination pagination_options = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page."}];
+}
+
+message ListEarnVaultsResponse {
+  repeated external.data.v1.EarnVault vaults = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass page_info.end_cursor as the pagination after cursor."}];
+  external.options.v1.PageInfo page_info = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Pagination metadata for the returned page. Pass end_cursor as the next request's after cursor (or start_cursor as the before cursor) to page through the catalog. Cursors are opaque; do not parse them."}];
+}
+
+message GetEarnVaultExposureRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  immutable.data.v1.EarnProvider provider = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Yield provider of the vault. Providers without an allocation breakdown return an empty list."}
+  ];
+  string caip19 = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "CAIP-19 asset ID of the vault's underlying asset (e.g. 'eip155:8453/erc20:0x833589...'); the chain is taken from the identifier and decimals drive the display values."}
+  ];
+  string vault_address = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Address of the underlying yield vault to resolve exposure for. Works for any catalog vault, enabled or not."}
+  ];
+}
+
+message GetEarnVaultExposureResponse {
+  repeated external.data.v1.EarnVaultExposure exposures = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The underlying markets the vault allocates into, ranked by supplied amount descending. Empty for providers without an allocation breakdown."}];
+}
+
+message ListEarnEnabledVaultsRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  immutable.data.v1.EarnProvider provider = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers."}];
+  optional string caip19 = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier."}];
+  bool include_exposure = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "When true, populate each vault's exposures (the underlying markets it allocates into). This costs an extra provider query per vault, so leave it off for list views."}];
+}
+
+message ListEarnEnabledVaultsResponse {
+  repeated external.data.v1.EarnEnabledVault enabled_vaults = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The organization's deployed wrappers."}];
+}
+
+message GetEarnDeployStatusRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string deploy_request_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The deploy_request_id returned by EarnDeployWrapper."}
+  ];
+}
+
+message GetEarnDeployStatusResponse {
+  string status = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "Status of the wrapper deployment."
+      enum: [
+        "PENDING",
+        "COMPLETED",
+        "FAILED"
+      ]
+    }
+  ];
+  optional string deploy_tx_hash = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Transaction hash of the deployment, once available."}];
+  optional string error = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Reason the deployment transaction failed, when status is FAILED."}];
+}
+
+message GetClaimEarnFeesStatusRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Organization."}
+  ];
+  string claim_request_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The claim_request_id returned by ClaimEarnFees."}
+  ];
+}
+
+message GetClaimEarnFeesStatusResponse {
+  string status = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "Status of the fee claim."
+      enum: [
+        "PENDING",
+        "COMPLETED",
+        "FAILED"
+      ]
+    }
+  ];
+  optional string claim_tx_hash = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Transaction hash of the fee claim, once available."}];
+  optional string error = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Reason the fee claim transaction failed, when status is FAILED."}];
+}
+
+message GetAssetsMetadataRequest {
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given organization."}
+  ];
+  repeated string caip19s = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "CAIP-19 asset IDs to resolve metadata for (e.g. 'eip155:8453/erc20:0x833589...'). The chain is encoded in each identifier, so assets may span multiple chains. Max 100. Unknown or unsupported IDs are omitted from the response."}
+  ];
+}
+
+message GetAssetsMetadataResponse {
+  repeated external.data.v1.AssetMetadata assets = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Metadata for the requested assets. Each entry carries its caip19; resolve by matching it against the requested IDs. Assets that could not be resolved are omitted, so this may be shorter than the request."}];
+}
