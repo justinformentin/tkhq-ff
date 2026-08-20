@@ -1,0 +1,1509 @@
+syntax = "proto3";
+
+package services.operator_agent.v1;
+
+import "google/protobuf/timestamp.proto";
+import "immutable/common/v1/product.proto";
+import "services/coordinator/dashboard/v1/dashboard_api.proto";
+
+option go_package = "github.com/tkhq/mono/src/go/gen/pkg/services/operator_agent/v1";
+
+service OperatorAgentService {
+  rpc ListFeatureFlags(ListFeatureFlagsRequest) returns (ListFeatureFlagsResponse);
+  rpc GetFeatureFlag(GetFeatureFlagRequest) returns (GetFeatureFlagResponse);
+  rpc SetFeatureFlag(SetFeatureFlagRequest) returns (SetFeatureFlagResponse);
+  rpc AddFeatureFlagOrg(AddFeatureFlagOrgRequest) returns (AddFeatureFlagOrgResponse);
+  rpc RemoveFeatureFlagOrg(RemoveFeatureFlagOrgRequest) returns (RemoveFeatureFlagOrgResponse);
+  rpc AddFeatureFlagProduct(AddFeatureFlagProductRequest) returns (AddFeatureFlagProductResponse);
+  rpc RemoveFeatureFlagProduct(RemoveFeatureFlagProductRequest) returns (RemoveFeatureFlagProductResponse);
+
+  rpc CheckMigration(CheckMigrationRequest) returns (CheckMigrationResponse);
+  rpc GetPendingMigrations(GetPendingMigrationsRequest) returns (GetPendingMigrationsResponse);
+
+  rpc SetQuotaOverride(SetQuotaOverrideRequest) returns (SetQuotaOverrideResponse);
+  rpc RemoveQuotaOverride(RemoveQuotaOverrideRequest) returns (RemoveQuotaOverrideResponse);
+  rpc GetQuotaOverrides(GetQuotaOverridesRequest) returns (GetQuotaOverridesResponse);
+
+  // DirectService allows the target of an application's Service to be changed,
+  // in a controlled manner.
+  rpc DirectService(DirectServiceRequest) returns (DirectServiceResponse);
+
+  // ScaleService allows the target application to be scaled up or down.
+  rpc ScaleService(ScaleServiceRequest) returns (ScaleServiceResponse);
+
+  // GetRateLimit allows an Organization's rate limit to be retrieved.
+  rpc GetRateLimit(GetRateLimitRequest) returns (GetRateLimitResponse);
+
+  // SetRateLimit allows an Organization's rate limit to be overridden.
+  rpc SetRateLimit(SetRateLimitRequest) returns (SetRateLimitResponse);
+
+  // RemoveRateLimit deletes an organization's rate limit
+  rpc RemoveRateLimit(RemoveRateLimitRequest) returns (RemoveRateLimitResponse);
+
+  // GetGasLimitConfig retrieves gas limit configuration for a parent organization.
+  rpc GetGasLimitConfig(GetGasLimitConfigRequest) returns (GetGasLimitConfigResponse);
+
+  // SetGasLimitConfig sets or updates gas limit configuration for a parent organization.
+  rpc SetGasLimitConfig(SetGasLimitConfigRequest) returns (SetGasLimitConfigResponse);
+
+  // RemoveGasLimitConfig removes gas limit configuration for a parent organization.
+  rpc RemoveGasLimitConfig(RemoveGasLimitConfigRequest) returns (RemoveGasLimitConfigResponse);
+
+  // GetPaymaster retrieves a paymaster either by id --or-- by chain_id & address.
+  rpc GetPaymaster(GetPaymasterRequest) returns (GetPaymasterResponse);
+
+  // ListPaymasters lists paymasters for a given chain (optionally filtering on `status`)
+  rpc ListPaymasters(ListPaymastersRequest) returns (ListPaymastersResponse);
+
+  // AddPaymaster adds a new paymaster.
+  rpc AddPaymaster(AddPaymasterRequest) returns (AddPaymasterResponse);
+
+  // SetPaymasterStatus sets the `status` of an existing paymaster.
+  rpc SetPaymasterStatus(SetPaymasterStatusRequest) returns (SetPaymasterStatusResponse);
+
+  // RemovePaymaster removes an existing paymaster.
+  rpc RemovePaymaster(RemovePaymasterRequest) returns (RemovePaymasterResponse);
+
+  // GetPaymasterFundingConfig retrieves paymaster funding configuration for a chain.
+  rpc GetPaymasterFundingConfig(GetPaymasterFundingConfigRequest) returns (GetPaymasterFundingConfigResponse);
+
+  // SetPaymasterFundingConfig sets or updates paymaster funding configuration for a chain.
+  rpc SetPaymasterFundingConfig(SetPaymasterFundingConfigRequest) returns (SetPaymasterFundingConfigResponse);
+
+  // RemovePaymasterFundingConfig removes paymaster funding configuration for a chain.
+  rpc RemovePaymasterFundingConfig(RemovePaymasterFundingConfigRequest) returns (RemovePaymasterFundingConfigResponse);
+
+  // PreviewPaymasterFleetSync computes the actions needed to align paymaster inventory with the desired fleet state.
+  rpc PreviewPaymasterFleetSync(PreviewPaymasterFleetSyncRequest) returns (PreviewPaymasterFleetSyncResponse);
+
+  // ReconcilePaymasterFleetSync computes a canonical desired fleet spec from current environment state.
+  rpc ReconcilePaymasterFleetSync(ReconcilePaymasterFleetSyncRequest) returns (ReconcilePaymasterFleetSyncResponse);
+
+  // ApplyPaymasterFleetSync applies the actions needed to align paymaster inventory with the desired fleet state.
+  rpc ApplyPaymasterFleetSync(ApplyPaymasterFleetSyncRequest) returns (ApplyPaymasterFleetSyncResponse);
+
+  // OrgRefs requests the references for an org.
+  rpc OrgRefs(OrgRefsRequest) returns (OrgRefsResponse);
+
+  // GetInterdictions returns the set of interdictions which apply to the
+  // requested organization.
+  rpc GetInterdictions(GetInterdictionsRequest) returns (GetInterdictionsResponse);
+
+  // ClearCacheForOrg clears cache for an org, forcing a pull-through of their billing ID and product type
+  rpc ClearCacheForOrg(ClearCacheForOrgRequest) returns (ClearCacheForOrgResponse);
+
+  // StripeUpdateAll runs the StripeUpdate process out of sequence (it normally runs periodically in usage reporter)
+  rpc StripeUpdateAll(StripeUpdateAllRequest) returns (StripeUpdateAllResponse);
+
+  // StripeUpdateCustomer runs the StripeUpdate process on a single customer
+  rpc StripeUpdateCustomer(StripeUpdateCustomerRequest) returns (StripeUpdateCustomerResponse);
+
+  // ForceStripeUpdate runs the StripeImport process out of sequence (it normally runs periodically in usage reporter)
+  rpc StripeImport(StripeImportRequest) returns (StripeImportResponse);
+
+  // SetInterdictorBlock either sets or removes an interdictor block, given an op, a scope, and org, and a desired block status
+  rpc SetInterdictorBlock(SetInterdictorBlockRequest) returns (SetInterdictorBlockResponse);
+
+  // EvaluateQuota assesses an org against a particular label of usage, bypassing the actual blocking/unblocking but
+  // emitting all relevant logs, for troubleshooting purposes
+  rpc EvaluateQuota(EvaluateQuotaRequest) returns (EvaluateQuotaResponse);
+
+  // GetCachedProducts gets all cached products
+  rpc GetCachedProducts(GetCachedProductsRequest) returns (GetCachedProductsResponse);
+
+  // GetDefaultRateLimits returns all default rate limits from the database
+  rpc GetDefaultRateLimits(GetDefaultRateLimitsRequest) returns (GetDefaultRateLimitsResponse);
+
+  // EvictProductFromCache remove a product from the Stripe cache
+  rpc EvictProductFromCache(EvictProductFromCacheRequest) returns (EvictProductFromCacheResponse);
+
+  // OrbImport runs the Orb customer import process out of sequence (it normally runs periodically in usage reporter)
+  rpc OrbImport(OrbImportRequest) returns (OrbImportResponse);
+
+  // OrbUpdateAll runs the Orb update process for all linked customers out of sequence
+  rpc OrbUpdateAll(OrbUpdateAllRequest) returns (OrbUpdateAllResponse);
+
+  // OrbUpdateCustomer runs the Orb update process for a single customer
+  rpc OrbUpdateCustomer(OrbUpdateCustomerRequest) returns (OrbUpdateCustomerResponse);
+
+  // OrbRepair runs the Orb child-customer reconciliation across all customers
+  rpc OrbRepair(OrbRepairRequest) returns (OrbRepairResponse);
+
+  // OrbRepairCustomer runs the Orb child-customer reconciliation for a single customer
+  rpc OrbRepairCustomer(OrbRepairCustomerRequest) returns (OrbRepairCustomerResponse);
+
+  // GetCachedPlans returns all plans currently in the Orb plan cache
+  rpc GetCachedPlans(GetCachedPlansRequest) returns (GetCachedPlansResponse);
+
+  // EvictPlanFromCache removes a plan from the Orb plan cache
+  rpc EvictPlanFromCache(EvictPlanFromCacheRequest) returns (EvictPlanFromCacheResponse);
+
+  // OrbSetCustomerPlan previews a customer plan change in Orb. Currently dry-run only.
+  rpc OrbSetCustomerPlan(OrbSetCustomerPlanRequest) returns (OrbSetCustomerPlanResponse);
+
+  // CreateSesDomain provisions SES resources (Email Identity, Configuration Set, Tenant) for a specified domain.
+  rpc CreateSesDomain(CreateSesDomainRequest) returns (CreateSesDomainResponse);
+
+  // GetSesDomain returns the SES resources and DNS records for a specified domain.
+  rpc GetSesDomain(GetSesDomainRequest) returns (GetSesDomainResponse);
+
+  // RefreshSesDomain deletes and recreates an SES identity to generate fresh DNS records.
+  rpc RefreshSesDomain(RefreshSesDomainRequest) returns (RefreshSesDomainResponse);
+
+  // CreateCustomDomainEntry creates an entry in the custom_email_domains table
+  rpc CreateCustomDomainEntry(CreateCustomDomainEntryRequest) returns (CreateCustomDomainEntryResponse);
+
+  // UpdateAuthProxyEmailConfig updates the auth proxy email configuration for an org. This should be done last since it can rug the devs if their email config is not complete yet
+  rpc UpdateAuthProxyEmailConfig(UpdateAuthProxyEmailConfigRequest) returns (UpdateAuthProxyEmailConfigResponse);
+
+  // GetSuppressedEmail returns suppression list details for a given email address.
+  rpc GetSuppressedEmail(GetSuppressedEmailRequest) returns (GetSuppressedEmailResponse);
+
+  // AddSuppressedEmail adds an email address to the suppression list.
+  rpc AddSuppressedEmail(AddSuppressedEmailRequest) returns (AddSuppressedEmailResponse);
+
+  // DeleteSuppressedEmail removes an email address from the suppression list.
+  rpc DeleteSuppressedEmail(DeleteSuppressedEmailRequest) returns (DeleteSuppressedEmailResponse);
+
+  // Lists suppressed email destinations for the account, with optional filtering and pagination.
+  rpc ListSuppressedEmails(ListSuppressedEmailsRequest) returns (ListSuppressedEmailsResponse);
+
+  // Get email verification status of an email address.
+  rpc GetEmailVerification(GetEmailVerificationRequest) returns (GetEmailVerificationResponse);
+
+  // Update email verification status of an email address.
+  rpc UpdateEmailVerification(UpdateEmailVerificationRequest) returns (UpdateEmailVerificationResponse);
+
+  // DeleteTvcAppAndDeployments deletes a TVC app and all of its deployments.
+  rpc DeleteTvcAppAndDeployments(DeleteTvcAppAndDeploymentsRequest) returns (DeleteTvcAppAndDeploymentsResponse);
+
+  // DeleteTvcDeployment deletes a TVC deployment.
+  rpc DeleteTvcDeployment(DeleteTvcDeploymentRequest) returns (DeleteTvcDeploymentResponse);
+
+  // SetProductSubType sets the product sub-type for a customer.
+  rpc SetProductSubType(SetProductSubTypeRequest) returns (SetProductSubTypeResponse);
+
+  // GetAccountExemption returns the account exemption record for an organization, if any.
+  rpc GetAccountExemption(GetAccountExemptionRequest) returns (GetAccountExemptionResponse);
+
+  // SetAccountExemption upserts the account exemption record for an organization. A num_sigs_allowed of -1
+  // indicates unlimited exemptions.
+  rpc SetAccountExemption(SetAccountExemptionRequest) returns (SetAccountExemptionResponse);
+
+  // RemoveAccountExemption deletes the account exemption record for an organization.
+  rpc RemoveAccountExemption(RemoveAccountExemptionRequest) returns (RemoveAccountExemptionResponse);
+
+  // GetCustomerOrganization returns the customer binding for an organization, if any.
+  rpc GetCustomerOrganization(GetCustomerOrganizationRequest) returns (GetCustomerOrganizationResponse);
+
+  // BindCustomerOrganization links an organization to a customer.
+  rpc BindCustomerOrganization(BindCustomerOrganizationRequest) returns (BindCustomerOrganizationResponse);
+
+  // UnbindCustomerOrganization removes an organization-to-customer link.
+  rpc UnbindCustomerOrganization(UnbindCustomerOrganizationRequest) returns (UnbindCustomerOrganizationResponse);
+
+  // GetGithubPullRequestsMetadata returns metadata for the given GitHub PR numbers.
+  rpc GetGithubPullRequestsMetadata(GetGithubPullRequestsMetadataRequest) returns (GetGithubPullRequestsMetadataResponse);
+
+  // CancelKargoPromotion terminates a running Kargo Promotion.
+  rpc CancelKargoPromotion(CancelKargoPromotionRequest) returns (CancelKargoPromotionResponse);
+}
+
+message SetQuotaOverrideRequest {
+  QuotaOverride data = 1;
+}
+
+message SetQuotaOverrideResponse {}
+
+message RemoveQuotaOverrideRequest {
+  string org_id = 1;
+  string label = 2;
+}
+
+message RemoveQuotaOverrideResponse {}
+
+message GetQuotaOverridesRequest {
+  string org_id = 1;
+}
+
+message GetQuotaOverridesResponse {
+  repeated QuotaOverride items = 1;
+}
+
+message QuotaOverride {
+  string org_id = 1;
+  string label = 2;
+  int64 count = 3;
+}
+
+message GetDefaultRateLimitsRequest {}
+
+message GetDefaultRateLimitsResponse {
+  repeated RateLimit limits = 1;
+}
+
+message EvictProductFromCacheRequest {
+  string product_id = 1;
+}
+
+message EvictProductFromCacheResponse {}
+
+message DeleteTvcAppAndDeploymentsRequest {
+  string app_id = 1;
+}
+
+message DeleteTvcAppAndDeploymentsResponse {}
+
+message DeleteTvcDeploymentRequest {
+  string deployment_id = 1;
+}
+
+message DeleteTvcDeploymentResponse {}
+
+message GetCachedProductsRequest {}
+
+message GetCachedProductsResponse {
+  repeated services.coordinator.dashboard.v1.BillingTier products = 1;
+}
+
+message SetInterdictorBlockRequest {
+  string scope = 1;
+  string op = 2;
+  string org_id = 3;
+
+  // Blocked indicates whether the interdictor block should be added; if set to false, any existing block will be removed
+  bool blocked = 4;
+
+  optional string suborg_id = 5;
+}
+
+message SetInterdictorBlockResponse {
+  // RawKey indicates the Redis key that was either added or removed, given the op, scope, and org of the request
+  string raw_key = 1;
+
+  // WasBlocked indicates whether the block existed previously to the request
+  bool was_blocked = 2;
+}
+
+message EvaluateQuotaRequest {
+  string org_id = 1;
+  string label = 2;
+}
+
+message EvaluateQuotaResponse {}
+
+message StripeUpdateCustomerRequest {
+  string customer_id = 1;
+}
+
+message StripeUpdateCustomerResponse {}
+
+message StripeUpdateAllRequest {}
+
+message StripeUpdateAllResponse {}
+
+message StripeImportRequest {}
+
+message StripeImportResponse {}
+
+message OrbImportRequest {
+  bool dry_run = 1;
+}
+
+message OrbImportResponse {
+  repeated OrbCustomerImportOutcome imported_customers = 1;
+  bool success = 5;
+  string error = 6;
+}
+
+message OrbUpdateAllRequest {
+  bool dry_run = 1;
+}
+
+message OrbUpdateAllResponse {
+  repeated OrbCustomerUpdateOutcome updated_customers = 1;
+  bool success = 6;
+  string error = 7;
+}
+
+message OrbUpdateCustomerRequest {
+  string customer_id = 1;
+  bool dry_run = 2;
+}
+
+message OrbUpdateCustomerResponse {
+  // Set if the customer was updated; unset if Orb already matched the local state (no change).
+  OrbCustomerUpdateOutcome updated_customer = 1;
+  bool success = 6;
+  string error = 7;
+}
+
+// OrbCustomerImportOutcome describes a single attempted Orb-to-Turnkey import (success or failure).
+// Silent skips (already-linked parents, child customers) are NOT included.
+message OrbCustomerImportOutcome {
+  string customer_id = 1;
+  string internal_name = 2;
+  string orb_customer_id = 3;
+  immutable.common.v1.ProductType product_type = 4;
+}
+
+// OrbCustomerUpdateOutcome describes a single attempted Orb-driven product_type update.
+// Customers already in sync with Orb are NOT included.
+message OrbCustomerUpdateOutcome {
+  string customer_id = 1;
+  string internal_name = 2;
+  string orb_customer_id = 3;
+  immutable.common.v1.ProductType previous_product_type = 4;
+  immutable.common.v1.ProductType current_product_type = 5;
+}
+
+message OrbRepairRequest {
+  bool dry_run = 1;
+}
+
+message OrbRepairResponse {
+  repeated OrbCustomerRepairOutcome outcomes = 1;
+}
+
+message OrbRepairCustomerRequest {
+  string customer_id = 1;
+  bool dry_run = 2;
+}
+
+message OrbRepairCustomerResponse {
+  OrbCustomerRepairOutcome outcome = 1;
+}
+
+// OrbCustomerRepairOutcome describes the result of running the Orb child reconciliation flow for a single customer.
+message OrbCustomerRepairOutcome {
+  string customer_id = 1;
+  string internal_name = 2;
+  string orb_customer_id = 3;
+  bool success = 4;
+  string error = 5;
+}
+
+message GetCachedPlansRequest {}
+
+message GetCachedPlansResponse {
+  repeated services.coordinator.dashboard.v1.BillingTier plans = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+message EvictPlanFromCacheRequest {
+  string plan_id = 1;
+}
+
+message EvictPlanFromCacheResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message OrbSetCustomerPlanRequest {
+  string customer_id = 1;
+  immutable.common.v1.ProductType product_type = 2;
+  // Required only when product_type is PRODUCT_TYPE_ENTERPRISE.
+  immutable.common.v1.ProductSubType product_sub_type = 3;
+}
+
+message OrbSetCustomerPlanResponse {
+  // Human-readable summary of the customer's current Orb subscription, e.g.
+  // "pay-as-you-go (plan_abc) — active since 2026-01-02".
+  string current_plan_summary = 1;
+
+  // Human-readable summary of the target plan the operator requested.
+  string target_plan_summary = 2;
+  bool success = 3;
+  string error = 4;
+}
+
+message CheckMigrationRequest {
+  // MigrationId of the migration we wish to check
+  string migration_id = 1;
+}
+
+message GetPendingMigrationsRequest {
+  // List of MigrationId values to check status of
+  repeated string migration_ids = 1;
+}
+
+message CheckMigrationResponse {
+  // MigrationId of the migration we checked
+  string migration_id = 1;
+  // Indicates if given migration is applied
+  bool applied = 2;
+}
+
+message GetPendingMigrationsResponse {
+  // List of MigrationCheckResult
+  repeated CheckMigrationResponse results = 1;
+}
+
+// ServiceDirectionTargetType defines the set valid values for service direction
+// target types.
+enum ServiceDirectionTargetType {
+  SERVICE_DIRECTION_TARGET_TYPE_UNSPECIFIED = 0;
+
+  // Release indicates that the service direction request is intending to modify
+  // the turnkey.io/release label selector of the Service.
+  SERVICE_DIRECTION_TARGET_TYPE_RELEASE = 1;
+}
+
+// DirectServiceRequest desribes a request to direct a Service in a particular
+// way.
+message DirectServiceRequest {
+  // Name is the name of the service.
+  string name = 1;
+
+  // TargetType is the type of target this request entails.
+  ServiceDirectionTargetType target_type = 2;
+
+  // Release is the value of the turnkey.io/release label to which the Service
+  // should be directed. This is only meaningful if target_type is release. A
+  // value of empty string indicates that any release target should be removed.
+  string release = 10;
+
+  // Optional RFC-3339 timestamp after which automation is allowed to override this manual direction.
+  // This does not cause the service to automatically revert.
+  string manual_traffic_lock_until = 17;
+}
+
+// DirectServiceResponse defines the response to a service direction request.
+message DirectServiceResponse {}
+
+message SetFeatureFlagRequest {
+  FeatureFlag flag = 1;
+  bool enabled = 2;
+  int32 rollout_percent = 3;
+}
+
+message SetFeatureFlagResponse {}
+
+enum FeatureFlag {
+  FEATURE_FLAG_UNSPECIFIED = 0;
+
+  // deprecated
+  FEATURE_FLAG_AUTH_PROXY = 1;
+  FEATURE_FLAG_ACCOUNT_SETTINGS = 2;
+  FEATURE_FLAG_CREATE_PRIVATE_KEY = 3;
+  FEATURE_FLAG_OAUTH = 4;
+  FEATURE_FLAG_SEND_EMAILS = 5;
+  FEATURE_FLAG_SES_EMAIL = 7;
+  FEATURE_FLAG_SUB_ORGS_UI = 8;
+
+  // not deprecated
+  FEATURE_FLAG_SEND_SMS = 6;
+  FEATURE_FLAG_FIAT_ON_RAMP_COINBASE = 9;
+  FEATURE_FLAG_FIAT_ON_RAMP_MOONPAY = 10;
+  FEATURE_FLAG_APP_PROOFS = 11;
+  FEATURE_FLAG_SEND_GRID_EMAIL = 12;
+  // AsyncSigning is a system-wide feature flag to enable async database writes for certain signing operations.
+  // This is in service to the multi-region effort.
+  FEATURE_FLAG_ASYNC_SIGNING = 13;
+  FEATURE_FLAG_ETH_SEND_RAW_TRANSACTION = 14;
+  FEATURE_FLAG_ETH_SEND_TRANSACTION = 15;
+
+  // Email validation
+  FEATURE_FLAG_SEND_EMAIL_VALIDATION = 16; // used to determine if we should perform email verification (TLD checking, MX record checking, etc...) prior to sending emails
+  FEATURE_FLAG_MX_RECORD_VALIDATION = 17; // a sub-feature flag of email validation, will determine if failing MX validation should occur at all
+  FEATURE_FLAG_MX_RECORD_VALIDATION_LOG_MODE = 18; // a sub-feature flag of email validation and mx validation, will determine if failing MX validation should prevent sending emails/return an error
+  FEATURE_FLAG_GAS_SPONSORSHIP = 19; // enables the Gas Sponsorship UI in Wallet Kit
+  FEATURE_FLAG_EMAIL_VERIFICATION = 20; // a sub-feature flag of email validation, will determine email verification via the third party email verification provider occur
+  FEATURE_FLAG_EMAIL_VERIFICATION_LOG_MODE = 21; // a sub-feature flag of email validation, will determine if failing email verification should prevent sending emails/return an error
+
+  // Circuit breakers
+  FEATURE_FLAG_CIRCUIT_BREAKER_EMAIL = 22; // a feature flag to globally block email sends
+
+  // Dashboard v2
+  FEATURE_FLAG_DASHBOARD_V2 = 23; // enables the new Dashboard v2 UI
+
+  // TVC
+  FEATURE_FLAG_TVC = 24; // whether TVC is enabled for an Organization
+
+  // Solana send transaction
+  FEATURE_FLAG_SOL_SEND_TRANSACTION = 25; // enables the Solana Send Transaction API
+
+  // Balances
+  FEATURE_FLAG_GET_WALLET_ADDRESS_BALANCES = 26; // a feature flag to gate the GetWalletAddressBalances API endpoint
+
+  FEATURE_FLAG_LOCAL_REGION_HANDLE_GET_ACTIVITIES = 27; // handle request in the local region
+  FEATURE_FLAG_LOCAL_REGION_HANDLE_GET_SUB_ORG_IDS = 28; // handle request in the local region
+
+  FEATURE_FLAG_ETH_SEND_TRANSACTION_DISABLED = 29; // whether eth send transaction is explicitlydisabled for an Organization
+
+  FEATURE_FLAG_WEBHOOKS_V2 = 30; // enables webhook v2 CRUD/list + delivery routing by org
+
+  // IP Allowlist
+  FEATURE_FLAG_IP_ALLOWLIST = 31; // enables IP allowlist functionality for an Organization
+
+  FEATURE_FLAG_ENCLAVE_BACKOFF = 32; // enable GRPC requests to enclaves be rejected with grpc::UNAVAILABLE when backend under stress
+
+  FEATURE_FLAG_INTERDICTOR_PIPELINED_EXISTS = 33; // gates pipelined Redis EXISTS in interdictor CheckKeys
+
+  // Spark
+  FEATURE_FLAG_SPARK_SUPPORT_ENABLED = 34; // gates Spark support in enclave controller
+
+  FEATURE_FLAG_TVC_MANIFEST_V2 = 35; // gates v2 QOS manifest generation for TVC deployments
+  FEATURE_FLAG_CHAINALYSIS_SCREENING = 36; // gates Chainalysis address screening
+
+  // ETH_SEND_TRANSACTION_V2 - batch transactions
+  FEATURE_FLAG_ETH_SEND_TRANSACTION_V2 = 37;
+
+  // MFA and Session Profiles
+  FEATURE_FLAG_MFA_POLICIES = 38; // enables MFA policy creation/updation/deletion for an Organization
+  FEATURE_FLAG_SESSION_PROFILES = 39; // enables Session Profile creation for an Organization
+
+  // Earn
+  FEATURE_FLAG_EARN_V1 = 40; // gates Earn V1 activities (deposit/withdraw/deploy wrapper/fee config) and read endpoints for an Organization
+  // Swap quote and execute endpoints.
+  FEATURE_FLAG_SWAP = 41;
+  FEATURE_FLAG_TVC_EGRESS = 42; // gates TVC enclave egress (outbound connectivity) per organization
+  FEATURE_FLAG_EARN_AAVE = 43; // gates the Aave provider in Earn (Morpho-only V1; Aave is a fast follow) for an Organization
+
+  FEATURE_FLAG_TVC_CLUSTER = 44; // gates TVC deployments being created in tvc cluster
+  FEATURE_FLAG_EMAIL_EVENTS = 45; // enables email events for an organization
+  FEATURE_FLAG_SHADOW_AUTH = 46; // gates shadow auth mode for comparing new pkg/auth against old auth path
+  // Transaction history
+  FEATURE_FLAG_TRANSACTION_HISTORY = 47; // gates the ListEthTransactionHistory and ListSolTransactionHistory API endpoints
+
+  // Secrets
+  FEATURE_FLAG_SECRETS_API = 48; // gates the Secrets API (e.g. InitImportSecrets activity)
+  FEATURE_FLAG_AUTH_PROXY_CAPTCHA = 49; // gates captcha/Turnstile enforcement in auth proxy
+
+  // Velocity-based policy controls
+  FEATURE_FLAG_VELOCITY_POLICIES = 50; // gates velocity-based policy controls
+  FEATURE_FLAG_WALLET_ACCOUNT_NAMES = 51; // gates wallet account names in dashboard-v2
+  FEATURE_FLAG_WALLET_ACCOUNT_BALANCES = 52; // gates wallet account balances page in dashboard-v2
+
+  // Time-based policy controls
+  FEATURE_FLAG_TIME_BASED_POLICIES = 53; // gates time-based (time/CronSpan) policy creation and updates
+
+  FEATURE_FLAG_SEND_WHATSAPP = 54; // gates sending WhatsApp messages via the SendOtp activity
+}
+
+message FeatureFlagDefinition {
+  int64 id = 1;
+  FeatureFlag flag = 2;
+  bool enabled = 3;
+  int32 rollout_percent = 4;
+  repeated string whitelisted_orgs = 5;
+  repeated string blacklisted_orgs = 6;
+  optional google.protobuf.Timestamp created_at = 7;
+  optional google.protobuf.Timestamp updated_at = 8;
+  bool is_deprecated = 9;
+  repeated FeatureFlagProductAssociation whitelisted_products = 10;
+  repeated FeatureFlagProductAssociation blacklisted_products = 11;
+}
+
+message FeatureFlagProductAssociation {
+  immutable.common.v1.ProductType product_type = 1;
+  // PRODUCT_SUB_TYPE_UNSPECIFIED means "all sub_types of product_type" (whole-type targeting).
+  immutable.common.v1.ProductSubType product_sub_type = 2;
+}
+
+message ListFeatureFlagsRequest {}
+
+message ListFeatureFlagsResponse {
+  repeated FeatureFlagDefinition flags = 1;
+}
+
+message GetFeatureFlagRequest {
+  FeatureFlag flag = 1;
+}
+
+message GetFeatureFlagResponse {
+  FeatureFlagDefinition flag = 1;
+}
+
+message AddFeatureFlagOrgRequest {
+  FeatureFlag flag = 1;
+  string org_id = 2;
+  bool enabled = 3;
+}
+
+message AddFeatureFlagOrgResponse {}
+
+message RemoveFeatureFlagOrgRequest {
+  FeatureFlag flag = 1;
+  string org_id = 2;
+}
+
+message RemoveFeatureFlagOrgResponse {}
+
+message AddFeatureFlagProductRequest {
+  FeatureFlag flag = 1;
+  immutable.common.v1.ProductType product_type = 2;
+  // PRODUCT_SUB_TYPE_UNSPECIFIED targets the whole product_type.
+  immutable.common.v1.ProductSubType product_sub_type = 3;
+  bool enabled = 4;
+}
+
+message AddFeatureFlagProductResponse {}
+
+message RemoveFeatureFlagProductRequest {
+  FeatureFlag flag = 1;
+  immutable.common.v1.ProductType product_type = 2;
+  // PRODUCT_SUB_TYPE_UNSPECIFIED targets the whole product_type.
+  immutable.common.v1.ProductSubType product_sub_type = 3;
+}
+
+message RemoveFeatureFlagProductResponse {}
+
+// ScaleServiceRequest describes a request to scale a service to a given
+// instance count.
+message ScaleServiceRequest {
+  // Name is the name of the service.
+  string name = 1;
+
+  // Replicas is the new count for the number of instances of the service.
+  uint32 replicas = 2;
+
+  // Release is the value of the turnkey.io/release label of the Deployment
+  // which should be scaled. This is only meaningful for enclave applications
+  // (at the moment).
+  string release = 10;
+}
+
+// ScaleServiceResponse defines the response to a service scale request.
+message ScaleServiceResponse {}
+
+// RateLimitRuleType defines the set valid rate limit rules.
+enum RateLimitRuleType {
+  RATE_LIMIT_RULE_TYPE_UNSPECIFIED = 0;
+
+  // All corresponds to interdictor op:all
+  RATE_LIMIT_RULE_TYPE_ALL = 1;
+
+  // GetActivity corresponds to interdictor op:get-activity
+  // THIS IS DEPRECATED IN FAVOR OF QUERY RATE LIMIT
+  RATE_LIMIT_RULE_TYPE_GET_ACTIVITY = 2;
+
+  // Query corresponds to interdictor op:query
+  RATE_LIMIT_RULE_TYPE_QUERY = 3;
+
+  // Discrete corresponds to interdictor op:discrete,[variant]
+  RATE_LIMIT_RULE_TYPE_DISCRETE = 4;
+
+  // Sign corresponds to all signing activities
+  RATE_LIMIT_RULE_TYPE_SIGN = 5;
+}
+
+enum RateLimitRemediation {
+  RATE_LIMIT_REMEDIATION_UNSPECIFIED = 0;
+  RATE_LIMIT_REMEDIATION_SOFT_THROTTLE = 1;
+  RATE_LIMIT_REMEDIATION_HARD_THROTTLE = 2;
+  RATE_LIMIT_REMEDIATION_SOFT_BLOCK = 3;
+  RATE_LIMIT_REMEDIATION_HARD_BLOCK = 4;
+}
+
+enum RateLimitBucketType {
+  RATE_LIMIT_BUCKET_TYPE_UNSPECIFIED = 0;
+  RATE_LIMIT_BUCKET_TYPE_FAMILY = 1;
+  RATE_LIMIT_BUCKET_TYPE_INHERITED = 2;
+  RATE_LIMIT_BUCKET_TYPE_SELF = 3;
+}
+
+// SetRateLimitRequest describes a request to override the default rate limit
+// for an organization.
+message SetRateLimitRequest {
+  // OrgId specifies the organization ID whose rate limit should be set.
+  string org_id = 1;
+
+  // RequestsPerSecond sets the number of requests per second to allow from the
+  // associated Organization.
+  uint32 requests_per_second = 2;
+
+  // Rule defines the rate limit rule which should be matched.
+  RateLimitRuleType rule = 3;
+
+  // RuleVariant varies the rule
+  optional string rule_variant = 4;
+
+  // Remediation determines behavior if limit is exceeded
+  RateLimitRemediation remediation = 5;
+
+  optional google.protobuf.Timestamp expires_at = 6;
+
+  RateLimitBucketType bucket_type = 7;
+
+  string notes = 8;
+}
+
+message SetRateLimitResponse {}
+
+// RemoveRateLimitRequest describes a request to delete a rate limit
+message RemoveRateLimitRequest {
+  // OrgId specifies the organization ID whose rate limit should be set.
+  string org_id = 1;
+
+  // Rule defines the rate limit rule which should be matched.
+  RateLimitRuleType rule = 3;
+
+  // RuleVariant varies the rule
+  optional string rule_variant = 4;
+
+  RateLimitBucketType bucket_type = 5;
+}
+
+message RemoveRateLimitResponse {}
+
+message GetGasLimitConfigRequest {
+  string parent_org_id = 1;
+}
+
+message GetGasLimitConfigResponse {
+  string parent_org_id = 1;
+  string org_window_limit_usd = 2;
+  string sub_org_window_limit_usd = 3;
+  int32 window_duration_minutes = 4;
+  string notes = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message SetGasLimitConfigRequest {
+  string parent_org_id = 1;
+  string org_window_limit_usd = 2;
+  string sub_org_window_limit_usd = 3;
+  int32 window_duration_minutes = 4;
+  string notes = 5;
+}
+
+message GetPaymasterRequest {
+  optional string id = 1;
+  optional string caip2 = 2; // CAIP-2 chain identifier (e.g., "eip155:1")
+  optional string address = 3;
+}
+
+message ListPaymastersRequest {
+  string caip2 = 1; // CAIP-2 chain identifier (e.g., "eip155:1")
+  optional string status = 2;
+}
+
+message AddPaymasterRequest {
+  string caip2 = 1; // Required: CAIP-2 chain identifier (e.g., "eip155:1", "solana:mainnet")
+  string address = 2;
+  string organization_id = 3;
+  string wallet_account_id = 4;
+  optional string status = 5;
+}
+
+message SetPaymasterStatusRequest {
+  optional string id = 1;
+  optional string caip2 = 2; // CAIP-2 chain identifier
+  optional string address = 3;
+  string status = 4;
+}
+
+message RemovePaymasterRequest {
+  optional string id = 1;
+  optional string caip2 = 2; // CAIP-2 chain identifier
+  optional string address = 3;
+}
+
+message SetGasLimitConfigResponse {}
+
+message RemoveGasLimitConfigRequest {
+  string parent_org_id = 1;
+}
+
+message RemoveGasLimitConfigResponse {}
+
+message GetPaymasterFundingConfigRequest {
+  string caip2 = 1; // CAIP-2 chain identifier (e.g., "eip155:1")
+}
+
+message GetPaymasterFundingConfigResponse {
+  string caip2 = 1;
+  string hot_wallet_address = 2;
+  string paymaster_full_balance_wei = 3;
+  double paymaster_low_watermark_pct = 4;
+  string paymaster_topup_batch_size_wei = 5;
+  string hot_wallet_full_balance_wei = 6;
+  double hot_wallet_low_watermark_pct = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message SetPaymasterFundingConfigRequest {
+  string caip2 = 1;
+  string hot_wallet_address = 2;
+  string paymaster_full_balance_wei = 3;
+  double paymaster_low_watermark_pct = 4;
+  string paymaster_topup_batch_size_wei = 5;
+  string hot_wallet_full_balance_wei = 6;
+  double hot_wallet_low_watermark_pct = 7;
+}
+
+message SetPaymasterFundingConfigResponse {}
+
+message RemovePaymasterFundingConfigRequest {
+  string caip2 = 1;
+}
+
+message RemovePaymasterFundingConfigResponse {}
+
+message PaymasterFleetSyncFundingPolicy {
+  string hot_wallet_address = 1;
+  string paymaster_full_balance = 2;
+  double paymaster_low_watermark_pct = 3;
+  string paymaster_topup_batch_size = 4;
+  string hot_wallet_full_balance = 5;
+  double hot_wallet_low_watermark_pct = 6;
+  optional string hot_wallet_wallet_account_id = 7;
+  // Deployer-specific funding targets. When unset, deployer addresses fall back to the paymaster_* values above.
+  // These also don't need to be set if deployer_count=0 in the PaymasterFleetSyncChain spec.
+  optional string deployer_full_balance = 8;
+  optional double deployer_low_watermark_pct = 9;
+  optional string deployer_topup_batch_size = 10;
+}
+
+message PaymasterFleetSyncChain {
+  string caip2 = 1;
+  uint32 enabled_count = 2;
+  optional PaymasterFleetSyncFundingPolicy funding_policy = 3;
+  // Number of deployer addresses (purpose=deploy) to maintain on this chain. 0 = none.
+  uint32 deployer_count = 4;
+}
+
+message PaymasterFleetSyncSpec {
+  reserved 1, 2;
+  reserved "environment", "turnkey_org_id";
+  string paymaster_wallet_id = 3;
+  repeated PaymasterFleetSyncChain chains = 4;
+}
+
+message PreviewPaymasterFleetSyncRequest {
+  PaymasterFleetSyncSpec spec = 1;
+  bool force_enable = 2;
+}
+
+message ReconcilePaymasterFleetSyncRequest {
+  PaymasterFleetSyncSpec spec = 1;
+}
+
+message ApplyPaymasterFleetSyncRequest {
+  PaymasterFleetSyncSpec spec = 1;
+  bool force_enable = 2;
+}
+
+message PaymasterFleetSyncSummary {
+  string caip2 = 1;
+  uint32 current_total = 2;
+  uint32 current_enabled = 3;
+  uint32 target_enabled = 4;
+  uint32 create_count = 5;
+  uint32 register_count = 6;
+  uint32 awaiting_funding_count = 7;
+  reserved 8;
+  reserved "enable_count";
+  uint32 disable_count = 9;
+  bool funding_config_needs_update = 10;
+  repeated string post_sync_destination_addresses = 11;
+  optional string policy_hot_wallet_address = 12;
+  uint32 current_deployer_total = 13;
+  uint32 target_deployer_count = 14;
+  uint32 deployer_create_count = 15;
+  uint32 deployer_register_count = 16;
+  uint32 deployer_awaiting_funding_count = 17;
+  uint32 deployer_disable_count = 18;
+}
+
+message PaymasterFleetSyncCandidate {
+  string caip2 = 1;
+  uint32 derivation_index = 2;
+  string path = 3;
+  optional string wallet_account_id = 4;
+  optional string address = 5;
+  optional string paymaster_id = 6;
+  optional string status = 7;
+}
+
+message PaymasterFleetSyncAction {
+  enum ActionType {
+    ACTION_TYPE_UNSPECIFIED = 0;
+    ACTION_TYPE_CREATE_WALLET_ACCOUNTS = 1;
+    ACTION_TYPE_REGISTER_PAYMASTERS = 2;
+    reserved 3;
+    reserved "ACTION_TYPE_ENABLE_PAYMASTERS";
+    ACTION_TYPE_DISABLE_PAYMASTERS = 4;
+    ACTION_TYPE_UPSERT_FUNDING_CONFIG = 5;
+    ACTION_TYPE_MARK_PAYMASTERS_AWAITING_FUNDING = 6;
+    ACTION_TYPE_CREATE_PAYMASTER_WALLET_ACCOUNTS = 7;
+    ACTION_TYPE_CREATE_HOT_WALLET_ACCOUNTS = 8;
+    ACTION_TYPE_FORCE_ENABLE_PAYMASTERS = 9;
+  }
+
+  ActionType action_type = 1;
+  string caip2 = 2;
+  uint32 count = 3;
+  repeated PaymasterFleetSyncCandidate candidates = 4;
+  string description = 5;
+  bool deployer = 6;
+}
+
+message PaymasterFleetSyncChainResult {
+  string caip2 = 1;
+  repeated PaymasterFleetSyncCandidate created = 2;
+  repeated PaymasterFleetSyncCandidate registered = 3;
+  repeated PaymasterFleetSyncCandidate marked_awaiting_funding = 4;
+  reserved 5;
+  reserved "enabled";
+  repeated PaymasterFleetSyncCandidate disabled = 6;
+  bool funding_config_updated = 7;
+  repeated string warnings = 8;
+  repeated string errors = 9;
+  repeated PaymasterFleetSyncCandidate force_enabled = 10;
+}
+
+message PaymasterFleetSyncManualPolicyTemplate {
+  string caip2 = 1;
+  string title = 2;
+  string effect = 3;
+  string consensus = 4;
+  string condition = 5;
+  string source_address = 6;
+  repeated string destination_addresses = 7;
+  bool template_may_be_incomplete_until_apply = 8;
+  uint32 pending_paymaster_creates = 9;
+}
+
+message PreviewPaymasterFleetSyncResponse {
+  repeated PaymasterFleetSyncSummary summaries = 1;
+  repeated PaymasterFleetSyncAction actions = 2;
+  repeated string warnings = 3;
+  repeated PaymasterFleetSyncManualPolicyTemplate manual_policy_templates = 4;
+}
+
+message ReconcilePaymasterFleetSyncResponse {
+  PaymasterFleetSyncSpec spec = 1;
+  repeated string warnings = 2;
+}
+
+message ApplyPaymasterFleetSyncResponse {
+  repeated PaymasterFleetSyncSummary summaries = 1;
+  repeated PaymasterFleetSyncAction actions = 2;
+  repeated PaymasterFleetSyncChainResult results = 3;
+  repeated string warnings = 4;
+  repeated PaymasterFleetSyncManualPolicyTemplate manual_policy_templates = 5;
+}
+
+message GetPaymasterResponse {
+  string id = 1;
+  string organization_id = 2;
+  string caip2 = 3; // CAIP-2 chain identifier
+  string wallet_account_id = 4;
+  string address = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message Paymaster {
+  string id = 1;
+  string organization_id = 2;
+  string caip2 = 3; // CAIP-2 chain identifier
+  string wallet_account_id = 4;
+  string address = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message ListPaymastersResponse {
+  repeated Paymaster paymasters = 1;
+}
+
+message AddPaymasterResponse {
+  string paymaster_id = 1;
+}
+
+message SetPaymasterStatusResponse {}
+
+message RemovePaymasterResponse {}
+
+message ClearCacheForOrgRequest {
+  // OrgId specifies the organization ID whose org cache should be cleared
+  string org_id = 1;
+
+  bool include_sub_orgs = 2;
+}
+
+message ClearCacheForOrgResponse {}
+
+// GetRateLimitRequest describes a request to retrieve the rate limit for an
+// organization.
+message GetRateLimitRequest {
+  // OrgId specifies the organization ID whose rate limit should be set.
+  string org_id = 1;
+}
+
+// GetRateLimitResponse describes the rate limit for the given organization.
+message GetRateLimitResponse {
+  // OrgId specifies the organization ID whose rate limit was retrieved.
+  string org_id = 1;
+
+  // BillingOrgId specifies the billing org ID
+  string billing_org_id = 2;
+
+  // ProductType is a string representation of the org's product type
+  immutable.common.v1.ProductType product_type = 3;
+
+  // RateLimits is a list of all applicable rate limits
+  repeated RateLimit rate_limits = 4;
+
+  optional immutable.common.v1.ProductSubType product_sub_type = 5;
+}
+
+message RateLimit {
+  enum RateLimitCategory {
+    RATE_LIMIT_CATEGORY_UNSPECIFIED = 0;
+
+    // These are deprecated and won't be emitted by operator console
+    RATE_LIMIT_CATEGORY_DEFAULT_DB = 1;
+    RATE_LIMIT_CATEGORY_DEFAULT_HARDCODED = 2;
+    RATE_LIMIT_CATEGORY_ORG = 3;
+    RATE_LIMIT_CATEGORY_PARENT_ORG = 4;
+    RATE_LIMIT_CATEGORY_INHERITED = 5;
+
+    RATE_LIMIT_CATEGORY_DEFAULT_HARD_CODED = 6;
+    RATE_LIMIT_CATEGORY_DEFAULT_FAMILY = 7;
+    RATE_LIMIT_CATEGORY_DEFAULT_INHERITED = 8;
+    RATE_LIMIT_CATEGORY_CUSTOM_ORG = 9;
+    RATE_LIMIT_CATEGORY_CUSTOM_FAMILY = 10;
+    RATE_LIMIT_CATEGORY_CUSTOM_INHERITED = 11;
+  }
+
+  RateLimitCategory category = 1;
+
+  // RequestsPerMinute sets the number of requests per second to allow from the
+  // associated Organization.
+  uint32 requests_per_minute = 2;
+
+  // Rule defines the rate limit rule which should be matched.
+  RateLimitRuleType rule = 3;
+
+  // RuleVariant varies the rule
+  optional string rule_variant = 4;
+
+  // Remediation determines behavior if limit is exceeded
+  RateLimitRemediation remediation = 5;
+
+  optional google.protobuf.Timestamp expires_at = 6;
+
+  RateLimitBucketType bucket_type = 7;
+
+  uint32 id = 8;
+
+  immutable.common.v1.ProductType product_type = 9;
+
+  string notes = 10;
+
+  optional immutable.common.v1.ProductSubType product_sub_type = 11;
+}
+
+message GetInterdictionsRequest {
+  // OrgID is the organization ID for which interdictions of which should be
+  // returned.
+  string org_id = 1;
+}
+
+message GetInterdictionsResponse {
+  // InterdictionKeys is the list of interdictions applicable to the requested org,
+  // including their keys and any assigned owners
+  repeated Interdiction interdictions = 1;
+}
+
+message Interdiction {
+  string key = 1;
+  repeated string owners = 2;
+}
+
+message OrgRefsRequest {
+  // OrgId specifies the organization ID whose references should be retrieved.
+  string org_id = 1;
+}
+
+message OrgRefsResponse {
+  // OrgID is the ID of the organization which was requested.
+  string org_id = 1;
+
+  // BillingOrgID is the ID of the organization which is responsible for billing
+  // of the requested organization.
+  string billing_org_id = 2;
+
+  // CustomerID is the ID of the customer which owns the requested organization
+  // (if any).
+  string customer_id = 3;
+
+  // ProductType is the billing product to which the organization is a member.
+  immutable.common.v1.ProductType product_type = 4;
+
+  // IsCached indicated whether the org ref data is currently present in the Redis orgCache
+  bool is_cached = 5;
+
+  // ProductSubType is the product sub-type of the org, if applicable
+  optional immutable.common.v1.ProductSubType product_sub_type = 6;
+}
+
+message CreateSesDomainRequest {
+  string domain = 1;
+
+  // Optional custom configuration set name; defaults to derived from domain if omitted.
+  optional string configuration_set_name = 2;
+
+  // Optional custom tenant name; defaults to domain if omitted.
+  optional string tenant_name = 3;
+
+  // Optional custom MailFromDomain. Ex: mail -> mail.example.com
+  optional string mail_from_domain = 4;
+}
+
+message CreateSesDomainResponse {
+  string identity_name = 1;
+  string configuration_set_name = 2;
+  repeated string tenant_names = 3;
+  string mail_from_domain = 4;
+
+  // DNS records to be published for SES verification (TXT / CNAME / MX). This includes DKIM, DMARC and Mail-From records.
+  repeated DnsRecord dns_records = 5;
+
+  // Overall SES verification status (PENDING, SUCCESS, FAILED, etc.)
+  VerificationStatus verification_status = 6;
+
+  // Whether SES considers the domain verified for sending
+  bool verified_for_sending = 7;
+
+  // Individual verification status for DKIM
+  VerificationStatus dkim_status = 8;
+
+  // Individual verification status for Mail-From domain
+  VerificationStatus mail_from_domain_status = 9;
+}
+
+message GetSesDomainRequest {
+  string domain = 1;
+}
+
+message GetSesDomainResponse {
+  string identity_name = 1;
+  string configuration_set_name = 2;
+  repeated string tenant_names = 3;
+  string mail_from_domain = 4;
+
+  // DNS records to be published for SES verification (TXT / CNAME / MX). This includes DKIM, DMARC and Mail-From records.
+  repeated DnsRecord dns_records = 5;
+
+  // Overall SES verification status (PENDING, SUCCESS, FAILED, etc.)
+  VerificationStatus verification_status = 6;
+
+  // Whether SES considers the domain verified for sending
+  bool verified_for_sending = 7;
+
+  // Individual verification status for DKIM
+  VerificationStatus dkim_status = 8;
+
+  // Individual verification status for Mail-From domain
+  VerificationStatus mail_from_domain_status = 9;
+}
+
+message RefreshSesDomainRequest {
+  string domain = 1;
+}
+
+message RefreshSesDomainResponse {
+  string identity_name = 1;
+  string configuration_set_name = 2;
+  repeated string tenant_names = 3;
+  string mail_from_domain = 4;
+
+  // DNS records to be published for SES verification (TXT / CNAME / MX). This includes DKIM, DMARC and Mail-From records.
+  repeated DnsRecord dns_records = 5;
+
+  // Overall SES verification status (PENDING, SUCCESS, FAILED, etc.)
+  VerificationStatus verification_status = 6;
+
+  // Whether SES considers the domain verified for sending
+  bool verified_for_sending = 7;
+
+  // Individual verification status for DKIM
+  VerificationStatus dkim_status = 8;
+
+  // Individual verification status for Mail-From domain
+  VerificationStatus mail_from_domain_status = 9;
+}
+
+// Mirrors SES verification status values
+enum VerificationStatus {
+  VERIFICATION_STATUS_UNSPECIFIED = 0;
+  VERIFICATION_STATUS_PENDING = 1;
+  VERIFICATION_STATUS_SUCCESS = 2;
+  VERIFICATION_STATUS_FAILED = 3;
+  VERIFICATION_STATUS_TEMPORARY_FAILURE = 4;
+  VERIFICATION_STATUS_NOT_STARTED = 5;
+}
+
+// Represents a DNS record to be published for SES (TXT / CNAME / MX)
+message DnsRecord {
+  string type = 1;
+  string name = 2;
+  string value = 3;
+  string note = 4;
+}
+
+message CreateCustomDomainEntryRequest {
+  string domain = 1;
+  string org_id = 2;
+  optional string tenant_name = 3;
+}
+
+message CreateCustomDomainEntryResponse {
+  string domain = 1;
+  string org_id = 2;
+  string tenant_name = 3;
+}
+
+message UpdateAuthProxyEmailConfigRequest {
+  string org_id = 1;
+  optional string send_from_email_address = 2;
+  optional string reply_to_email_address = 3;
+  optional string send_from_email_sender_name = 4;
+}
+
+message UpdateAuthProxyEmailConfigResponse {
+  string org_id = 1;
+  optional string send_from_email_address = 2;
+  optional string reply_to_email_address = 3;
+  optional string send_from_email_sender_name = 4;
+}
+
+message GetSuppressedEmailRequest {
+  string email_address = 1;
+}
+
+message GetEmailVerificationRequest {
+  string email = 1;
+}
+
+message GetEmailVerificationResponse {
+  // The email address whose email verification status to check.
+  string email_address = 1;
+
+  // The validity status of the email passed in.
+  bool valid = 2;
+
+  // The date and time when the email verification record was created.
+  google.protobuf.Timestamp created_at = 3;
+
+  // The date and time when the email verification record was last updated.
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message UpdateEmailVerificationRequest {
+  // The email address whose email verification validity status will been updated.
+  string email = 1;
+
+  // The validity status to update for the email passed in.
+  bool valid = 2;
+}
+
+message UpdateEmailVerificationResponse {
+  // The email address whose email verification validity status has been updated.
+  string email_address = 1;
+
+  // The newly set validity status for the email passed in.
+  bool valid = 2;
+}
+
+enum SuppressionListReason {
+  SUPPRESSION_LIST_REASON_UNSPECIFIED = 0;
+  SUPPRESSION_LIST_REASON_BOUNCE = 1;
+  SUPPRESSION_LIST_REASON_COMPLAINT = 2;
+}
+
+message SuppressedDestinationAttributes {
+  // A unique identifier generated when the email was added to the suppression list.
+  string feedback_id = 1;
+
+  // The unique identifier of the email message that caused the suppression.
+  string message_id = 2;
+}
+
+message GetSuppressedEmailResponse {
+  // The email address that is on the suppression list.
+  string email_address = 1;
+
+  // The date and time when the suppressed destination was last updated.
+  google.protobuf.Timestamp last_update_time = 2;
+
+  // The reason that the address was added to the suppression list.
+  SuppressionListReason reason = 3;
+
+  // Additional information about the suppression.
+  optional SuppressedDestinationAttributes attributes = 4;
+}
+
+message AddSuppressedEmailRequest {
+  string email_address = 1;
+  SuppressionListReason reason = 2;
+}
+
+message AddSuppressedEmailResponse {
+  string email_address = 1;
+  SuppressionListReason reason = 2;
+}
+
+message DeleteSuppressedEmailRequest {
+  string email_address = 1;
+}
+
+message DeleteSuppressedEmailResponse {
+  string email_address = 1;
+}
+
+message ListSuppressedEmailsRequest {
+  // Optional start date filter (RFC-3339). Only include addresses added after this date.
+  optional google.protobuf.Timestamp start_date = 1;
+
+  // Optional end date filter (RFC-3339). Only include addresses added before this date.
+  optional google.protobuf.Timestamp end_date = 2;
+
+  // Optional page size
+  optional int32 page_size = 3;
+
+  // Optional pagination token returned from previous call
+  optional string next_token = 4;
+
+  // Optional list of reasons to filter by
+  repeated SuppressionListReason reasons = 5;
+}
+
+// Response for listing suppressed emails
+message ListSuppressedEmailsResponse {
+  repeated SuppressedEmailSummary items = 1;
+
+  // If non-empty, use this token to fetch the next page
+  optional string next_token = 2;
+}
+
+// Summary of a suppressed email destination
+message SuppressedEmailSummary {
+  string email_address = 1;
+  google.protobuf.Timestamp last_update_time = 2;
+  SuppressionListReason reason = 3;
+}
+
+message SetProductSubTypeRequest {
+  // customer_id is the UUID of the customer to update.
+  string customer_id = 1;
+
+  // product_sub_type is the product sub-type to set.
+  immutable.common.v1.ProductSubType product_sub_type = 2;
+}
+
+message SetProductSubTypeResponse {}
+
+message GetAccountExemptionRequest {
+  string org_id = 1;
+}
+
+message GetAccountExemptionResponse {
+  string org_id = 1;
+
+  // num_sigs_allowed: -1 indicates unlimited exemptions.
+  int64 num_sigs_allowed = 2;
+
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message SetAccountExemptionRequest {
+  string org_id = 1;
+
+  // num_sigs_allowed: -1 for unlimited, otherwise a non-negative count.
+  int64 num_sigs_allowed = 2;
+}
+
+message SetAccountExemptionResponse {
+  string org_id = 1;
+  int64 num_sigs_allowed = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message RemoveAccountExemptionRequest {
+  string org_id = 1;
+}
+
+message RemoveAccountExemptionResponse {}
+
+message GetCustomerOrganizationRequest {
+  string org_id = 1;
+}
+
+message GetCustomerOrganizationResponse {
+  string org_id = 1;
+
+  // customer_id is unset when the organization has no customer binding.
+  optional string customer_id = 2;
+}
+
+message BindCustomerOrganizationRequest {
+  string org_id = 1;
+  string customer_id = 2;
+}
+
+message BindCustomerOrganizationResponse {}
+
+message UnbindCustomerOrganizationRequest {
+  string org_id = 1;
+  string customer_id = 2;
+}
+
+message UnbindCustomerOrganizationResponse {}
+
+message GetGithubPullRequestsMetadataRequest {
+  // PrNumbers are the PR numbers to fetch.
+  repeated uint32 pr_numbers = 1;
+
+  // Owner is the user or organization of the targeted repository in GitHub.
+  string owner = 2;
+
+  // Repo is the repository the PRs are against.
+  string repo = 3;
+}
+
+message GetGithubPullRequestsMetadataResponse {
+  // Metadata is an index of PR metadata, keyed by PR number.
+  map<uint32, PullRequestMetadata> metadata = 1;
+}
+
+message PullRequestMetadata {
+  // Error is a human-readable reason set when the PR could not be fetched.
+  string error = 1;
+
+  // Title is the PR title.
+  string title = 2;
+
+  // AuthorUsername is the PR author's GitHub Username. This is the GitHub user that opened the PullRequest.
+  string author_username = 3;
+
+  // Description is the PR description.
+  string description = 4;
+
+  // NumAdditionalLines is the number of lines added by this PR.
+  uint32 num_additional_lines = 5;
+
+  // NumDeletedLines is the number of lines deleted by this PR.
+  uint32 num_deleted_lines = 6;
+}
+
+message CancelKargoPromotionRequest {
+  string project = 1;
+  string promotion_id = 2;
+}
+
+message CancelKargoPromotionResponse {
+  // Empty: a successful response means the Promotion was canceled.
+}

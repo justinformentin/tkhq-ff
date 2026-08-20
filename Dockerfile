@@ -32,9 +32,10 @@ WORKDIR /app
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=backend-builder /app/backend/node_modules ./node_modules
 
-# Copy proto file into dist so it's available at runtime
-# (backend loads it dynamically via @grpc/proto-loader)
-COPY --from=backend-builder /app/backend/src/grpc/operator_agent.proto ./dist/grpc/operator_agent.proto
+# Copy the vendored proto tree into dist so it's available at runtime
+# (backend loads it dynamically via @grpc/proto-loader, and the import paths
+# inside the protos require the directory structure to be preserved)
+COPY --from=backend-builder /app/backend/src/grpc/proto ./dist/grpc/proto
 
 # Copy compiled frontend assets into location the backend will serve
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist

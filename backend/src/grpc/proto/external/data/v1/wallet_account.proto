@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package external.data.v1;
+
+import "external/data/v1/common.proto";
+import "external/data/v1/organization_data.proto";
+import "immutable/common/v1/common.proto";
+import "vendor/google/api/field_behavior.proto";
+import "vendor/protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/tkhq/mono/src/go/gen/pkg/external/data/v1";
+
+// An account derived from a Wallet
+message WalletAccount {
+  string wallet_account_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Unique identifier for a given Wallet Account."}
+  ];
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The Organization the Account belongs to."}
+  ];
+  string wallet_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The Wallet the Account was derived from."}
+  ];
+  immutable.common.v1.Curve curve = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Cryptographic curve used to generate the Account."}
+  ];
+  immutable.common.v1.PathFormat path_format = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Path format used to generate the Account."}
+  ];
+  string path = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Path used to generate the Account."}
+  ];
+  immutable.common.v1.AddressFormat address_format = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "Address format used to generate the Account."
+      title: ""
+    }
+  ];
+  string address = 8 [
+    (google.api.field_behavior) = REQUIRED,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Address generated using the Wallet seed and Account parameters."}
+  ];
+  external.data.v1.Timestamp created_at = 9 [(google.api.field_behavior) = REQUIRED];
+  external.data.v1.Timestamp updated_at = 10 [(google.api.field_behavior) = REQUIRED];
+  optional string public_key = 11 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The public component of this wallet account's underlying cryptographic key pair."}
+  ];
+  optional external.data.v1.Wallet wallet_details = 12 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Wallet details for this account. This is only present when include_wallet_details=true."}
+  ];
+  optional string name = 13 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Human-readable name for this Wallet Account, unique within the organization."}
+  ];
+  optional string caip2_prefix = 14 [
+    (google.api.field_behavior) = OPTIONAL,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "The CAIP-2 namespace shared by the chains supported by this account (for example, 'eip155' or 'solana')."}
+  ];
+  // TODO(tim): temporarily removing this since it's always "false"
+  //bool exported = 12 [
+  //  (google.api.field_behavior) = REQUIRED,
+  //  (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "True when a given Account is exported, false otherwise."}
+  //];
+}

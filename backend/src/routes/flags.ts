@@ -1,18 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { grpcCall } from '../grpc/client';
 import {
-  ListFeatureFlagsResponse,
+  EmptyResponse,
   GetFeatureFlagResponse,
-  SetFeatureFlagResponse,
-  AddFeatureFlagOrgResponse,
-  RemoveFeatureFlagOrgResponse,
-  AddFeatureFlagProductResponse,
-  RemoveFeatureFlagProductResponse,
+  ListFeatureFlagsResponse,
+  toFeatureFlag,
 } from '../grpc/types';
 
 const router = Router();
 
-// Deprecated flags hidden from the UI
+// Backstop for deployments that don't populate FeatureFlagDefinition.is_deprecated.
 const DEPRECATED_FLAGS = new Set([
   'FEATURE_FLAG_AUTH_PROXY',
   'FEATURE_FLAG_ACCOUNT_SETTINGS',
@@ -21,8 +18,17 @@ const DEPRECATED_FLAGS = new Set([
   'FEATURE_FLAG_SEND_EMAILS',
   'FEATURE_FLAG_SES_EMAIL',
   'FEATURE_FLAG_SUB_ORGS_UI',
-  'FEATURE_FLAG_APP_PROOFS',
 ]);
+
+// The mutating RPCs return empty messages, so re-read the flag to hand the
+// caller its new state.
+async function readFlag(flag: string) {
+  const response = await grpcCall<{ flag: string }, GetFeatureFlagResponse>(
+    'GetFeatureFlag',
+    { flag }
+  );
+  return toFeatureFlag(response.flag);
+}
 
 // GET /api/flags → ListFeatureFlags
 router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
@@ -31,9 +37,9 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
       'ListFeatureFlags',
       {}
     );
-    const flags = (response.flags || []).filter(
-      (f) => !DEPRECATED_FLAGS.has(f.flag)
-    );
+    const flags = (response.flags || [])
+      .filter((f) => !f.is_deprecated && !DEPRECATED_FLAGS.has(f.flag))
+      .map(toFeatureFlag);
     res.json({ flags });
   } catch (err) {
     next(err);
@@ -45,11 +51,7 @@ router.get(
   '/:flag',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const response = await grpcCall<{ flag: string }, GetFeatureFlagResponse>(
-        'GetFeatureFlag',
-        { flag: req.params.flag }
-      );
-      res.json(response);
+      res.json({ flag: await readFlag(req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -65,15 +67,15 @@ router.put(
         enabled: boolean;
         rollout_percent: number;
       };
-      const response = await grpcCall<
+      await grpcCall<
         { flag: string; enabled: boolean; rollout_percent: number },
-        SetFeatureFlagResponse
+        EmptyResponse
       >('SetFeatureFlag', {
         flag: req.params.flag,
         enabled,
         rollout_percent,
       });
-      res.json(response);
+      res.json({ flag: await readFlag(req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -81,6 +83,7 @@ router.put(
 );
 
 // POST /api/flags/:flag/orgs → AddFeatureFlagOrg
+// `enabled` picks the list: true whitelists the org, false blacklists it.
 router.post(
   '/:flag/orgs',
   async (req: Request, res: Response, next: NextFunction) => {
@@ -89,15 +92,15 @@ router.post(
         org_id: string;
         enabled: boolean;
       };
-      const response = await grpcCall<
+      await grpcCall<
         { flag: string; org_id: string; enabled: boolean },
-        AddFeatureFlagOrgResponse
+        EmptyResponse
       >('AddFeatureFlagOrg', {
         flag: req.params.flag,
         org_id,
         enabled,
       });
-      res.json(response);
+      res.json({ flag: await readFlag(req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -109,14 +112,14 @@ router.delete(
   '/:flag/orgs/:org_id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const response = await grpcCall<
-        { flag: string; org_id: string },
-        RemoveFeatureFlagOrgResponse
-      >('RemoveFeatureFlagOrg', {
-        flag: req.params.flag,
-        org_id: req.params.org_id,
-      });
-      res.json(response);
+      await grpcCall<{ flag: string; org_id: string }, EmptyResponse>(
+        'RemoveFeatureFlagOrg',
+        {
+          flag: req.params.flag,
+          org_id: req.params.org_id,
+        }
+      );
+      res.json({ flag: await readFlag(req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -124,50 +127,54 @@ router.delete(
 );
 
 // POST /api/flags/:flag/products → AddFeatureFlagProduct
+// product_type / product_sub_type are proto enum names, e.g.
+// "PRODUCT_TYPE_ENTERPRISE" / "PRODUCT_SUB_TYPE_ENTERPRISE_SCALE".
+// PRODUCT_SUB_TYPE_UNSPECIFIED targets the whole product type.
 router.post(
   '/:flag/products',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { product_type, product_sub_type, enabled } = req.body as {
-        product_type: number;
-        product_sub_type: number;
+        product_type: string;
+        product_sub_type: string;
         enabled: boolean;
       };
-      const response = await grpcCall<
+      await grpcCall<
         {
           flag: string;
-          product_type: number;
-          product_sub_type: number;
+          product_type: string;
+          product_sub_type: string;
           enabled: boolean;
         },
-        AddFeatureFlagProductResponse
+        EmptyResponse
       >('AddFeatureFlagProduct', {
         flag: req.params.flag,
         product_type,
-        product_sub_type,
+        product_sub_type: product_sub_type || 'PRODUCT_SUB_TYPE_UNSPECIFIED',
         enabled,
       });
-      res.json(response);
+      res.json({ flag: await readFlag(req.params.flag) });
     } catch (err) {
       next(err);
     }
   }
 );
 
-// DELETE /api/flags/:flag/products/:product_type/:product_sub_type → RemoveFeatureFlagProduct
+// DELETE /api/flags/:flag/products/:product_type/:product_sub_type
+//   → RemoveFeatureFlagProduct
 router.delete(
   '/:flag/products/:product_type/:product_sub_type',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const response = await grpcCall<
-        { flag: string; product_type: number; product_sub_type: number },
-        RemoveFeatureFlagProductResponse
+      await grpcCall<
+        { flag: string; product_type: string; product_sub_type: string },
+        EmptyResponse
       >('RemoveFeatureFlagProduct', {
         flag: req.params.flag,
-        product_type: parseInt(req.params.product_type),
-        product_sub_type: parseInt(req.params.product_sub_type),
+        product_type: req.params.product_type,
+        product_sub_type: req.params.product_sub_type,
       });
-      res.json(response);
+      res.json({ flag: await readFlag(req.params.flag) });
     } catch (err) {
       next(err);
     }

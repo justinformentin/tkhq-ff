@@ -1,0 +1,19 @@
+{
+  "name": "tkhq-ff",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Convenience scripts for running the backend and frontend together. backend/ and frontend/ stay independent npm projects with their own lockfiles — this is deliberately not an npm workspace.",
+  "scripts": {
+    "postinstall": "npm run install:all",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "dev": "concurrently -n backend,frontend -c cyan,magenta --kill-others-on-fail \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "start": "npm --prefix backend run start",
+    "lint": "npm --prefix frontend run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFlagProduct, removeFlagProduct } from '../lib/api';
 import type { ProductRule } from '../types';
-import { PRODUCT_TYPES, PRODUCT_SUB_TYPES, PRODUCT_TYPE_NAMES, PRODUCT_SUB_TYPE_NAMES } from '../types';
+import { PRODUCT_TYPES, PRODUCT_SUB_TYPES, PRODUCT_TYPE_NAMES, PRODUCT_SUB_TYPE_NAMES, ANY_SUB_TYPE } from '../types';
 import { useToast } from '../hooks/useToast';
 import { Trash2, Plus } from 'lucide-react';
 
@@ -17,8 +17,8 @@ export function ProductTab({
   allowedProducts,
   disallowedProducts,
 }: ProductTabProps) {
-  const [productType, setProductType] = useState<number>(1);
-  const [productSubType, setProductSubType] = useState<number>(0);
+  const [productType, setProductType] = useState<string>('PRODUCT_TYPE_FREE');
+  const [productSubType, setProductSubType] = useState<string>(ANY_SUB_TYPE);
   const [productEnabled, setProductEnabled] = useState(true);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -35,7 +35,7 @@ export function ProductTab({
   });
 
   const removeMutation = useMutation({
-    mutationFn: ({ type, subType }: { type: number; subType: number }) =>
+    mutationFn: ({ type, subType }: { type: string; subType: string }) =>
       removeFlagProduct(flagName, type, subType),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flag', flagName] });
@@ -79,7 +79,7 @@ export function ProductTab({
             </label>
             <select
               value={productType}
-              onChange={(e) => setProductType(Number(e.target.value))}
+              onChange={(e) => setProductType(e.target.value)}
               style={selectStyle}
             >
               {PRODUCT_TYPES.map((pt) => (
@@ -95,7 +95,7 @@ export function ProductTab({
             </label>
             <select
               value={productSubType}
-              onChange={(e) => setProductSubType(Number(e.target.value))}
+              onChange={(e) => setProductSubType(e.target.value)}
               style={selectStyle}
             >
               {PRODUCT_SUB_TYPES.map((pst) => (
@@ -170,7 +170,7 @@ export function ProductTab({
                 </span>
                 <span className="text-sm" style={{ color: 'var(--color-text)' }}>
                   {PRODUCT_TYPE_NAMES[rule.product_type] || `type:${rule.product_type}`}
-                  {rule.product_sub_type !== 0 && (
+                  {rule.product_sub_type !== ANY_SUB_TYPE && (
                     <span style={{ color: 'var(--color-text-muted)' }}>
                       {' / '}
                       {PRODUCT_SUB_TYPE_NAMES[rule.product_sub_type] || `sub:${rule.product_sub_type}`}

@@ -52,8 +52,8 @@ export async function removeFlagOrg(
 
 export async function addFlagProduct(
   flag: string,
-  product_type: number,
-  product_sub_type: number,
+  product_type: string,
+  product_sub_type: string,
   enabled: boolean
 ): Promise<FeatureFlag> {
   const res = await api.post<GetFlagResponse>(`/flags/${flag}/products`, {
@@ -66,8 +66,8 @@ export async function addFlagProduct(
 
 export async function removeFlagProduct(
   flag: string,
-  product_type: number,
-  product_sub_type: number
+  product_type: string,
+  product_sub_type: string
 ): Promise<FeatureFlag> {
   const res = await api.delete<GetFlagResponse>(
     `/flags/${flag}/products/${product_type}/${product_sub_type}`
