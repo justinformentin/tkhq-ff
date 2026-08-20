@@ -4,14 +4,16 @@ import { listFlags } from '../lib/api';
 import { formatFlagName } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import { useEnvironment } from '../lib/environment';
 
 export function OrgSearchPage() {
   const [orgInput, setOrgInput] = useState('');
   const [searchedOrg, setSearchedOrg] = useState('');
+  const { env } = useEnvironment();
 
   const { data: flags, isLoading } = useQuery({
-    queryKey: ['flags'],
-    queryFn: listFlags,
+    queryKey: ['flags', env],
+    queryFn: () => listFlags(env),
     enabled: !!searchedOrg,
   });
 

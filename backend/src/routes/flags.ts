@@ -1,5 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { grpcCall } from '../grpc/client';
+import { agentCall } from '../grpc/client';
+import {
+  DEFAULT_ENVIRONMENT,
+  Environment,
+  InvalidEnvironmentError,
+  isEnvironment,
+} from '../config/environments';
 import {
   EmptyResponse,
   GetFeatureFlagResponse,
@@ -20,10 +26,24 @@ const DEPRECATED_FLAGS = new Set([
   'FEATURE_FLAG_SUB_ORGS_UI',
 ]);
 
+// Every route is scoped to one environment, chosen by ?env=. An unknown value
+// is rejected rather than silently falling back, so a typo can't send a write
+// to the wrong environment.
+function envOf(req: Request): Environment {
+  const value = req.query.env ?? DEFAULT_ENVIRONMENT;
+
+  if (!isEnvironment(value)) {
+    throw new InvalidEnvironmentError(String(value));
+  }
+
+  return value;
+}
+
 // The mutating RPCs return empty messages, so re-read the flag to hand the
 // caller its new state.
-async function readFlag(flag: string) {
-  const response = await grpcCall<{ flag: string }, GetFeatureFlagResponse>(
+async function readFlag(env: Environment, flag: string) {
+  const response = await agentCall<{ flag: string }, GetFeatureFlagResponse>(
+    env,
     'GetFeatureFlag',
     { flag }
   );
@@ -31,9 +51,10 @@ async function readFlag(flag: string) {
 }
 
 // GET /api/flags → ListFeatureFlags
-router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const response = await grpcCall<object, ListFeatureFlagsResponse>(
+    const response = await agentCall<object, ListFeatureFlagsResponse>(
+      envOf(req),
       'ListFeatureFlags',
       {}
     );
@@ -51,7 +72,7 @@ router.get(
   '/:flag',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.json({ flag: await readFlag(req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -67,15 +88,15 @@ router.put(
         enabled: boolean;
         rollout_percent: number;
       };
-      await grpcCall<
+      await agentCall<
         { flag: string; enabled: boolean; rollout_percent: number },
         EmptyResponse
-      >('SetFeatureFlag', {
+      >(envOf(req), 'SetFeatureFlag', {
         flag: req.params.flag,
         enabled,
         rollout_percent,
       });
-      res.json({ flag: await readFlag(req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -92,15 +113,15 @@ router.post(
         org_id: string;
         enabled: boolean;
       };
-      await grpcCall<
+      await agentCall<
         { flag: string; org_id: string; enabled: boolean },
         EmptyResponse
-      >('AddFeatureFlagOrg', {
+      >(envOf(req), 'AddFeatureFlagOrg', {
         flag: req.params.flag,
         org_id,
         enabled,
       });
-      res.json({ flag: await readFlag(req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -112,14 +133,15 @@ router.delete(
   '/:flag/orgs/:org_id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await grpcCall<{ flag: string; org_id: string }, EmptyResponse>(
+      await agentCall<{ flag: string; org_id: string }, EmptyResponse>(
+        envOf(req),
         'RemoveFeatureFlagOrg',
         {
           flag: req.params.flag,
           org_id: req.params.org_id,
         }
       );
-      res.json({ flag: await readFlag(req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -139,7 +161,7 @@ router.post(
         product_sub_type: string;
         enabled: boolean;
       };
-      await grpcCall<
+      await agentCall<
         {
           flag: string;
           product_type: string;
@@ -147,13 +169,13 @@ router.post(
           enabled: boolean;
         },
         EmptyResponse
-      >('AddFeatureFlagProduct', {
+      >(envOf(req), 'AddFeatureFlagProduct', {
         flag: req.params.flag,
         product_type,
         product_sub_type: product_sub_type || 'PRODUCT_SUB_TYPE_UNSPECIFIED',
         enabled,
       });
-      res.json({ flag: await readFlag(req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
     } catch (err) {
       next(err);
     }
@@ -166,15 +188,15 @@ router.delete(
   '/:flag/products/:product_type/:product_sub_type',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await grpcCall<
+      await agentCall<
         { flag: string; product_type: string; product_sub_type: string },
         EmptyResponse
-      >('RemoveFeatureFlagProduct', {
+      >(envOf(req), 'RemoveFeatureFlagProduct', {
         flag: req.params.flag,
         product_type: req.params.product_type,
         product_sub_type: req.params.product_sub_type,
       });
-      res.json({ flag: await readFlag(req.params.flag) });
+      res.json({ flag: await readFlag(envOf(req), req.params.flag) });
     } catch (err) {
       next(err);
     }

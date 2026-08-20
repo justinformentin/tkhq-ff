@@ -5,6 +5,7 @@ import { FlagsPage } from './pages/FlagsPage';
 import { FlagDetailPage } from './pages/FlagDetailPage';
 import { OrgSearchPage } from './pages/OrgSearchPage';
 import { Toaster } from './components/Toaster';
+import { EnvironmentProvider } from './components/EnvironmentProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,17 +19,19 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Navigate to="/flags" replace />} />
-            <Route path="/flags" element={<FlagsPage />} />
-            <Route path="/flags/:flag" element={<FlagDetailPage />} />
-            <Route path="/org-search" element={<OrgSearchPage />} />
-          </Routes>
-        </Layout>
-        <Toaster />
-      </BrowserRouter>
+      <EnvironmentProvider>
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Navigate to="/flags" replace />} />
+              <Route path="/flags" element={<FlagsPage />} />
+              <Route path="/flags/:flag" element={<FlagDetailPage />} />
+              <Route path="/org-search" element={<OrgSearchPage />} />
+            </Routes>
+          </Layout>
+          <Toaster />
+        </BrowserRouter>
+      </EnvironmentProvider>
     </QueryClientProvider>
   );
 }

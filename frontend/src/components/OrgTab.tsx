@@ -4,6 +4,7 @@ import { addFlagOrg, removeFlagOrg } from '../lib/api';
 import type { OrgRule } from '../types';
 import { useToast } from '../hooks/useToast';
 import { Trash2, Plus } from 'lucide-react';
+import { useEnvironment } from '../lib/environment';
 
 interface OrgTabProps {
   flagName: string;
@@ -16,11 +17,12 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
   const [orgEnabled, setOrgEnabled] = useState(true);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { env } = useEnvironment();
 
   const addMutation = useMutation({
-    mutationFn: () => addFlagOrg(flagName, orgId.trim(), orgEnabled),
+    mutationFn: () => addFlagOrg(flagName, env, orgId.trim(), orgEnabled),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', flagName] });
+      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
       setOrgId('');
       toast({ title: 'Org added', description: `Org ${orgEnabled ? 'allowed' : 'denied'} successfully.` });
     },
@@ -30,9 +32,9 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (id: string) => removeFlagOrg(flagName, id),
+    mutationFn: (id: string) => removeFlagOrg(flagName, env, id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', flagName] });
+      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
       toast({ title: 'Org removed' });
     },
     onError: (err: Error) => {

@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import flagsRouter from './routes/flags';
 import { errorHandler } from './middleware/errorHandler';
+import { DEFAULT_ENVIRONMENT, listEnvironments } from './config/environments';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -13,6 +14,17 @@ app.use(express.json());
 
 // API routes
 app.use('/api/flags', flagsRouter);
+
+// Environments the UI can switch between.
+app.get('/api/environments', (_req, res) => {
+  res.json({
+    environments: listEnvironments().map(({ name, production }) => ({
+      name,
+      production,
+    })),
+    default: DEFAULT_ENVIRONMENT,
+  });
+});
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -32,7 +44,8 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
-  console.log(
-    `gRPC target: ${process.env.OPERATOR_AGENT_GRPC_HOST || 'localhost'}:${process.env.OPERATOR_AGENT_GRPC_PORT || '9090'}`
-  );
+  console.log(`Default environment: ${DEFAULT_ENVIRONMENT}`);
+  for (const { name, transport, target } of listEnvironments()) {
+    console.log(`  ${name.padEnd(8)} ${transport.padEnd(5)} ${target}`);
+  }
 });

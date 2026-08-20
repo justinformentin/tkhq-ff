@@ -7,6 +7,7 @@ import { ProductTab } from './ProductTab';
 import { Switch } from './Switch';
 import { useToast } from '../hooks/useToast';
 import * as Tabs from '@radix-ui/react-tabs';
+import { useEnvironment } from '../lib/environment';
 
 interface FlagDetailProps {
   flagName: string;
@@ -15,14 +16,15 @@ interface FlagDetailProps {
 export function FlagDetail({ flagName }: FlagDetailProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { env } = useEnvironment();
 
   const {
     data: flagData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['flag', flagName],
-    queryFn: () => getFlag(flagName),
+    queryKey: ['flag', env, flagName],
+    queryFn: () => getFlag(flagName, env),
   });
 
   const [localEnabled, setLocalEnabled] = useState<boolean | null>(null);
@@ -36,10 +38,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
     (localRollout !== null && localRollout !== flagData?.rollout_percent);
 
   const saveMutation = useMutation({
-    mutationFn: () => setFlag(flagName, enabled, rollout),
+    mutationFn: () => setFlag(flagName, env, enabled, rollout),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flags'] });
-      queryClient.invalidateQueries({ queryKey: ['flag', flagName] });
+      queryClient.invalidateQueries({ queryKey: ['flags', env] });
+      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
       setLocalEnabled(null);
       setLocalRollout(null);
       toast({ title: 'Saved', description: 'Feature flag updated.' });

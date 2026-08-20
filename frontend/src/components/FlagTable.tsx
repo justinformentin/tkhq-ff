@@ -6,16 +6,18 @@ import { formatFlagName } from '../lib/utils';
 import { Switch } from './Switch';
 import { useToast } from '../hooks/useToast';
 import { ChevronRight, Search } from 'lucide-react';
+import { useEnvironment } from '../lib/environment';
 
 export function FlagTable() {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { env } = useEnvironment();
 
   const { data: flags, isLoading, error } = useQuery({
-    queryKey: ['flags'],
-    queryFn: listFlags,
+    queryKey: ['flags', env],
+    queryFn: () => listFlags(env),
   });
 
   const toggleMutation = useMutation({
@@ -27,9 +29,9 @@ export function FlagTable() {
       flag: string;
       enabled: boolean;
       rollout_percent: number;
-    }) => setFlag(flag, enabled, rollout_percent),
+    }) => setFlag(flag, env, enabled, rollout_percent),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flags'] });
+      queryClient.invalidateQueries({ queryKey: ['flags', env] });
       toast({ title: 'Flag updated' });
     },
     onError: (err: Error) => {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFlagProduct, removeFlagProduct } from '../lib/api';
+import { useEnvironment } from '../lib/environment';
 import type { ProductRule } from '../types';
 import { PRODUCT_TYPES, PRODUCT_SUB_TYPES, PRODUCT_TYPE_NAMES, PRODUCT_SUB_TYPE_NAMES, ANY_SUB_TYPE } from '../types';
 import { useToast } from '../hooks/useToast';
@@ -21,12 +22,13 @@ export function ProductTab({
   const [productSubType, setProductSubType] = useState<string>(ANY_SUB_TYPE);
   const [productEnabled, setProductEnabled] = useState(true);
   const queryClient = useQueryClient();
+  const { env } = useEnvironment();
   const { toast } = useToast();
 
   const addMutation = useMutation({
-    mutationFn: () => addFlagProduct(flagName, productType, productSubType, productEnabled),
+    mutationFn: () => addFlagProduct(flagName, env, productType, productSubType, productEnabled),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', flagName] });
+      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
       toast({ title: 'Product rule added' });
     },
     onError: (err: Error) => {
@@ -36,9 +38,9 @@ export function ProductTab({
 
   const removeMutation = useMutation({
     mutationFn: ({ type, subType }: { type: string; subType: string }) =>
-      removeFlagProduct(flagName, type, subType),
+      removeFlagProduct(flagName, env, type, subType),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', flagName] });
+      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
       toast({ title: 'Product rule removed' });
     },
     onError: (err: Error) => {

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import * as grpc from '@grpc/grpc-js';
 import { AuthError } from '../grpc/auth';
+import { AgentHttpError } from '../grpc/http';
+import { InvalidEnvironmentError } from '../config/environments';
 
 export function errorHandler(
   err: Error | grpc.ServiceError,
@@ -14,6 +16,17 @@ export function errorHandler(
   // is actionable in a way a generic 500 isn't.
   if (err instanceof AuthError) {
     res.status(401).json({ error: err.message });
+    return;
+  }
+
+  if (err instanceof InvalidEnvironmentError) {
+    res.status(400).json({ error: err.message });
+    return;
+  }
+
+  // The Connect transport reports failures as HTTP statuses; pass them through.
+  if (err instanceof AgentHttpError) {
+    res.status(err.status).json({ error: err.message });
     return;
   }
 
