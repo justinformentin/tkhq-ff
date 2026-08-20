@@ -1,10 +1,8 @@
-'use client'
-
 import { useAuth } from '@/lib/auth/context'
 import { cn } from '@/lib/utils'
 import { ChevronDownIcon, Bars3Icon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from '@tanstack/react-router'
 
 interface HeaderProps {
   onMenuToggle?: () => void
@@ -15,35 +13,27 @@ export function Header({ onMenuToggle, className }: HeaderProps) {
   const { isAuthenticated, displayName, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const router = useRouter()
+  const navigate = useNavigate()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchValue.trim()) {
-      router.push(`/customers/${searchValue.trim()}`)
+      void navigate({ to: '/customers/$orgId', params: { orgId: searchValue.trim() } })
     }
   }
 
   if (!isAuthenticated) {
     return (
-      <header className={cn(
-        'bg-header border-b border-border sticky top-0 z-50',
-        className
-      )}>
-        <div className="px-6 py-4">
-          {/* Logo removed - only in sidebar now */}
-        </div>
+      <header className={cn('bg-header border-b border-border sticky top-0 z-50', className)}>
+        <div className="px-6 py-4" />
       </header>
     )
   }
 
   return (
-    <header className={cn(
-      'bg-header border-b border-border sticky top-0 z-50',
-      className
-    )}>
+    <header className={cn('bg-header border-b border-border sticky top-0 z-50', className)}>
       <div className="flex items-center justify-between px-6 py-4">
-        {/* Left side - Menu toggle and search */}
+        {/* Left side — menu toggle and search */}
         <div className="flex items-center space-x-4 flex-1 max-w-2xl">
           {onMenuToggle && (
             <button
@@ -53,8 +43,7 @@ export function Header({ onMenuToggle, className }: HeaderProps) {
               <Bars3Icon className="h-6 w-6" />
             </button>
           )}
-          
-          {/* Customer Search Bar */}
+
           <form onSubmit={handleSearch} className="flex-1 max-w-lg">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -71,7 +60,7 @@ export function Header({ onMenuToggle, className }: HeaderProps) {
           </form>
         </div>
 
-        {/* Right side - User menu */}
+        {/* Right side — user menu */}
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
@@ -81,24 +70,19 @@ export function Header({ onMenuToggle, className }: HeaderProps) {
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
                 {displayName?.charAt(0)?.toUpperCase() || 'U'}
               </div>
-              <span className="hidden sm:block text-sm font-medium">
-                {displayName || 'User'}
-              </span>
+              <span className="hidden sm:block text-sm font-medium">{displayName || 'User'}</span>
             </div>
             <ChevronDownIcon className="h-4 w-4" />
           </button>
 
-          {/* User dropdown menu */}
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg py-1 z-50">
               <div className="px-4 py-2 border-b border-border">
-                <p className="text-sm font-medium text-card-foreground">
-                  {displayName || 'User'}
-                </p>
+                <p className="text-sm font-medium text-card-foreground">{displayName || 'User'}</p>
               </div>
               <button
                 onClick={() => {
-                  logout(false)
+                  void logout(false)
                   setShowUserMenu(false)
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-card-foreground hover:bg-accent transition-colors"
@@ -107,7 +91,7 @@ export function Header({ onMenuToggle, className }: HeaderProps) {
               </button>
               <button
                 onClick={() => {
-                  logout(true)
+                  void logout(true)
                   setShowUserMenu(false)
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-accent transition-colors"

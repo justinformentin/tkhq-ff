@@ -1,17 +1,14 @@
-'use client'
-
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/ui/Logo'
-import { 
+import {
   HomeIcon,
   ChartBarIcon,
   UsersIcon,
   CogIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
 import { useAuth } from '@/lib/auth/context'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link, useRouterState } from '@tanstack/react-router'
 
 interface SidebarProps {
   isOpen?: boolean
@@ -28,12 +25,11 @@ const navigation = [
 
 export function Sidebar({ isOpen = true, onClose, className }: SidebarProps) {
   const { logout } = useAuth()
-  const pathname = usePathname()
+  const routerState = useRouterState()
+  const pathname = routerState.location.pathname
 
   const isCurrentPath = (href: string) => {
-    if (href === '/') {
-      return pathname === '/'
-    }
+    if (href === '/') return pathname === '/'
     return pathname.startsWith(href)
   }
 
@@ -41,20 +37,21 @@ export function Sidebar({ isOpen = true, onClose, className }: SidebarProps) {
     <>
       {/* Mobile overlay */}
       {isOpen && onClose && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div className={cn(
-        'fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-border transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
-        isOpen ? 'translate-x-0' : '-translate-x-full',
-        className
-      )}>
+      <div
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-border transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
+          isOpen ? 'translate-x-0' : '-translate-x-full',
+          className
+        )}
+      >
         <div className="flex flex-col h-full">
-          {/* Sidebar content */}
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4 mb-8">
               <Logo variant="light" size="sm" />
@@ -74,7 +71,7 @@ export function Sidebar({ isOpen = true, onClose, className }: SidebarProps) {
                 return (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     onClick={onClose}
                     className={cn(
                       'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
@@ -98,7 +95,7 @@ export function Sidebar({ isOpen = true, onClose, className }: SidebarProps) {
             </nav>
           </div>
 
-          {/* Bottom logout section */}
+          {/* Logout */}
           <div className="flex-shrink-0 p-4 border-t border-border">
             <button
               onClick={() => logout(false)}
