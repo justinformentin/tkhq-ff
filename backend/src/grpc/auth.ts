@@ -11,6 +11,11 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {
+  OAuthErrorBody,
+  readTokenBody,
+  tokenErrorDetail,
+} from '../auth/oauth';
 
 // mono: src/go/tkinfra/internal/keycloak/defaults.go
 const DEFAULT_ISSUER =
@@ -29,14 +34,12 @@ interface CachedToken {
   [key: string]: unknown;
 }
 
-interface TokenResponse {
+interface TokenResponse extends OAuthErrorBody {
   id_token?: string;
   access_token?: string;
   token_type?: string;
   refresh_token?: string;
   expires_in?: number;
-  error?: string;
-  error_description?: string;
 }
 
 function issuer(): string {
@@ -68,7 +71,20 @@ export class AuthError extends Error {
   }
 }
 
-function readCache(): CachedToken {
+/**
+ * tkinfra writes the cache without truncating, so a shorter token can leave
+ * trailing bytes from a previous one. Go's json.Decoder reads the first value
+ * and ignores the rest; do the same.
+ */
+function firstJsonObject(raw: string): string {
+  const end = raw.indexOf('}\n');
+  return end === -1 ? raw : raw.slice(0, end + 1);
+}
+
+/** A cache entry we've confirmed we can actually refresh with. */
+type RefreshableToken = CachedToken & { refresh_token: string };
+
+function readCache(): RefreshableToken {
   const file = cachePath();
 
   let raw: string;
@@ -78,12 +94,9 @@ function readCache(): CachedToken {
     throw new AuthError(`No Keycloak token cache at ${file}.`);
   }
 
-  // tkinfra writes without truncating, so a shorter token can leave trailing
-  // bytes from a previous one. Go's json.Decoder reads the first value and
-  // ignores the rest; do the same.
   let token: CachedToken;
   try {
-    token = JSON.parse(raw.slice(0, raw.indexOf('}\n') + 1) || raw);
+    token = JSON.parse(firstJsonObject(raw));
   } catch {
     throw new AuthError(`Could not parse the Keycloak token cache at ${file}.`);
   }
@@ -92,7 +105,7 @@ function readCache(): CachedToken {
     throw new AuthError(`No refresh token in the Keycloak cache at ${file}.`);
   }
 
-  return token;
+  return token as RefreshableToken;
 }
 
 /**
@@ -137,17 +150,16 @@ async function refresh(): Promise<string> {
     body: new URLSearchParams({
       grant_type: 'refresh_token',
       client_id: clientId(),
-      refresh_token: previous.refresh_token as string,
+      refresh_token: previous.refresh_token,
     }),
   });
 
-  const body = (await response.json().catch(() => ({}))) as TokenResponse;
+  const body = await readTokenBody<TokenResponse>(response);
 
   if (!response.ok) {
     throw new AuthError(
-      `Keycloak refused to refresh the token (${response.status} ${
-        body.error || ''
-      } ${body.error_description || ''})`.trim()
+      `Keycloak refused to refresh the token ` +
+        `(${tokenErrorDetail(response.status, body)})`
     );
   }
 

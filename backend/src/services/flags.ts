@@ -12,6 +12,7 @@ import { agentCall } from '../grpc/client';
 import { Environment } from '../config/environments';
 import {
   FeatureFlag,
+  FeatureFlagDefinition,
   GetFeatureFlagResponse,
   ListFeatureFlagsResponse,
   toFeatureFlag,
@@ -37,34 +38,39 @@ const DEPRECATED_FLAGS = new Set([
 // once rather than opening ~40 connections to the agent at the same time.
 const MAX_CONCURRENT_READS = 8;
 
+/** Flags the UI can actually address: named, and not retired. */
+function isListable(def: FeatureFlagDefinition): boolean {
+  if (!def.flag || def.flag === UNNAMED_FLAG) return false;
+
+  return !def.is_deprecated && !DEPRECATED_FLAGS.has(def.flag);
+}
+
 export async function readFlag(
   env: Environment,
-  flag: string
+  flag: string,
+  idToken: string
 ): Promise<FeatureFlag> {
   const response = await agentCall<{ flag: string }, GetFeatureFlagResponse>(
     env,
     'GetFeatureFlag',
-    { flag }
+    { flag },
+    idToken
   );
   return toFeatureFlag(response.flag);
 }
 
 /** ListFeatureFlags, minus the unnamed and deprecated rows. Org lists are empty. */
-export async function listFlags(env: Environment): Promise<FeatureFlag[]> {
+export async function listFlags(
+  env: Environment,
+  idToken: string
+): Promise<FeatureFlag[]> {
   const response = await agentCall<object, ListFeatureFlagsResponse>(
     env,
     'ListFeatureFlags',
-    {}
+    {},
+    idToken
   );
-  return (response.flags || [])
-    .filter(
-      (f) =>
-        f.flag &&
-        f.flag !== UNNAMED_FLAG &&
-        !f.is_deprecated &&
-        !DEPRECATED_FLAGS.has(f.flag)
-    )
-    .map(toFeatureFlag);
+  return (response.flags || []).filter(isListable).map(toFeatureFlag);
 }
 
 /**
@@ -72,26 +78,28 @@ export async function listFlags(env: Environment): Promise<FeatureFlag[]> {
  * overrides are populated. Order matches `listFlags`.
  */
 export async function listFlagsWithOrgs(
-  env: Environment
+  env: Environment,
+  idToken: string
 ): Promise<FeatureFlag[]> {
-  const names = (await listFlags(env)).map((f) => f.flag);
+  const flags = await listFlags(env, idToken);
+  const names = flags.map((flag) => flag.flag);
   const hydrated = new Array<FeatureFlag>(names.length);
-  let next = 0;
 
-  async function worker(): Promise<void> {
-    for (let i = next++; i < names.length; i = next++) {
-      hydrated[i] = await readFlag(env, names[i]);
+  // Workers pull from one shared queue of positions rather than taking a fixed
+  // slice each, so one slow read doesn't leave the other workers idle.
+  let nextIndex = 0;
+  const readRemaining = async (): Promise<void> => {
+    while (nextIndex < names.length) {
+      const index = nextIndex++;
+      hydrated[index] = await readFlag(env, names[index], idToken);
     }
-  }
+  };
+
+  const workers = Math.min(MAX_CONCURRENT_READS, names.length);
 
   // A failed read is not swallowed: reporting "no overrides" for a flag we
   // never actually read is the exact failure this function exists to avoid.
-  await Promise.all(
-    Array.from(
-      { length: Math.min(MAX_CONCURRENT_READS, names.length) },
-      worker
-    )
-  );
+  await Promise.all(Array.from({ length: workers }, readRemaining));
 
   return hydrated;
 }

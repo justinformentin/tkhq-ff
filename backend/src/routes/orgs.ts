@@ -1,6 +1,7 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
+import { OrgRule } from '../grpc/types';
 import { listFlagsWithOrgs } from '../services/flags';
-import { envOf } from './env';
+import { callContext, handler } from './handler';
 
 const router = Router();
 
@@ -11,27 +12,26 @@ const router = Router();
 // nothing.
 router.get(
   '/:org_id/flags',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      // Org ids are UUIDs; the agent's casing need not match what was pasted in.
-      const orgId = req.params.org_id.trim().toLowerCase();
-      const matches = (await listFlagsWithOrgs(envOf(req)))
-        .map((flag) => ({
-          flag,
-          in_allowed: flag.allowed_orgs.some(
-            (o) => o.org_id.toLowerCase() === orgId
-          ),
-          in_disallowed: flag.disallowed_orgs.some(
-            (o) => o.org_id.toLowerCase() === orgId
-          ),
-        }))
-        .filter((m) => m.in_allowed || m.in_disallowed);
+  handler(async (req, res) => {
+    const { env, idToken } = await callContext(req);
+    const orgId = req.params.org_id.trim();
 
-      res.json({ org_id: req.params.org_id.trim(), matches });
-    } catch (err) {
-      next(err);
-    }
-  }
+    // Org ids are UUIDs; the agent's casing need not match what was pasted in.
+    const wanted = orgId.toLowerCase();
+    const listsOrg = (orgs: OrgRule[]) =>
+      orgs.some((org) => org.org_id.toLowerCase() === wanted);
+
+    const flags = await listFlagsWithOrgs(env, idToken);
+    const matches = flags
+      .map((flag) => ({
+        flag,
+        in_allowed: listsOrg(flag.allowed_orgs),
+        in_disallowed: listsOrg(flag.disallowed_orgs),
+      }))
+      .filter((match) => match.in_allowed || match.in_disallowed);
+
+    res.json({ org_id: orgId, matches });
+  })
 );
 
 export default router;

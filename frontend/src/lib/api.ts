@@ -11,7 +11,25 @@ import type { Environment } from './environment';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
+  // The session lives in an httpOnly cookie when the backend runs in oidc mode.
+  withCredentials: true,
 });
+
+export interface Identity {
+  /** 'session' = signed in here; 'tkinfra' = borrowed from the CLI's cache. */
+  source: 'session' | 'tkinfra';
+  user: { username?: string; email?: string; name?: string };
+}
+
+export async function getIdentity(): Promise<Identity> {
+  const res = await api.get<Identity>('/auth/me');
+  return res.data;
+}
+
+export async function logout(): Promise<string | null> {
+  const res = await api.post<{ logoutUrl: string | null }>('/auth/logout');
+  return res.data.logoutUrl;
+}
 
 // Every request names the environment it targets; the backend rejects
 // anything it doesn't recognize rather than guessing.

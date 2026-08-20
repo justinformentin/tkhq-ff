@@ -1,7 +1,6 @@
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
 import path from 'path';
-import { getIdToken } from './auth';
 import { httpCall } from './http';
 import { Environment, getEnvironmentConfig } from '../config/environments';
 
@@ -50,14 +49,15 @@ function getGrpcClient(target: string): grpc.Client {
   return client;
 }
 
-async function grpcCall<TReq, TRes>(
+function grpcCall<TReq, TRes>(
   target: string,
   method: string,
-  request: TReq
+  request: TReq,
+  idToken: string
 ): Promise<TRes> {
   // The operator agent authenticates every call by ID token.
   const metadata = new grpc.Metadata();
-  metadata.set(ID_TOKEN_HEADER, await getIdToken());
+  metadata.set(ID_TOKEN_HEADER, idToken);
 
   return new Promise((resolve, reject) => {
     const client = getGrpcClient(target);
@@ -81,15 +81,19 @@ async function grpcCall<TReq, TRes>(
  * Calls one OperatorAgentService method against the given environment, over
  * whichever transport that environment accepts. Both transports return the
  * proto's snake_case field names.
+ *
+ * The ID token is passed in rather than looked up, so the call is made as the
+ * user who asked for it — see ../auth/identity.ts.
  */
 export function agentCall<TReq, TRes>(
   env: Environment,
   method: string,
-  request: TReq
+  request: TReq,
+  idToken: string
 ): Promise<TRes> {
   const { transport, target } = getEnvironmentConfig(env);
 
   return transport === 'grpc'
-    ? grpcCall<TReq, TRes>(target, method, request)
-    : httpCall<TReq, TRes>(target, method, request);
+    ? grpcCall<TReq, TRes>(target, method, request, idToken)
+    : httpCall<TReq, TRes>(target, method, request, idToken);
 }
