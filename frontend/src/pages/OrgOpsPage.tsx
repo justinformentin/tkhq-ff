@@ -92,7 +92,7 @@ function ProdWarning({ env }: { env: string }) {
     >
       <AlertTriangle size={16} className="shrink-0" />
       <span>
-        You are targeting <strong>{env.toUpperCase()}</strong> — writes affect live customers.
+        You are targeting <strong>{env.toUpperCase()}</strong>{env === 'prod' ? ' — writes affect live customers.' : ''}
       </span>
     </div>
   );
