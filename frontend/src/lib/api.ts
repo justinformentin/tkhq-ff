@@ -1,10 +1,16 @@
 import axios from 'axios';
 import type {
   FeatureFlag,
+  GetDefaultRateLimitsResponse,
+  GetInterdictionsResponse,
+  GetQuotaOverridesResponse,
+  GetRateLimitResponse,
   ListFlagsResponse,
   GetFlagResponse,
   OrgFlagMatch,
   OrgSearchResponse,
+  OrgStatusResponse,
+  SetInterdictorBlockResponse,
 } from '../types';
 import type { Environment } from './environment';
 
@@ -137,4 +143,171 @@ export async function removeFlagProduct(
     forEnv(env)
   );
   return res.data.flag;
+}
+
+// ---------------------------------------------------------------------------
+// Org Operations API
+// ---------------------------------------------------------------------------
+
+/** Aggregate status: OrgRefs + RateLimit + Interdictions + Quotas */
+export async function getOrgStatus(
+  orgId: string,
+  env: Environment
+): Promise<OrgStatusResponse> {
+  const res = await api.get<OrgStatusResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/status`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** GetRateLimit */
+export async function getOrgRateLimit(
+  orgId: string,
+  env: Environment
+): Promise<GetRateLimitResponse> {
+  const res = await api.get<GetRateLimitResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/rate-limit`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** SetRateLimit — returns fresh rate limit after write */
+export async function setOrgRateLimit(
+  orgId: string,
+  env: Environment,
+  body: {
+    requests_per_second: number;
+    rule: string;
+    rule_variant?: string;
+    remediation: string;
+    bucket_type: string;
+    notes: string;
+  }
+): Promise<GetRateLimitResponse> {
+  const res = await api.put<GetRateLimitResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/rate-limit`,
+    body,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** RemoveRateLimit — returns fresh rate limit after delete */
+export async function removeOrgRateLimit(
+  orgId: string,
+  env: Environment,
+  body: { rule: string; rule_variant?: string; bucket_type: string }
+): Promise<GetRateLimitResponse> {
+  const res = await api.delete<GetRateLimitResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/rate-limit`,
+    { ...forEnv(env), data: body }
+  );
+  return res.data;
+}
+
+/** GetDefaultRateLimits */
+export async function getDefaultRateLimits(
+  env: Environment
+): Promise<GetDefaultRateLimitsResponse> {
+  const res = await api.get<GetDefaultRateLimitsResponse>(
+    '/rate-limits/defaults',
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** GetInterdictions */
+export async function getOrgInterdictions(
+  orgId: string,
+  env: Environment
+): Promise<GetInterdictionsResponse> {
+  const res = await api.get<GetInterdictionsResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/interdictions`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** SetInterdictorBlock (set or remove a block) */
+export async function setOrgInterdictorBlock(
+  orgId: string,
+  env: Environment,
+  body: { scope: string; op: string; blocked: boolean; suborg_id?: string }
+): Promise<SetInterdictorBlockResponse> {
+  const res = await api.post<SetInterdictorBlockResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/interdictions`,
+    body,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** ClearCacheForOrg */
+export async function clearOrgCache(
+  orgId: string,
+  env: Environment,
+  includeSubOrgs = false
+): Promise<GetRateLimitResponse> {
+  const res = await api.post<GetRateLimitResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/cache/clear`,
+    { include_sub_orgs: includeSubOrgs },
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** EvaluateQuota (dry-run) */
+export async function evaluateOrgQuota(
+  orgId: string,
+  env: Environment,
+  label: string
+): Promise<{ org_id: string; label: string; evaluated: boolean }> {
+  const res = await api.post<{ org_id: string; label: string; evaluated: boolean }>(
+    `/orgs/${encodeURIComponent(orgId)}/quota/evaluate`,
+    { label },
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** GetQuotaOverrides */
+export async function getOrgQuotas(
+  orgId: string,
+  env: Environment
+): Promise<GetQuotaOverridesResponse> {
+  const res = await api.get<GetQuotaOverridesResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/quotas`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** SetQuotaOverride — returns fresh quota list after write */
+export async function setOrgQuota(
+  orgId: string,
+  env: Environment,
+  label: string,
+  count: number
+): Promise<GetQuotaOverridesResponse> {
+  const res = await api.put<GetQuotaOverridesResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/quotas`,
+    { label, count },
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** RemoveQuotaOverride — returns fresh quota list after delete */
+export async function removeOrgQuota(
+  orgId: string,
+  env: Environment,
+  label: string
+): Promise<GetQuotaOverridesResponse> {
+  const res = await api.delete<GetQuotaOverridesResponse>(
+    `/orgs/${encodeURIComponent(orgId)}/quotas/${encodeURIComponent(label)}`,
+    forEnv(env)
+  );
+  return res.data;
 }

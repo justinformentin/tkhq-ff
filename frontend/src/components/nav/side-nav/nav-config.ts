@@ -24,6 +24,16 @@ export const navSections: TNavSection[] = [
       },
     ],
   },
+  {
+    title: 'Org Operations',
+    items: [
+      {
+        pathname: '/org-ops',
+        displayName: 'Org Operations',
+        iconName: 'Building2',
+      },
+    ],
+  },
 ];
 
 export const footerItems: TSideNavFooterItem[] = [
