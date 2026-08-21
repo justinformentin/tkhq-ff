@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listFlags, setFlag } from '../lib/api';
 import { formatFlagName } from '../lib/utils';
@@ -165,7 +165,7 @@ export function FlagTable() {
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLElement).style.backgroundColor = '';
                     }}
-                    onClick={() => navigate(`/flags/${flag.flag}`)}
+                    onClick={() => void navigate({ to: '/flags/$flag', params: { flag: flag.flag } })}
                   >
                     <td className="px-4 py-3">
                       <div className="font-medium text-sm" style={{ color: 'var(--color-text)' }}>
