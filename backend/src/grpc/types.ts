@@ -80,3 +80,143 @@ export function toFeatureFlag(def: FeatureFlagDefinition): FeatureFlag {
     disallowed_products: def.blacklisted_products || [],
   };
 }
+
+// ---------------------------------------------------------------------------
+// Org Operations wire types (mirror operator_agent.proto exactly)
+// ---------------------------------------------------------------------------
+
+// OrgRefs
+export interface OrgRefsRequest {
+  org_id: string;
+}
+
+export interface OrgRefsResponse {
+  org_id: string;
+  billing_org_id: string;
+  customer_id: string;
+  product_type: string;
+  is_cached: boolean;
+  product_sub_type?: string;
+}
+
+// RateLimit (shared message)
+export interface ProtoTimestamp {
+  seconds: string;
+  nanos: number;
+}
+
+export interface RateLimit {
+  category: string;
+  requests_per_minute: number;
+  rule: string;
+  rule_variant?: string;
+  remediation: string;
+  expires_at?: ProtoTimestamp;
+  bucket_type: string;
+  id: number;
+  product_type: string;
+  notes: string;
+  product_sub_type?: string;
+}
+
+// GetRateLimit
+export interface GetRateLimitRequest {
+  org_id: string;
+}
+
+export interface GetRateLimitResponse {
+  org_id: string;
+  billing_org_id: string;
+  product_type: string;
+  rate_limits: RateLimit[];
+  product_sub_type?: string;
+}
+
+// SetRateLimit
+export interface SetRateLimitRequest {
+  org_id: string;
+  requests_per_second: number;
+  rule: string;
+  rule_variant?: string;
+  remediation: string;
+  expires_at?: ProtoTimestamp;
+  bucket_type: string;
+  notes: string;
+}
+
+// RemoveRateLimit
+export interface RemoveRateLimitRequest {
+  org_id: string;
+  rule: string;
+  rule_variant?: string;
+  bucket_type: string;
+}
+
+// GetDefaultRateLimits
+export interface GetDefaultRateLimitsResponse {
+  limits: RateLimit[];
+}
+
+// Interdictions
+export interface Interdiction {
+  key: string;
+  owners: string[];
+}
+
+export interface GetInterdictionsRequest {
+  org_id: string;
+}
+
+export interface GetInterdictionsResponse {
+  interdictions: Interdiction[];
+}
+
+// SetInterdictorBlock
+export interface SetInterdictorBlockRequest {
+  scope: string;
+  op: string;
+  org_id: string;
+  blocked: boolean;
+  suborg_id?: string;
+}
+
+export interface SetInterdictorBlockResponse {
+  raw_key: string;
+  was_blocked: boolean;
+}
+
+// ClearCacheForOrg
+export interface ClearCacheForOrgRequest {
+  org_id: string;
+  include_sub_orgs: boolean;
+}
+
+// EvaluateQuota
+export interface EvaluateQuotaRequest {
+  org_id: string;
+  label: string;
+}
+
+// QuotaOverrides
+export interface QuotaOverride {
+  org_id: string;
+  label: string;
+  count: number;
+}
+
+export interface GetQuotaOverridesRequest {
+  org_id: string;
+}
+
+export interface GetQuotaOverridesResponse {
+  items: QuotaOverride[];
+}
+
+export interface SetQuotaOverrideRequest {
+  data: QuotaOverride;
+}
+
+export interface RemoveQuotaOverrideRequest {
+  org_id: string;
+  label: string;
+}
