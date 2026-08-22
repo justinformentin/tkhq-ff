@@ -315,3 +315,39 @@ export async function removeOrgQuota(
   );
   return res.data;
 }
+
+// ---------------------------------------------------------------------------
+// Service Control API — engineering-only, affects live infrastructure
+// ---------------------------------------------------------------------------
+
+/** ScaleService — scales a Kubernetes deployment to the given replica count */
+export async function scaleService(
+  env: Environment,
+  service_name: string,
+  replicas: number,
+  environment: string
+): Promise<{ ok: boolean; service_name: string; replicas: number; environment: string }> {
+  const res = await api.post<{
+    ok: boolean;
+    service_name: string;
+    replicas: number;
+    environment: string;
+  }>('/service-control/scale', { service_name, replicas, environment }, forEnv(env));
+  return res.data;
+}
+
+/** DirectService — sets the traffic weight percentage for a named service */
+export async function directService(
+  env: Environment,
+  service_name: string,
+  traffic_weight: number,
+  environment: string
+): Promise<{ ok: boolean; service_name: string; traffic_weight: number; environment: string }> {
+  const res = await api.post<{
+    ok: boolean;
+    service_name: string;
+    traffic_weight: number;
+    environment: string;
+  }>('/service-control/direct', { service_name, traffic_weight, environment }, forEnv(env));
+  return res.data;
+}

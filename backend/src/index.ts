@@ -7,6 +7,7 @@ import authRouter from './routes/auth';
 import flagsRouter from './routes/flags';
 import orgsRouter from './routes/orgs';
 import rateLimitsRouter from './routes/rateLimits';
+import serviceControlRouter from './routes/serviceControl';
 import { errorHandler } from './middleware/errorHandler';
 import { requireIdentity } from './auth/identity';
 import { getOidcConfig } from './auth/oidc';
@@ -32,6 +33,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/flags', requireIdentity, flagsRouter);
 app.use('/api/orgs', requireIdentity, orgsRouter);
 app.use('/api/rate-limits', requireIdentity, rateLimitsRouter);
+app.use('/api/service-control', requireIdentity, serviceControlRouter);
 
 // Environments the UI can switch between.
 app.get('/api/environments', (_req, res) => {

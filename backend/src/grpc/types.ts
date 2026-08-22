@@ -220,3 +220,25 @@ export interface RemoveQuotaOverrideRequest {
   org_id: string;
   label: string;
 }
+
+// ---------------------------------------------------------------------------
+// Service Control wire types
+// ---------------------------------------------------------------------------
+
+// ScaleService — POST /services.operator_agent.v1.OperatorAgentService/ScaleService
+export interface ScaleServiceRequest {
+  service_name: string;
+  replicas: number;
+  environment: string;
+}
+
+// DirectService — POST /services.operator_agent.v1.OperatorAgentService/DirectService
+export interface DirectServiceRequest {
+  service_name: string;
+  traffic_weight: number;
+  environment: string;
+}
+
+// Both RPCs return an empty message.
+export type ScaleServiceResponse = Record<string, never>;
+export type DirectServiceResponse = Record<string, never>;

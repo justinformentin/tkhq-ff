@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index';
 import { Route as FlagsIndexRouteImport } from './routes/flags.index';
 import { Route as OrgOpsIndexRouteImport } from './routes/org-ops.index';
 import { Route as OrgsIndexRouteImport } from './routes/orgs.index';
+import { Route as ServiceControlIndexRouteImport } from './routes/service-control.index';
 import { Route as FlagsFlagIndexRouteImport } from './routes/flags.$flag.index';
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const OrgsIndexRoute = OrgsIndexRouteImport.update({
   path: '/orgs/',
   getParentRoute: () => rootRouteImport,
 } as any);
+const ServiceControlIndexRoute = ServiceControlIndexRouteImport.update({
+  id: '/service-control/',
+  path: '/service-control/',
+  getParentRoute: () => rootRouteImport,
+} as any);
 const FlagsFlagIndexRoute = FlagsFlagIndexRouteImport.update({
   id: '/flags/$flag/',
   path: '/flags/$flag/',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/flags/': typeof FlagsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
   '/orgs/': typeof OrgsIndexRoute;
+  '/service-control/': typeof ServiceControlIndexRoute;
   '/flags/$flag/': typeof FlagsFlagIndexRoute;
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/flags': typeof FlagsIndexRoute;
   '/org-ops': typeof OrgOpsIndexRoute;
   '/orgs': typeof OrgsIndexRoute;
+  '/service-control': typeof ServiceControlIndexRoute;
   '/flags/$flag': typeof FlagsFlagIndexRoute;
 }
 export interface FileRoutesById {
@@ -61,14 +69,15 @@ export interface FileRoutesById {
   '/flags/': typeof FlagsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
   '/orgs/': typeof OrgsIndexRoute;
+  '/service-control/': typeof ServiceControlIndexRoute;
   '/flags/$flag/': typeof FlagsFlagIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
+  fullPaths: '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/service-control/' | '/flags/$flag/';
   fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/flags' | '/org-ops' | '/orgs' | '/flags/$flag';
-  id: '__root__' | '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
+  to: '/' | '/flags' | '/org-ops' | '/orgs' | '/service-control' | '/flags/$flag';
+  id: '__root__' | '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/service-control/' | '/flags/$flag/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -76,6 +85,7 @@ export interface RootRouteChildren {
   FlagsIndexRoute: typeof FlagsIndexRoute;
   OrgOpsIndexRoute: typeof OrgOpsIndexRoute;
   OrgsIndexRoute: typeof OrgsIndexRoute;
+  ServiceControlIndexRoute: typeof ServiceControlIndexRoute;
   FlagsFlagIndexRoute: typeof FlagsFlagIndexRoute;
 }
 
@@ -109,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgsIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    '/service-control/': {
+      id: '/service-control/';
+      path: '/service-control';
+      fullPath: '/service-control/';
+      preLoaderRoute: typeof ServiceControlIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/flags/$flag/': {
       id: '/flags/$flag/';
       path: '/flags/$flag';
@@ -124,6 +141,7 @@ const rootRouteChildren: RootRouteChildren = {
   FlagsIndexRoute: FlagsIndexRoute,
   OrgOpsIndexRoute: OrgOpsIndexRoute,
   OrgsIndexRoute: OrgsIndexRoute,
+  ServiceControlIndexRoute: ServiceControlIndexRoute,
   FlagsFlagIndexRoute: FlagsFlagIndexRoute,
 };
 export const routeTree = rootRouteImport

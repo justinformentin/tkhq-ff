@@ -34,6 +34,16 @@ export const navSections: TNavSection[] = [
       },
     ],
   },
+  {
+    title: 'Infrastructure',
+    items: [
+      {
+        pathname: '/service-control',
+        displayName: 'Service Control',
+        iconName: 'ShieldAlert',
+      },
+    ],
+  },
 ];
 
 export const footerItems: TSideNavFooterItem[] = [
