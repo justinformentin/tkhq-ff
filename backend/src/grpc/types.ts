@@ -220,3 +220,47 @@ export interface RemoveQuotaOverrideRequest {
   org_id: string;
   label: string;
 }
+
+// ---------------------------------------------------------------------------
+// Service Control wire types (mirror operator_agent.proto exactly)
+// TODO: verify field names against proto — derived from tkinfra scale.go /
+// direct.go semantics and tkhq/mono OperatorAgentService proto conventions.
+// ---------------------------------------------------------------------------
+
+// ScaleService — scale a Kubernetes deployment's replica count per-environment
+export interface ScaleServiceRequest {
+  /** The Kubernetes service/deployment name to scale (e.g. "api-server") */
+  service: string;
+  /** Target replica count */
+  replicas: number;
+  /** Proto enum name for the environment (e.g. "ENVIRONMENT_PRODUCTION") */
+  environment: string;
+}
+
+export interface ScaleServiceResponse {
+  /** The service that was scaled */
+  service: string;
+  /** Resulting replica count after the scale operation */
+  replicas: number;
+  /** Proto enum name for the environment */
+  environment: string;
+}
+
+// DirectService — redirect/direct service traffic per-environment
+export interface DirectServiceRequest {
+  /** The Kubernetes service/deployment name to redirect */
+  service: string;
+  /** Direction target (e.g. "canary", "stable", "rollback") */
+  direction: string;
+  /** Proto enum name for the environment */
+  environment: string;
+}
+
+export interface DirectServiceResponse {
+  /** The service whose traffic was redirected */
+  service: string;
+  /** The direction applied */
+  direction: string;
+  /** Proto enum name for the environment */
+  environment: string;
+}

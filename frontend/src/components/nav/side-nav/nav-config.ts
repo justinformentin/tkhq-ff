@@ -34,6 +34,17 @@ export const navSections: TNavSection[] = [
       },
     ],
   },
+  {
+    // Engineering-only: destructive Kubernetes ops — ScaleService + DirectService
+    title: 'Infrastructure',
+    items: [
+      {
+        pathname: '/services',
+        displayName: 'Service Control ⚠',
+        iconName: 'Server',
+      },
+    ],
+  },
 ];
 
 export const footerItems: TSideNavFooterItem[] = [

@@ -11,6 +11,8 @@ import type {
   OrgSearchResponse,
   OrgStatusResponse,
   SetInterdictorBlockResponse,
+  ScaleServiceResponse,
+  DirectServiceResponse,
 } from '../types';
 import type { Environment } from './environment';
 
@@ -311,6 +313,55 @@ export async function removeOrgQuota(
 ): Promise<GetQuotaOverridesResponse> {
   const res = await api.delete<GetQuotaOverridesResponse>(
     `/orgs/${encodeURIComponent(orgId)}/quotas/${encodeURIComponent(label)}`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+// ---------------------------------------------------------------------------
+// Service Control API — DESTRUCTIVE, engineering-only
+// Wraps ScaleService and DirectService OperatorAgentService RPCs.
+// Requires service:admin RBAC.
+// ---------------------------------------------------------------------------
+
+/**
+ * ScaleService — scale a Kubernetes deployment's replica count.
+ *
+ * @param service     Kubernetes deployment/service name (e.g. "api-server")
+ * @param env         Which operator agent to call (agent-env routing)
+ * @param body.replicas    Target replica count (>= 0)
+ * @param body.environment Proto enum name for the k8s cluster/env
+ *                         (e.g. "ENVIRONMENT_PRODUCTION")
+ */
+export async function scaleService(
+  service: string,
+  env: Environment,
+  body: { replicas: number; environment: string }
+): Promise<ScaleServiceResponse> {
+  const res = await api.post<ScaleServiceResponse>(
+    `/services/${encodeURIComponent(service)}/scale`,
+    body,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/**
+ * DirectService — redirect traffic for a Kubernetes service.
+ *
+ * @param service     Kubernetes deployment/service name (e.g. "api-server")
+ * @param env         Which operator agent to call (agent-env routing)
+ * @param body.direction   Traffic direction target (e.g. "canary", "stable")
+ * @param body.environment Proto enum name for the environment
+ */
+export async function directService(
+  service: string,
+  env: Environment,
+  body: { direction: string; environment: string }
+): Promise<DirectServiceResponse> {
+  const res = await api.post<DirectServiceResponse>(
+    `/services/${encodeURIComponent(service)}/direct`,
+    body,
     forEnv(env)
   );
   return res.data;
