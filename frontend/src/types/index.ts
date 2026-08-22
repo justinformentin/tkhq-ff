@@ -183,3 +183,112 @@ export const RATE_LIMIT_BUCKET_TYPE_NAMES: Record<string, string> = {
 export const RATE_LIMIT_BUCKET_TYPES = Object.entries(
   RATE_LIMIT_BUCKET_TYPE_NAMES
 ).map(([value, label]) => ({ value, label }));
+
+// ---------------------------------------------------------------------------
+// Email / SES types (mirror backend/grpc/types.ts wire shapes)
+// ---------------------------------------------------------------------------
+
+export type SuppressionListReason =
+  | 'SUPPRESSION_LIST_REASON_UNSPECIFIED'
+  | 'SUPPRESSION_LIST_REASON_BOUNCE'
+  | 'SUPPRESSION_LIST_REASON_COMPLAINT';
+
+export const SUPPRESSION_REASON_NAMES: Record<SuppressionListReason, string> = {
+  SUPPRESSION_LIST_REASON_UNSPECIFIED: 'Unspecified',
+  SUPPRESSION_LIST_REASON_BOUNCE: 'Bounce',
+  SUPPRESSION_LIST_REASON_COMPLAINT: 'Complaint',
+};
+
+export const SUPPRESSION_REASONS: {
+  value: SuppressionListReason;
+  label: string;
+}[] = [
+  {
+    value: 'SUPPRESSION_LIST_REASON_BOUNCE',
+    label: 'Bounce',
+  },
+  {
+    value: 'SUPPRESSION_LIST_REASON_COMPLAINT',
+    label: 'Complaint',
+  },
+];
+
+export interface SuppressedEmailSummary {
+  email_address: string;
+  last_update_time?: ProtoTimestamp;
+  reason: SuppressionListReason;
+}
+
+export interface SuppressedDestinationAttributes {
+  feedback_id: string;
+  message_id: string;
+}
+
+export interface GetSuppressedEmailResponse {
+  email_address: string;
+  last_update_time?: ProtoTimestamp;
+  reason: SuppressionListReason;
+  attributes?: SuppressedDestinationAttributes;
+}
+
+export interface ListSuppressedEmailsResponse {
+  items: SuppressedEmailSummary[];
+  next_token?: string;
+}
+
+export interface AddSuppressedEmailResponse {
+  email_address: string;
+  reason: SuppressionListReason;
+}
+
+export interface DeleteSuppressedEmailResponse {
+  email_address: string;
+}
+
+export type VerificationStatus =
+  | 'VERIFICATION_STATUS_UNSPECIFIED'
+  | 'VERIFICATION_STATUS_PENDING'
+  | 'VERIFICATION_STATUS_SUCCESS'
+  | 'VERIFICATION_STATUS_FAILED'
+  | 'VERIFICATION_STATUS_TEMPORARY_FAILURE'
+  | 'VERIFICATION_STATUS_NOT_STARTED';
+
+export const VERIFICATION_STATUS_NAMES: Record<VerificationStatus, string> = {
+  VERIFICATION_STATUS_UNSPECIFIED: 'Unspecified',
+  VERIFICATION_STATUS_PENDING: 'Pending',
+  VERIFICATION_STATUS_SUCCESS: 'Success',
+  VERIFICATION_STATUS_FAILED: 'Failed',
+  VERIFICATION_STATUS_TEMPORARY_FAILURE: 'Temporary Failure',
+  VERIFICATION_STATUS_NOT_STARTED: 'Not Started',
+};
+
+export interface DnsRecord {
+  type: string;
+  name: string;
+  value: string;
+  note: string;
+}
+
+export interface SesDomainResponse {
+  identity_name: string;
+  configuration_set_name: string;
+  tenant_names: string[];
+  mail_from_domain: string;
+  dns_records: DnsRecord[];
+  verification_status: VerificationStatus;
+  verified_for_sending: boolean;
+  dkim_status: VerificationStatus;
+  mail_from_domain_status: VerificationStatus;
+}
+
+export interface GetEmailVerificationResponse {
+  email_address: string;
+  valid: boolean;
+  created_at?: ProtoTimestamp;
+  updated_at?: ProtoTimestamp;
+}
+
+export interface UpdateEmailVerificationResponse {
+  email_address: string;
+  valid: boolean;
+}

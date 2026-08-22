@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import authRouter from './routes/auth';
+import emailRouter from './routes/email';
 import flagsRouter from './routes/flags';
 import orgsRouter from './routes/orgs';
 import rateLimitsRouter from './routes/rateLimits';
@@ -29,6 +30,7 @@ app.use(cookieParser());
 
 // API routes
 app.use('/api/auth', authRouter);
+app.use('/api/email', requireIdentity, emailRouter);
 app.use('/api/flags', requireIdentity, flagsRouter);
 app.use('/api/orgs', requireIdentity, orgsRouter);
 app.use('/api/rate-limits', requireIdentity, rateLimitsRouter);
