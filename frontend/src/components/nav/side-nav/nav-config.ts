@@ -42,6 +42,7 @@ export const navSections: TNavSection[] = [
         displayName: 'Migrations',
         iconName: 'Database',
       },
+      { pathname: '/email', displayName: 'Email / SES', iconName: 'Mail' },
     ],
   },
 ];

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as IndexRouteImport } from './routes/index';
+import { Route as EmailIndexRouteImport } from './routes/email.index';
 import { Route as FlagsIndexRouteImport } from './routes/flags.index';
 import { Route as MigrationsIndexRouteImport } from './routes/migrations.index';
 import { Route as OrgOpsIndexRouteImport } from './routes/org-ops.index';
@@ -19,6 +20,11 @@ import { Route as FlagsFlagIndexRouteImport } from './routes/flags.$flag.index';
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const EmailIndexRoute = EmailIndexRouteImport.update({
+  id: '/email/',
+  path: '/email/',
   getParentRoute: () => rootRouteImport,
 } as any);
 const FlagsIndexRoute = FlagsIndexRouteImport.update({
@@ -49,6 +55,7 @@ const FlagsFlagIndexRoute = FlagsFlagIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
+  '/email/': typeof EmailIndexRoute;
   '/flags/': typeof FlagsIndexRoute;
   '/migrations/': typeof MigrationsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
+  '/email': typeof EmailIndexRoute;
   '/flags': typeof FlagsIndexRoute;
   '/migrations': typeof MigrationsIndexRoute;
   '/org-ops': typeof OrgOpsIndexRoute;
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
+  '/email/': typeof EmailIndexRoute;
   '/flags/': typeof FlagsIndexRoute;
   '/migrations/': typeof MigrationsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
@@ -75,12 +84,26 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    '/' | '/flags/' | '/migrations/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
+    | '/'
+    | '/email/'
+    | '/flags/'
+    | '/migrations/'
+    | '/org-ops/'
+    | '/orgs/'
+    | '/flags/$flag/';
   fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/flags' | '/migrations' | '/org-ops' | '/orgs' | '/flags/$flag';
+  to:
+    | '/'
+    | '/email'
+    | '/flags'
+    | '/migrations'
+    | '/org-ops'
+    | '/orgs'
+    | '/flags/$flag';
   id:
     | '__root__'
     | '/'
+    | '/email/'
     | '/flags/'
     | '/migrations/'
     | '/org-ops/'
@@ -90,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  EmailIndexRoute: typeof EmailIndexRoute;
   FlagsIndexRoute: typeof FlagsIndexRoute;
   MigrationsIndexRoute: typeof MigrationsIndexRoute;
   OrgOpsIndexRoute: typeof OrgOpsIndexRoute;
@@ -104,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/';
       fullPath: '/';
       preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/email/': {
+      id: '/email/';
+      path: '/email';
+      fullPath: '/email/';
+      preLoaderRoute: typeof EmailIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/flags/': {
@@ -146,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EmailIndexRoute: EmailIndexRoute,
   FlagsIndexRoute: FlagsIndexRoute,
   MigrationsIndexRoute: MigrationsIndexRoute,
   OrgOpsIndexRoute: OrgOpsIndexRoute,

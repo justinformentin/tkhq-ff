@@ -249,3 +249,178 @@ export interface GetPendingMigrationsRequest {
 export interface GetPendingMigrationsResponse {
   results: CheckMigrationResponse[];
 }
+// Email / SES wire types (mirror operator_agent.proto exactly)
+// ---------------------------------------------------------------------------
+
+// Shared timestamp — reused from proto google.protobuf.Timestamp (longs: String)
+// ProtoTimestamp is already declared above.
+
+// SuppressionListReason enum names (enums: String)
+export type SuppressionListReason =
+  | 'SUPPRESSION_LIST_REASON_UNSPECIFIED'
+  | 'SUPPRESSION_LIST_REASON_BOUNCE'
+  | 'SUPPRESSION_LIST_REASON_COMPLAINT';
+
+// SuppressedEmailSummary (list item)
+export interface SuppressedEmailSummary {
+  email_address: string;
+  last_update_time?: ProtoTimestamp;
+  reason: SuppressionListReason;
+}
+
+// SuppressedDestinationAttributes
+export interface SuppressedDestinationAttributes {
+  feedback_id: string;
+  message_id: string;
+}
+
+// GetSuppressedEmail
+export interface GetSuppressedEmailRequest {
+  email_address: string;
+}
+
+export interface GetSuppressedEmailResponse {
+  email_address: string;
+  last_update_time?: ProtoTimestamp;
+  reason: SuppressionListReason;
+  attributes?: SuppressedDestinationAttributes;
+}
+
+// ListSuppressedEmails (paginated)
+export interface ListSuppressedEmailsRequest {
+  page_size?: number;
+  next_token?: string;
+  start_date?: ProtoTimestamp;
+  end_date?: ProtoTimestamp;
+  reasons?: SuppressionListReason[];
+}
+
+export interface ListSuppressedEmailsResponse {
+  items: SuppressedEmailSummary[];
+  next_token?: string;
+}
+
+// AddSuppressedEmail
+export interface AddSuppressedEmailRequest {
+  email_address: string;
+  reason: SuppressionListReason;
+}
+
+export interface AddSuppressedEmailResponse {
+  email_address: string;
+  reason: SuppressionListReason;
+}
+
+// DeleteSuppressedEmail
+export interface DeleteSuppressedEmailRequest {
+  email_address: string;
+}
+
+export interface DeleteSuppressedEmailResponse {
+  email_address: string;
+}
+
+// VerificationStatus enum names (enums: String)
+export type VerificationStatus =
+  | 'VERIFICATION_STATUS_UNSPECIFIED'
+  | 'VERIFICATION_STATUS_PENDING'
+  | 'VERIFICATION_STATUS_SUCCESS'
+  | 'VERIFICATION_STATUS_FAILED'
+  | 'VERIFICATION_STATUS_TEMPORARY_FAILURE'
+  | 'VERIFICATION_STATUS_NOT_STARTED';
+
+// DnsRecord
+export interface DnsRecord {
+  type: string;
+  name: string;
+  value: string;
+  note: string;
+}
+
+// SesDomain response shape (shared across Get/Refresh/Create)
+export interface SesDomainData {
+  identity_name: string;
+  configuration_set_name: string;
+  tenant_names: string[];
+  mail_from_domain: string;
+  dns_records: DnsRecord[];
+  verification_status: VerificationStatus;
+  verified_for_sending: boolean;
+  dkim_status: VerificationStatus;
+  mail_from_domain_status: VerificationStatus;
+}
+
+// GetSesDomain
+export interface GetSesDomainRequest {
+  domain: string;
+}
+
+export type GetSesDomainResponse = SesDomainData;
+
+// RefreshSesDomain
+export interface RefreshSesDomainRequest {
+  domain: string;
+}
+
+export type RefreshSesDomainResponse = SesDomainData;
+
+// CreateSesDomain
+export interface CreateSesDomainRequest {
+  domain: string;
+  configuration_set_name?: string;
+  tenant_name?: string;
+  mail_from_domain?: string;
+}
+
+export type CreateSesDomainResponse = SesDomainData;
+
+// CreateCustomDomainEntry
+export interface CreateCustomDomainEntryRequest {
+  domain: string;
+  org_id: string;
+  tenant_name?: string;
+}
+
+export interface CreateCustomDomainEntryResponse {
+  domain: string;
+  org_id: string;
+  tenant_name: string;
+}
+
+// UpdateAuthProxyEmailConfig
+export interface UpdateAuthProxyEmailConfigRequest {
+  org_id: string;
+  send_from_email_address?: string;
+  reply_to_email_address?: string;
+  send_from_email_sender_name?: string;
+}
+
+export interface UpdateAuthProxyEmailConfigResponse {
+  org_id: string;
+  send_from_email_address?: string;
+  reply_to_email_address?: string;
+  send_from_email_sender_name?: string;
+}
+
+// GetEmailVerification
+export interface GetEmailVerificationRequest {
+  email: string;
+}
+
+export interface GetEmailVerificationResponse {
+  email_address: string;
+  valid: boolean;
+  created_at?: ProtoTimestamp;
+  updated_at?: ProtoTimestamp;
+}
+
+// UpdateEmailVerification
+export interface UpdateEmailVerificationRequest {
+  email: string;
+  valid: boolean;
+}
+
+export interface UpdateEmailVerificationResponse {
+  email_address: string;
+  valid: boolean;
+}
