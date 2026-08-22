@@ -34,6 +34,16 @@ export const navSections: TNavSection[] = [
       },
     ],
   },
+  {
+    title: 'Email',
+    items: [
+      {
+        pathname: '/email',
+        displayName: 'Email / SES',
+        iconName: 'Mail',
+      },
+    ],
+  },
 ];
 
 export const footerItems: TSideNavFooterItem[] = [
