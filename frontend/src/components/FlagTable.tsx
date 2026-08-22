@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listFlags, setFlag } from '../lib/api';
-import { formatFlagName } from '../lib/utils';
+import { formatFlagName } from '@/lib/utils';
 import { Switch } from './Switch';
-import { useToast } from '../hooks/useToast';
 import { ChevronRight, Search } from 'lucide-react';
-import { useEnvironment } from '../lib/environment';
+import { useEnvironment } from '@/lib/environment';
+import { useFlagList } from '@/hooks/flags/useFlagList';
+import { useToggleFlag } from '@/hooks/flags/useToggleFlag';
 
 const HEADER_CELL =
   'text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground';
@@ -14,43 +13,12 @@ const HEADER_CELL =
 export function FlagTable() {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
   const { env } = useEnvironment();
 
   // withOrgs: the Overrides column counts org rules, which the plain list
   // response doesn't carry.
-  const {
-    data: flags,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['flags', env],
-    queryFn: () => listFlags(env, true),
-  });
-
-  const toggleMutation = useMutation({
-    mutationFn: ({
-      flag,
-      enabled,
-      rollout_percent,
-    }: {
-      flag: string;
-      enabled: boolean;
-      rollout_percent: number;
-    }) => setFlag(flag, env, enabled, rollout_percent),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flags', env] });
-      toast({ title: 'Flag updated' });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-  });
+  const { data: flags, isLoading, error } = useFlagList(env, true);
+  const toggleMutation = useToggleFlag(env);
 
   // The flag name is the row's identity — it keys the React list and the detail
   // route — so collapse any repeats the agent reports rather than rendering

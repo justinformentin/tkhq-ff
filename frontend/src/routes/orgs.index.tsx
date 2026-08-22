@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { searchOrg } from '@/lib/api';
-import { formatFlagName } from '@/lib/utils';
 import { Search } from 'lucide-react';
+import { formatFlagName } from '@/lib/utils';
 import { useEnvironment } from '@/lib/environment';
+import { useOrgSearch } from '@/hooks/orgs/useOrgSearch';
 
 export const Route = createFileRoute('/orgs/')({
   component: OrgSearchRouteComponent,
@@ -15,15 +14,7 @@ function OrgSearchRouteComponent() {
   const [searchedOrg, setSearchedOrg] = useState('');
   const { env } = useEnvironment();
 
-  const {
-    data: results,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['org-search', env, searchedOrg],
-    queryFn: () => searchOrg(searchedOrg, env),
-    enabled: !!searchedOrg,
-  });
+  const { data: results, isLoading, error } = useOrgSearch(env, searchedOrg);
 
   function handleSearch() {
     if (orgInput.trim()) setSearchedOrg(orgInput.trim());
@@ -44,9 +35,7 @@ function OrgSearchRouteComponent() {
           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
           value={orgInput}
           onChange={(e) => setOrgInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSearch();
-          }}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
           className="flex-1 px-3 py-2 rounded-lg border border-border bg-card-background text-sm font-mono text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <button

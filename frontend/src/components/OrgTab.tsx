@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addFlagOrg, removeFlagOrg } from '../lib/api';
-import type { OrgRule } from '../types';
-import { useToast } from '../hooks/useToast';
 import { Trash2, Plus } from 'lucide-react';
-import { useEnvironment } from '../lib/environment';
-import { cn } from '../lib/utils';
+import { useEnvironment } from '@/lib/environment';
+import { cn } from '@/lib/utils';
 import { RuleToggle } from './RuleToggle';
+import { useFlagOrgMutations } from '@/hooks/flags/useFlagOrgMutations';
+import type { OrgRule } from '@/types';
 
 interface OrgTabProps {
   flagName: string;
@@ -17,43 +15,8 @@ interface OrgTabProps {
 export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
   const [orgId, setOrgId] = useState('');
   const [orgEnabled, setOrgEnabled] = useState(true);
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
   const { env } = useEnvironment();
-
-  const addMutation = useMutation({
-    mutationFn: () => addFlagOrg(flagName, env, orgId.trim(), orgEnabled),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
-      setOrgId('');
-      toast({
-        title: 'Org added',
-        description: `Org ${orgEnabled ? 'allowed' : 'denied'} successfully.`,
-      });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const removeMutation = useMutation({
-    mutationFn: (id: string) => removeFlagOrg(flagName, env, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
-      toast({ title: 'Org removed' });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-  });
+  const { addMutation, removeMutation } = useFlagOrgMutations(env, flagName);
 
   const allOrgs = [
     ...allowedOrgs.map((o) => ({ ...o, ruleType: 'allow' as const })),
@@ -85,7 +48,9 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
         </div>
         <RuleToggle value={orgEnabled} onChange={setOrgEnabled} />
         <button
-          onClick={() => addMutation.mutate()}
+          onClick={() =>
+            addMutation.mutate({ orgId: orgId.trim(), enabled: orgEnabled })
+          }
           disabled={!orgId.trim() || addMutation.isPending}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
         >
