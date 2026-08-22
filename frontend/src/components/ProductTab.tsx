@@ -1,19 +1,17 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addFlagProduct, removeFlagProduct } from '../lib/api';
-import { useEnvironment } from '../lib/environment';
-import type { ProductRule } from '../types';
+import { Trash2, Plus } from 'lucide-react';
+import { useEnvironment } from '@/lib/environment';
+import { cn } from '@/lib/utils';
+import { RuleToggle } from './RuleToggle';
+import { useFlagProductMutations } from '@/hooks/flags/useFlagProductMutations';
+import type { ProductRule } from '@/types';
 import {
   PRODUCT_TYPES,
   PRODUCT_SUB_TYPES,
   PRODUCT_TYPE_NAMES,
   PRODUCT_SUB_TYPE_NAMES,
   ANY_SUB_TYPE,
-} from '../types';
-import { useToast } from '../hooks/useToast';
-import { Trash2, Plus } from 'lucide-react';
-import { cn } from '../lib/utils';
-import { RuleToggle } from './RuleToggle';
+} from '@/types';
 
 interface ProductTabProps {
   flagName: string;
@@ -32,47 +30,8 @@ export function ProductTab({
   const [productType, setProductType] = useState<string>('PRODUCT_TYPE_FREE');
   const [productSubType, setProductSubType] = useState<string>(ANY_SUB_TYPE);
   const [productEnabled, setProductEnabled] = useState(true);
-  const queryClient = useQueryClient();
   const { env } = useEnvironment();
-  const { toast } = useToast();
-
-  const addMutation = useMutation({
-    mutationFn: () =>
-      addFlagProduct(
-        flagName,
-        env,
-        productType,
-        productSubType,
-        productEnabled
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
-      toast({ title: 'Product rule added' });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const removeMutation = useMutation({
-    mutationFn: ({ type, subType }: { type: string; subType: string }) =>
-      removeFlagProduct(flagName, env, type, subType),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
-      toast({ title: 'Product rule removed' });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-  });
+  const { addMutation, removeMutation } = useFlagProductMutations(env, flagName);
 
   const allRules = [
     ...allowedProducts.map((p) => ({ ...p, ruleType: 'allow' as const })),
@@ -122,7 +81,13 @@ export function ProductTab({
         </div>
         <RuleToggle value={productEnabled} onChange={setProductEnabled} />
         <button
-          onClick={() => addMutation.mutate()}
+          onClick={() =>
+            addMutation.mutate({
+              productType,
+              productSubType,
+              enabled: productEnabled,
+            })
+          }
           disabled={addMutation.isPending}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
         >

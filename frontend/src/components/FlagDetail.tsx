@@ -1,64 +1,33 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getFlag, setFlag } from '../lib/api';
-import { formatFlagName } from '../lib/utils';
+import { formatFlagName } from '@/lib/utils';
 import { OrgTab } from './OrgTab';
 import { ProductTab } from './ProductTab';
 import { Switch } from './Switch';
-import { useToast } from '../hooks/useToast';
 import * as Tabs from '@radix-ui/react-tabs';
-import { useEnvironment } from '../lib/environment';
+import { useEnvironment } from '@/lib/environment';
+import { useFlagDetail } from '@/hooks/flags/useFlagDetail';
+import { useSetFlag } from '@/hooks/flags/useSetFlag';
 
 interface FlagDetailProps {
   flagName: string;
 }
 
-// Radix drives the active state, so the tab's colors come from data attributes
-// rather than the mouse handlers this used to need.
 const TAB_TRIGGER =
   'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=inactive]:border-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:text-foreground';
 
 export function FlagDetail({ flagName }: FlagDetailProps) {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
   const { env } = useEnvironment();
-
-  const {
-    data: flagData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['flag', env, flagName],
-    queryFn: () => getFlag(flagName, env),
-  });
+  const { data: flagData, isLoading, error } = useFlagDetail(env, flagName);
+  const saveMutation = useSetFlag(env, flagName);
 
   const [localEnabled, setLocalEnabled] = useState<boolean | null>(null);
   const [localRollout, setLocalRollout] = useState<number | null>(null);
 
   const enabled = localEnabled ?? flagData?.enabled ?? false;
   const rollout = localRollout ?? flagData?.rollout_percent ?? 0;
-
   const isDirty =
     (localEnabled !== null && localEnabled !== flagData?.enabled) ||
     (localRollout !== null && localRollout !== flagData?.rollout_percent);
-
-  const saveMutation = useMutation({
-    mutationFn: () => setFlag(flagName, env, enabled, rollout),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['flags', env] });
-      queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
-      setLocalEnabled(null);
-      setLocalRollout(null);
-      toast({ title: 'Saved', description: 'Feature flag updated.' });
-    },
-    onError: (err: Error) => {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-  });
 
   if (error) {
     return (
@@ -159,7 +128,7 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
 
         {/* Save button */}
         <button
-          onClick={() => saveMutation.mutate()}
+          onClick={() => saveMutation.mutate({ enabled, rollout })}
           disabled={!isDirty || saveMutation.isPending || isLoading}
           className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40"
         >
