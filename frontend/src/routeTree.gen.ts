@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as IndexRouteImport } from './routes/index';
+import { Route as EmailIndexRouteImport } from './routes/email.index';
+import { Route as EmailSesRouteImport } from './routes/email.ses';
 import { Route as FlagsIndexRouteImport } from './routes/flags.index';
 import { Route as OrgOpsIndexRouteImport } from './routes/org-ops.index';
 import { Route as OrgsIndexRouteImport } from './routes/orgs.index';
@@ -18,6 +20,16 @@ import { Route as FlagsFlagIndexRouteImport } from './routes/flags.$flag.index';
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const EmailIndexRoute = EmailIndexRouteImport.update({
+  id: '/email/',
+  path: '/email/',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const EmailSesRoute = EmailSesRouteImport.update({
+  id: '/email/ses',
+  path: '/email/ses',
   getParentRoute: () => rootRouteImport,
 } as any);
 const FlagsIndexRoute = FlagsIndexRouteImport.update({
@@ -43,6 +55,8 @@ const FlagsFlagIndexRoute = FlagsFlagIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
+  '/email/ses': typeof EmailSesRoute;
+  '/email/': typeof EmailIndexRoute;
   '/flags/': typeof FlagsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
   '/orgs/': typeof OrgsIndexRoute;
@@ -50,6 +64,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
+  '/email/ses': typeof EmailSesRoute;
+  '/email': typeof EmailIndexRoute;
   '/flags': typeof FlagsIndexRoute;
   '/org-ops': typeof OrgOpsIndexRoute;
   '/orgs': typeof OrgsIndexRoute;
@@ -58,6 +74,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
+  '/email/ses': typeof EmailSesRoute;
+  '/email/': typeof EmailIndexRoute;
   '/flags/': typeof FlagsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
   '/orgs/': typeof OrgsIndexRoute;
@@ -65,14 +83,38 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
+  fullPaths:
+    | '/'
+    | '/email/ses'
+    | '/email/'
+    | '/flags/'
+    | '/org-ops/'
+    | '/orgs/'
+    | '/flags/$flag/';
   fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/flags' | '/org-ops' | '/orgs' | '/flags/$flag';
-  id: '__root__' | '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
+  to:
+    | '/'
+    | '/email/ses'
+    | '/email'
+    | '/flags'
+    | '/org-ops'
+    | '/orgs'
+    | '/flags/$flag';
+  id:
+    | '__root__'
+    | '/'
+    | '/email/ses'
+    | '/email/'
+    | '/flags/'
+    | '/org-ops/'
+    | '/orgs/'
+    | '/flags/$flag/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  EmailSesRoute: typeof EmailSesRoute;
+  EmailIndexRoute: typeof EmailIndexRoute;
   FlagsIndexRoute: typeof FlagsIndexRoute;
   OrgOpsIndexRoute: typeof OrgOpsIndexRoute;
   OrgsIndexRoute: typeof OrgsIndexRoute;
@@ -86,6 +128,20 @@ declare module '@tanstack/react-router' {
       path: '/';
       fullPath: '/';
       preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/email/': {
+      id: '/email/';
+      path: '/email';
+      fullPath: '/email/';
+      preLoaderRoute: typeof EmailIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/email/ses': {
+      id: '/email/ses';
+      path: '/email/ses';
+      fullPath: '/email/ses';
+      preLoaderRoute: typeof EmailSesRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/flags/': {
@@ -121,6 +177,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EmailSesRoute: EmailSesRoute,
+  EmailIndexRoute: EmailIndexRoute,
   FlagsIndexRoute: FlagsIndexRoute,
   OrgOpsIndexRoute: OrgOpsIndexRoute,
   OrgsIndexRoute: OrgsIndexRoute,

@@ -1,16 +1,27 @@
 import axios from 'axios';
 import type {
+  AddSuppressedEmailResponse,
+  AuthProxyEmailConfig,
+  CreateCustomDomainEntryResponse,
+  CreateSesDomainResponse,
   FeatureFlag,
   GetDefaultRateLimitsResponse,
+  GetEmailVerificationResponse,
   GetInterdictionsResponse,
   GetQuotaOverridesResponse,
   GetRateLimitResponse,
+  GetSesDomainResponse,
+  GetSuppressedEmailResponse,
   ListFlagsResponse,
   GetFlagResponse,
+  ListSuppressedEmailsResponse,
   OrgFlagMatch,
   OrgSearchResponse,
   OrgStatusResponse,
+  RefreshSesDomainResponse,
   SetInterdictorBlockResponse,
+  UpdateAuthProxyEmailConfigResponse,
+  UpdateEmailVerificationResponse,
 } from '../types';
 import type { Environment } from './environment';
 
@@ -311,6 +322,154 @@ export async function removeOrgQuota(
 ): Promise<GetQuotaOverridesResponse> {
   const res = await api.delete<GetQuotaOverridesResponse>(
     `/orgs/${encodeURIComponent(orgId)}/quotas/${encodeURIComponent(label)}`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+// ---------------------------------------------------------------------------
+// Email / SES API
+// ---------------------------------------------------------------------------
+
+/** GetSesDomain */
+export async function getSesDomain(
+  domain: string,
+  env: Environment
+): Promise<GetSesDomainResponse> {
+  const res = await api.get<GetSesDomainResponse>(
+    `/email/ses/domains/${encodeURIComponent(domain)}`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** CreateSesDomain */
+export async function createSesDomain(
+  env: Environment,
+  domain: string,
+  mail_from_domain?: string
+): Promise<CreateSesDomainResponse> {
+  const res = await api.post<CreateSesDomainResponse>(
+    '/email/ses/domains',
+    { domain, mail_from_domain },
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** RefreshSesDomain */
+export async function refreshSesDomain(
+  domain: string,
+  env: Environment
+): Promise<RefreshSesDomainResponse> {
+  const res = await api.post<RefreshSesDomainResponse>(
+    `/email/ses/domains/${encodeURIComponent(domain)}/refresh`,
+    {},
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** CreateCustomDomainEntry */
+export async function createCustomDomainEntry(
+  env: Environment,
+  domain: string,
+  org_id?: string
+): Promise<CreateCustomDomainEntryResponse> {
+  const res = await api.post<CreateCustomDomainEntryResponse>(
+    '/email/custom-domains',
+    { domain, org_id },
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** UpdateAuthProxyEmailConfig */
+export async function updateAuthProxyEmailConfig(
+  env: Environment,
+  config: AuthProxyEmailConfig
+): Promise<UpdateAuthProxyEmailConfigResponse> {
+  const res = await api.put<UpdateAuthProxyEmailConfigResponse>(
+    '/email/auth-proxy/config',
+    config,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** ListSuppressedEmails — paginated via page_token cursor */
+export async function listSuppressedEmails(
+  env: Environment,
+  page_token?: string,
+  page_size?: number
+): Promise<ListSuppressedEmailsResponse> {
+  const res = await api.get<ListSuppressedEmailsResponse>('/email/suppressed', {
+    params: {
+      env,
+      ...(page_token ? { page_token } : {}),
+      ...(page_size !== undefined ? { page_size } : {}),
+    },
+  });
+  return res.data;
+}
+
+/** GetSuppressedEmail */
+export async function getSuppressedEmail(
+  emailAddress: string,
+  env: Environment
+): Promise<GetSuppressedEmailResponse> {
+  const res = await api.get<GetSuppressedEmailResponse>(
+    `/email/suppressed/${encodeURIComponent(emailAddress)}`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** AddSuppressedEmail */
+export async function addSuppressedEmail(
+  emailAddress: string,
+  env: Environment
+): Promise<AddSuppressedEmailResponse> {
+  const res = await api.post<AddSuppressedEmailResponse>(
+    '/email/suppressed',
+    { email_address: emailAddress },
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** DeleteSuppressedEmail */
+export async function deleteSuppressedEmail(
+  emailAddress: string,
+  env: Environment
+): Promise<void> {
+  await api.delete(
+    `/email/suppressed/${encodeURIComponent(emailAddress)}`,
+    forEnv(env)
+  );
+}
+
+/** GetEmailVerification */
+export async function getEmailVerification(
+  emailAddress: string,
+  env: Environment
+): Promise<GetEmailVerificationResponse> {
+  const res = await api.get<GetEmailVerificationResponse>(
+    `/email/verification/${encodeURIComponent(emailAddress)}`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** UpdateEmailVerification */
+export async function updateEmailVerification(
+  emailAddress: string,
+  env: Environment,
+  status?: string
+): Promise<UpdateEmailVerificationResponse> {
+  const res = await api.put<UpdateEmailVerificationResponse>(
+    `/email/verification/${encodeURIComponent(emailAddress)}`,
+    { status },
     forEnv(env)
   );
   return res.data;

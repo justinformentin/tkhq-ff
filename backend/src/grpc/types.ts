@@ -220,3 +220,142 @@ export interface RemoveQuotaOverrideRequest {
   org_id: string;
   label: string;
 }
+
+// ---------------------------------------------------------------------------
+// Email / SES wire types (mirror operator_agent.proto exactly)
+// ---------------------------------------------------------------------------
+
+// Shared timestamp already defined above as ProtoTimestamp.
+
+// SesDomain
+export interface SesDomain {
+  domain: string;
+  status: string;
+  dkim_tokens?: string[];
+  mail_from_domain?: string;
+  created_at?: ProtoTimestamp;
+  updated_at?: ProtoTimestamp;
+}
+
+// GetSesDomain
+export interface GetSesDomainRequest {
+  domain: string;
+}
+
+export interface GetSesDomainResponse {
+  ses_domain: SesDomain;
+}
+
+// CreateSesDomain
+export interface CreateSesDomainRequest {
+  domain: string;
+  mail_from_domain?: string;
+}
+
+export interface CreateSesDomainResponse {
+  ses_domain: SesDomain;
+}
+
+// RefreshSesDomain
+export interface RefreshSesDomainRequest {
+  domain: string;
+}
+
+export interface RefreshSesDomainResponse {
+  ses_domain: SesDomain;
+}
+
+// CreateCustomDomainEntry
+export interface CreateCustomDomainEntryRequest {
+  domain: string;
+  org_id?: string;
+}
+
+export interface CreateCustomDomainEntryResponse {
+  domain: string;
+  org_id?: string;
+}
+
+// UpdateAuthProxyEmailConfig
+export interface AuthProxyEmailConfig {
+  from_email?: string;
+  from_name?: string;
+  reply_to_email?: string;
+}
+
+export interface UpdateAuthProxyEmailConfigRequest {
+  config: AuthProxyEmailConfig;
+}
+
+export interface UpdateAuthProxyEmailConfigResponse {
+  config: AuthProxyEmailConfig;
+}
+
+// SuppressedEmail
+export interface SuppressedEmail {
+  email_address: string;
+  reason?: string;
+  source?: string;
+  created_at?: ProtoTimestamp;
+}
+
+// GetSuppressedEmail
+export interface GetSuppressedEmailRequest {
+  email_address: string;
+}
+
+export interface GetSuppressedEmailResponse {
+  suppressed_email: SuppressedEmail;
+}
+
+// ListSuppressedEmails (paginated)
+export interface ListSuppressedEmailsRequest {
+  page_token?: string;
+  page_size?: number;
+}
+
+export interface ListSuppressedEmailsResponse {
+  suppressed_emails: SuppressedEmail[];
+  next_page_token?: string;
+}
+
+// AddSuppressedEmail
+export interface AddSuppressedEmailRequest {
+  email_address: string;
+}
+
+export interface AddSuppressedEmailResponse {
+  suppressed_email: SuppressedEmail;
+}
+
+// DeleteSuppressedEmail
+export interface DeleteSuppressedEmailRequest {
+  email_address: string;
+}
+
+// EmailVerification
+export interface EmailVerification {
+  email_address: string;
+  status: string;
+  verified_at?: ProtoTimestamp;
+  updated_at?: ProtoTimestamp;
+}
+
+// GetEmailVerification
+export interface GetEmailVerificationRequest {
+  email_address: string;
+}
+
+export interface GetEmailVerificationResponse {
+  email_verification: EmailVerification;
+}
+
+// UpdateEmailVerification
+export interface UpdateEmailVerificationRequest {
+  email_address: string;
+  status?: string;
+}
+
+export interface UpdateEmailVerificationResponse {
+  email_verification: EmailVerification;
+}

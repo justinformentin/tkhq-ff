@@ -183,3 +183,78 @@ export const RATE_LIMIT_BUCKET_TYPE_NAMES: Record<string, string> = {
 export const RATE_LIMIT_BUCKET_TYPES = Object.entries(
   RATE_LIMIT_BUCKET_TYPE_NAMES
 ).map(([value, label]) => ({ value, label }));
+
+// ---------------------------------------------------------------------------
+// Email / SES types (mirror backend/grpc/types.ts wire shapes)
+// ---------------------------------------------------------------------------
+
+export interface SesDomain {
+  domain: string;
+  status: string;
+  dkim_tokens?: string[];
+  mail_from_domain?: string;
+  created_at?: ProtoTimestamp;
+  updated_at?: ProtoTimestamp;
+}
+
+export interface GetSesDomainResponse {
+  ses_domain: SesDomain;
+}
+
+export interface CreateSesDomainResponse {
+  ses_domain: SesDomain;
+}
+
+export interface RefreshSesDomainResponse {
+  ses_domain: SesDomain;
+}
+
+export interface CreateCustomDomainEntryResponse {
+  domain: string;
+  org_id?: string;
+}
+
+export interface AuthProxyEmailConfig {
+  from_email?: string;
+  from_name?: string;
+  reply_to_email?: string;
+}
+
+export interface UpdateAuthProxyEmailConfigResponse {
+  config: AuthProxyEmailConfig;
+}
+
+export interface SuppressedEmail {
+  email_address: string;
+  reason?: string;
+  source?: string;
+  created_at?: ProtoTimestamp;
+}
+
+export interface ListSuppressedEmailsResponse {
+  suppressed_emails: SuppressedEmail[];
+  next_page_token?: string;
+}
+
+export interface GetSuppressedEmailResponse {
+  suppressed_email: SuppressedEmail;
+}
+
+export interface AddSuppressedEmailResponse {
+  suppressed_email: SuppressedEmail;
+}
+
+export interface EmailVerification {
+  email_address: string;
+  status: string;
+  verified_at?: ProtoTimestamp;
+  updated_at?: ProtoTimestamp;
+}
+
+export interface GetEmailVerificationResponse {
+  email_verification: EmailVerification;
+}
+
+export interface UpdateEmailVerificationResponse {
+  email_verification: EmailVerification;
+}
