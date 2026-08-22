@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as IndexRouteImport } from './routes/index';
 import { Route as FlagsIndexRouteImport } from './routes/flags.index';
+import { Route as MigrationsIndexRouteImport } from './routes/migrations.index';
 import { Route as OrgOpsIndexRouteImport } from './routes/org-ops.index';
 import { Route as OrgsIndexRouteImport } from './routes/orgs.index';
 import { Route as FlagsFlagIndexRouteImport } from './routes/flags.$flag.index';
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const FlagsIndexRoute = FlagsIndexRouteImport.update({
   id: '/flags/',
   path: '/flags/',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const MigrationsIndexRoute = MigrationsIndexRouteImport.update({
+  id: '/migrations/',
+  path: '/migrations/',
   getParentRoute: () => rootRouteImport,
 } as any);
 const OrgOpsIndexRoute = OrgOpsIndexRouteImport.update({
@@ -44,6 +50,7 @@ const FlagsFlagIndexRoute = FlagsFlagIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
   '/flags/': typeof FlagsIndexRoute;
+  '/migrations/': typeof MigrationsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
   '/orgs/': typeof OrgsIndexRoute;
   '/flags/$flag/': typeof FlagsFlagIndexRoute;
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
   '/flags': typeof FlagsIndexRoute;
+  '/migrations': typeof MigrationsIndexRoute;
   '/org-ops': typeof OrgOpsIndexRoute;
   '/orgs': typeof OrgsIndexRoute;
   '/flags/$flag': typeof FlagsFlagIndexRoute;
@@ -59,21 +67,31 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
   '/flags/': typeof FlagsIndexRoute;
+  '/migrations/': typeof MigrationsIndexRoute;
   '/org-ops/': typeof OrgOpsIndexRoute;
   '/orgs/': typeof OrgsIndexRoute;
   '/flags/$flag/': typeof FlagsFlagIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
+  fullPaths:
+    '/' | '/flags/' | '/migrations/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
   fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/flags' | '/org-ops' | '/orgs' | '/flags/$flag';
-  id: '__root__' | '/' | '/flags/' | '/org-ops/' | '/orgs/' | '/flags/$flag/';
+  to: '/' | '/flags' | '/migrations' | '/org-ops' | '/orgs' | '/flags/$flag';
+  id:
+    | '__root__'
+    | '/'
+    | '/flags/'
+    | '/migrations/'
+    | '/org-ops/'
+    | '/orgs/'
+    | '/flags/$flag/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   FlagsIndexRoute: typeof FlagsIndexRoute;
+  MigrationsIndexRoute: typeof MigrationsIndexRoute;
   OrgOpsIndexRoute: typeof OrgOpsIndexRoute;
   OrgsIndexRoute: typeof OrgsIndexRoute;
   FlagsFlagIndexRoute: typeof FlagsFlagIndexRoute;
@@ -93,6 +111,13 @@ declare module '@tanstack/react-router' {
       path: '/flags';
       fullPath: '/flags/';
       preLoaderRoute: typeof FlagsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/migrations/': {
+      id: '/migrations/';
+      path: '/migrations';
+      fullPath: '/migrations/';
+      preLoaderRoute: typeof MigrationsIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/org-ops/': {
@@ -122,6 +147,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FlagsIndexRoute: FlagsIndexRoute,
+  MigrationsIndexRoute: MigrationsIndexRoute,
   OrgOpsIndexRoute: OrgOpsIndexRoute,
   OrgsIndexRoute: OrgsIndexRoute,
   FlagsFlagIndexRoute: FlagsFlagIndexRoute,

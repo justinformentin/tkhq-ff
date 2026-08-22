@@ -220,3 +220,28 @@ export interface RemoveQuotaOverrideRequest {
   org_id: string;
   label: string;
 }
+
+// ---------------------------------------------------------------------------
+// Migration wire types (mirror operator_agent.proto exactly)
+// ---------------------------------------------------------------------------
+
+// CheckMigration
+export interface CheckMigrationRequest {
+  migration_id: string;
+}
+
+export interface CheckMigrationResponse {
+  migration_id: string;
+  /** Indicates if the migration has been applied */
+  applied: boolean;
+}
+
+// GetPendingMigrations
+export interface GetPendingMigrationsRequest {
+  /** Optional list of migration IDs to check; empty means check all pending */
+  migration_ids: string[];
+}
+
+export interface GetPendingMigrationsResponse {
+  results: CheckMigrationResponse[];
+}

@@ -183,3 +183,17 @@ export const RATE_LIMIT_BUCKET_TYPE_NAMES: Record<string, string> = {
 export const RATE_LIMIT_BUCKET_TYPES = Object.entries(
   RATE_LIMIT_BUCKET_TYPE_NAMES
 ).map(([value, label]) => ({ value, label }));
+
+// ---------------------------------------------------------------------------
+// Migration types (mirror backend/grpc/types.ts wire shapes)
+// ---------------------------------------------------------------------------
+
+export interface MigrationResult {
+  migration_id: string;
+  /** True if the migration has been applied */
+  applied: boolean;
+}
+
+export interface GetPendingMigrationsResponse {
+  results: MigrationResult[];
+}

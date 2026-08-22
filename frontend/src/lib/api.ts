@@ -3,10 +3,12 @@ import type {
   FeatureFlag,
   GetDefaultRateLimitsResponse,
   GetInterdictionsResponse,
+  GetPendingMigrationsResponse,
   GetQuotaOverridesResponse,
   GetRateLimitResponse,
   ListFlagsResponse,
   GetFlagResponse,
+  MigrationResult,
   OrgFlagMatch,
   OrgSearchResponse,
   OrgStatusResponse,
@@ -298,6 +300,33 @@ export async function setOrgQuota(
   const res = await api.put<GetQuotaOverridesResponse>(
     `/orgs/${encodeURIComponent(orgId)}/quotas`,
     { label, count },
+    forEnv(env)
+  );
+  return res.data;
+}
+
+// ---------------------------------------------------------------------------
+// Migrations API (engineering-only: migration:read group — RBAC via X-ID-Token)
+// ---------------------------------------------------------------------------
+
+/** GetPendingMigrations — returns all migrations and their applied status. */
+export async function getPendingMigrations(
+  env: Environment
+): Promise<GetPendingMigrationsResponse> {
+  const res = await api.get<GetPendingMigrationsResponse>(
+    '/migrations/pending',
+    forEnv(env)
+  );
+  return res.data;
+}
+
+/** CheckMigration — returns the applied status for a specific migration. */
+export async function checkMigration(
+  migrationId: string,
+  env: Environment
+): Promise<MigrationResult> {
+  const res = await api.get<MigrationResult>(
+    `/migrations/${encodeURIComponent(migrationId)}`,
     forEnv(env)
   );
   return res.data;

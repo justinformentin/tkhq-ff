@@ -5,6 +5,7 @@ import cors from 'cors';
 import path from 'path';
 import authRouter from './routes/auth';
 import flagsRouter from './routes/flags';
+import migrationsRouter from './routes/migrations';
 import orgsRouter from './routes/orgs';
 import rateLimitsRouter from './routes/rateLimits';
 import { errorHandler } from './middleware/errorHandler';
@@ -30,6 +31,7 @@ app.use(cookieParser());
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api/flags', requireIdentity, flagsRouter);
+app.use('/api/migrations', requireIdentity, migrationsRouter);
 app.use('/api/orgs', requireIdentity, orgsRouter);
 app.use('/api/rate-limits', requireIdentity, rateLimitsRouter);
 
