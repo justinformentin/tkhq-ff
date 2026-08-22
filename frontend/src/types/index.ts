@@ -183,3 +183,20 @@ export const RATE_LIMIT_BUCKET_TYPE_NAMES: Record<string, string> = {
 export const RATE_LIMIT_BUCKET_TYPES = Object.entries(
   RATE_LIMIT_BUCKET_TYPE_NAMES
 ).map(([value, label]) => ({ value, label }));
+
+// ---------------------------------------------------------------------------
+// Service Control types (mirror backend/grpc/types.ts wire shapes)
+// DESTRUCTIVE, engineering-only — ScaleService + DirectService RPCs
+// ---------------------------------------------------------------------------
+
+export interface ScaleServiceResponse {
+  service: string;
+  replicas: number;
+  environment: string;
+}
+
+export interface DirectServiceResponse {
+  service: string;
+  direction: string;
+  environment: string;
+}
