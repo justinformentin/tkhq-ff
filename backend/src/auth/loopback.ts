@@ -29,7 +29,10 @@ function reply(
   message: string,
   headers: Record<string, string> = {}
 ): void {
-  res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', ...headers });
+  res.writeHead(status, {
+    'Content-Type': 'text/html; charset=utf-8',
+    ...headers,
+  });
   res.end(
     `<!doctype html><meta charset="utf-8"><title>Sign in</title>` +
       `<body style="font-family:system-ui;background:#0b0f19;color:#e5e7eb;` +

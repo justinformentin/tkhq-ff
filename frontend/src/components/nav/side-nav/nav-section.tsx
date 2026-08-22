@@ -43,7 +43,11 @@ export function NavSection({
               {section.title}
             </span>
             <span aria-hidden className="text-gray-500">
-              {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+              {isCollapsed ? (
+                <ChevronDown size={14} />
+              ) : (
+                <ChevronUp size={14} />
+              )}
             </span>
           </span>
         </button>
@@ -52,11 +56,18 @@ export function NavSection({
       <div
         className={[
           'grid transition-[grid-template-rows,opacity] duration-300 ease-out',
-          showItems ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+          showItems
+            ? 'grid-rows-[1fr] opacity-100'
+            : 'grid-rows-[0fr] opacity-0',
         ].join(' ')}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className={['space-y-0.5', showHeader && isExpanded ? 'mt-1' : ''].join(' ')}>
+          <div
+            className={[
+              'space-y-0.5',
+              showHeader && isExpanded ? 'mt-1' : '',
+            ].join(' ')}
+          >
             {section.items.map((item) => (
               <NavItem
                 key={item.pathname}

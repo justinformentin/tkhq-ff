@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from '@tanstack/react-router';
 import { ChevronLeft } from 'lucide-react';
-import {
-  SIDE_NAV_EXPANDED_KEY,
-  getSideNavWidth,
-} from './constants';
+import { SIDE_NAV_EXPANDED_KEY, getSideNavWidth } from './constants';
 import { mainNavItems, navSections, footerItems } from './nav-config';
 import { NavItem } from './nav-item';
 import { NavSection } from './nav-section';
@@ -29,9 +26,12 @@ export function SideNav({
 }: SideNavProps) {
   const { pathname } = useLocation();
   const [internalExpanded, setInternalExpanded] = useState(true);
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [collapsedSections, setCollapsedSections] = useState<
+    Record<string, boolean>
+  >({});
 
-  const isControlled = isExpandedProp !== undefined && onToggleExpandedProp != null;
+  const isControlled =
+    isExpandedProp !== undefined && onToggleExpandedProp != null;
   const isExpanded = isControlled ? isExpandedProp : internalExpanded;
 
   useEffect(() => {
@@ -135,7 +135,11 @@ export function SideNav({
                 key={sectionKey}
                 section={section}
                 isExpanded={isExpanded}
-                isCollapsed={section.title ? (collapsedSections[section.title] ?? false) : false}
+                isCollapsed={
+                  section.title
+                    ? (collapsedSections[section.title] ?? false)
+                    : false
+                }
                 onToggle={() => section.title && toggleSection(section.title)}
                 currentPath={pathname}
               />

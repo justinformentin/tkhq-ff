@@ -17,7 +17,11 @@ export function FlagTable() {
 
   // withOrgs: the Overrides column counts org rules, which the plain list
   // response doesn't carry.
-  const { data: flags, isLoading, error } = useQuery({
+  const {
+    data: flags,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['flags', env],
     queryFn: () => listFlags(env, true),
   });
@@ -37,7 +41,11 @@ export function FlagTable() {
       toast({ title: 'Flag updated' });
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -59,15 +67,23 @@ export function FlagTable() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text)' }}>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: 'var(--color-text)' }}
+          >
             Feature Flags
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+          <p
+            className="text-sm mt-0.5"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             Manage feature flag rollout and per-org/product overrides
           </p>
         </div>
         <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-          {isLoading ? '...' : `${filtered.length} flag${filtered.length !== 1 ? 's' : ''}`}
+          {isLoading
+            ? '...'
+            : `${filtered.length} flag${filtered.length !== 1 ? 's' : ''}`}
         </span>
       </div>
 
@@ -114,16 +130,28 @@ export function FlagTable() {
         <table className="w-full">
           <thead>
             <tr style={{ backgroundColor: 'var(--color-surface)' }}>
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+              <th
+                className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
                 Flag
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+              <th
+                className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
                 Enabled
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+              <th
+                className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
                 Rollout
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+              <th
+                className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
                 Orgs
               </th>
               <th className="w-8 px-4 py-3" />
@@ -138,17 +166,32 @@ export function FlagTable() {
                     style={{ borderColor: 'var(--color-border)' }}
                   >
                     <td className="px-4 py-3">
-                      <div className="h-4 rounded w-48" style={{ backgroundColor: 'var(--color-surface-2)' }} />
-                      <div className="h-3 rounded w-32 mt-1" style={{ backgroundColor: 'var(--color-surface-2)' }} />
+                      <div
+                        className="h-4 rounded w-48"
+                        style={{ backgroundColor: 'var(--color-surface-2)' }}
+                      />
+                      <div
+                        className="h-3 rounded w-32 mt-1"
+                        style={{ backgroundColor: 'var(--color-surface-2)' }}
+                      />
                     </td>
                     <td className="px-4 py-3">
-                      <div className="h-5 rounded w-9" style={{ backgroundColor: 'var(--color-surface-2)' }} />
+                      <div
+                        className="h-5 rounded w-9"
+                        style={{ backgroundColor: 'var(--color-surface-2)' }}
+                      />
                     </td>
                     <td className="px-4 py-3">
-                      <div className="h-4 rounded w-10" style={{ backgroundColor: 'var(--color-surface-2)' }} />
+                      <div
+                        className="h-4 rounded w-10"
+                        style={{ backgroundColor: 'var(--color-surface-2)' }}
+                      />
                     </td>
                     <td className="px-4 py-3">
-                      <div className="h-4 rounded w-12" style={{ backgroundColor: 'var(--color-surface-2)' }} />
+                      <div
+                        className="h-4 rounded w-12"
+                        style={{ backgroundColor: 'var(--color-surface-2)' }}
+                      />
                     </td>
                     <td />
                   </tr>
@@ -163,15 +206,27 @@ export function FlagTable() {
                         'var(--color-surface)';
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = '';
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        '';
                     }}
-                    onClick={() => void navigate({ to: '/flags/$flag', params: { flag: flag.flag } })}
+                    onClick={() =>
+                      void navigate({
+                        to: '/flags/$flag',
+                        params: { flag: flag.flag },
+                      })
+                    }
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-sm" style={{ color: 'var(--color-text)' }}>
+                      <div
+                        className="font-medium text-sm"
+                        style={{ color: 'var(--color-text)' }}
+                      >
                         {formatFlagName(flag.flag)}
                       </div>
-                      <div className="text-xs font-mono mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                      <div
+                        className="text-xs font-mono mt-0.5"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
                         {flag.flag}
                       </div>
                     </td>
@@ -205,7 +260,10 @@ export function FlagTable() {
                             }}
                           />
                         </div>
-                        <span className="text-xs font-mono" style={{ color: 'var(--color-text-muted)' }}>
+                        <span
+                          className="text-xs font-mono"
+                          style={{ color: 'var(--color-text-muted)' }}
+                        >
                           {flag.rollout_percent}%
                         </span>
                       </div>
@@ -234,22 +292,32 @@ export function FlagTable() {
                             -{flag.disallowed_orgs.length}
                           </span>
                         )}
-                        {!flag.allowed_orgs?.length && !flag.disallowed_orgs?.length && (
-                          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                            —
-                          </span>
-                        )}
+                        {!flag.allowed_orgs?.length &&
+                          !flag.disallowed_orgs?.length && (
+                            <span
+                              className="text-xs"
+                              style={{ color: 'var(--color-text-muted)' }}
+                            >
+                              —
+                            </span>
+                          )}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <ChevronRight size={14} style={{ color: 'var(--color-text-muted)' }} />
+                      <ChevronRight
+                        size={14}
+                        style={{ color: 'var(--color-text-muted)' }}
+                      />
                     </td>
                   </tr>
                 ))}
           </tbody>
         </table>
         {!isLoading && filtered.length === 0 && !error && (
-          <div className="px-4 py-12 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
+          <div
+            className="px-4 py-12 text-center text-sm"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             No flags match your search
           </div>
         )}

@@ -15,7 +15,11 @@ function OrgSearchRouteComponent() {
   const [searchedOrg, setSearchedOrg] = useState('');
   const { env } = useEnvironment();
 
-  const { data: results, isLoading, error } = useQuery({
+  const {
+    data: results,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['org-search', env, searchedOrg],
     queryFn: () => searchOrg(searchedOrg, env),
     enabled: !!searchedOrg,
@@ -28,10 +32,16 @@ function OrgSearchRouteComponent() {
   return (
     <div className="p-8 max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text)' }}>
+        <h1
+          className="text-2xl font-bold"
+          style={{ color: 'var(--color-text)' }}
+        >
           Search by Org
         </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
+        <p
+          className="text-sm mt-1"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
           Enter an org UUID to see which feature flags it has overrides for.
         </p>
       </div>
@@ -83,7 +93,10 @@ function OrgSearchRouteComponent() {
             </div>
           ) : (
             <>
-              <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              <p
+                className="text-sm"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
                 {!results?.length
                   ? `No flag overrides found for ${searchedOrg}`
                   : `${results.length} flag${results.length !== 1 ? 's' : ''} with overrides for this org`}

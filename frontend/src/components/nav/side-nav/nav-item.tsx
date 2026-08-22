@@ -3,7 +3,10 @@ import * as LucideIcons from 'lucide-react';
 import type { TNavItem } from './types';
 
 function NavIcon({ name, size = 20 }: { name: string; size?: number }) {
-  const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; className?: string }>>;
+  const icons = LucideIcons as unknown as Record<
+    string,
+    React.ComponentType<{ size?: number; className?: string }>
+  >;
   const Icon = icons[name];
   if (!Icon) return null;
   return <Icon size={size} />;
@@ -43,7 +46,9 @@ export function NavItem({ item, isActive, isExpanded }: NavItemProps) {
           <span
             className={[
               'min-w-0 truncate whitespace-nowrap text-sm',
-              isActive ? 'font-medium text-indigo-400' : 'font-normal text-gray-200',
+              isActive
+                ? 'font-medium text-indigo-400'
+                : 'font-normal text-gray-200',
             ].join(' ')}
           >
             {item.displayName}

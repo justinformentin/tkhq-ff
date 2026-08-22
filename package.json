@@ -11,9 +11,15 @@
     "dev:frontend": "npm --prefix frontend run dev",
     "build": "npm --prefix backend run build && npm --prefix frontend run build",
     "start": "npm --prefix backend run start",
-    "lint": "npm --prefix frontend run lint"
+    "check": "npm run format && npm run lint && npm run typecheck",
+    "format": "prettier --check . && npm --prefix backend run format && npm --prefix frontend run format",
+    "format:write": "prettier --write . && npm --prefix backend run format:write && npm --prefix frontend run format:write",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "lint:fix": "npm --prefix backend run lint:fix && npm --prefix frontend run lint:fix",
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "prettier": "^3.9.6"
   }
 }

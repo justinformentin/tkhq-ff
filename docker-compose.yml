@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - OPERATOR_AGENT_GRPC_HOST=${OPERATOR_AGENT_GRPC_HOST:-localhost}
       - OPERATOR_AGENT_GRPC_PORT=${OPERATOR_AGENT_GRPC_PORT:-4452}

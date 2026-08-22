@@ -1,0 +1,9 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Lockfiles
+package-lock.json
+
+# Vendored / synced protobuf definitions
+src/grpc/proto/

@@ -72,7 +72,13 @@ router.get(
       getQuotaOverrides(env, orgId, idToken),
     ]);
 
-    res.json({ org_id: orgId, refs, rate_limit: rateLimit, interdictions, quotas });
+    res.json({
+      org_id: orgId,
+      refs,
+      rate_limit: rateLimit,
+      interdictions,
+      quotas,
+    });
   })
 );
 
@@ -116,7 +122,16 @@ router.put(
 
     const result = await setRateLimit(
       env,
-      { org_id: orgId, requests_per_second, rule, rule_variant, remediation, expires_at, bucket_type, notes },
+      {
+        org_id: orgId,
+        requests_per_second,
+        rule,
+        rule_variant,
+        remediation,
+        expires_at,
+        bucket_type,
+        notes,
+      },
       idToken
     );
     res.json(result);
@@ -153,7 +168,11 @@ router.get(
   '/:orgId/interdictions',
   handler(async (req, res) => {
     const { env, idToken } = await callContext(req);
-    const result = await getInterdictions(env, req.params.orgId.trim(), idToken);
+    const result = await getInterdictions(
+      env,
+      req.params.orgId.trim(),
+      idToken
+    );
     res.json(result);
   })
 );
@@ -190,8 +209,15 @@ router.post(
   handler(async (req, res) => {
     const { env, idToken } = await callContext(req);
     const orgId = req.params.orgId.trim();
-    const { include_sub_orgs = false } = req.body as { include_sub_orgs?: boolean };
-    const result = await clearCacheForOrg(env, orgId, include_sub_orgs, idToken);
+    const { include_sub_orgs = false } = req.body as {
+      include_sub_orgs?: boolean;
+    };
+    const result = await clearCacheForOrg(
+      env,
+      orgId,
+      include_sub_orgs,
+      idToken
+    );
     res.json(result);
   })
 );
@@ -221,7 +247,11 @@ router.get(
   '/:orgId/quotas',
   handler(async (req, res) => {
     const { env, idToken } = await callContext(req);
-    const result = await getQuotaOverrides(env, req.params.orgId.trim(), idToken);
+    const result = await getQuotaOverrides(
+      env,
+      req.params.orgId.trim(),
+      idToken
+    );
     res.json(result);
   })
 );
@@ -233,7 +263,11 @@ router.put(
     const { env, idToken } = await callContext(req);
     const orgId = req.params.orgId.trim();
     const { label, count } = req.body as { label: string; count: number };
-    const result = await setQuotaOverride(env, { org_id: orgId, label, count }, idToken);
+    const result = await setQuotaOverride(
+      env,
+      { org_id: orgId, label, count },
+      idToken
+    );
     res.json(result);
   })
 );

@@ -11,11 +11,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import {
-  OAuthErrorBody,
-  readTokenBody,
-  tokenErrorDetail,
-} from '../auth/oauth';
+import { OAuthErrorBody, readTokenBody, tokenErrorDetail } from '../auth/oauth';
 
 // mono: src/go/tkinfra/internal/keycloak/defaults.go
 const DEFAULT_ISSUER =

@@ -22,9 +22,6 @@ export async function readTokenBody<T extends OAuthErrorBody>(
 }
 
 /** The parenthesized detail for a failed token request, e.g. "401 invalid_grant". */
-export function tokenErrorDetail(
-  status: number,
-  body: OAuthErrorBody
-): string {
+export function tokenErrorDetail(status: number, body: OAuthErrorBody): string {
   return [status, body.error, body.error_description].filter(Boolean).join(' ');
 }
