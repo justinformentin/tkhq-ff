@@ -27,13 +27,13 @@ export function NavItem({ item, isActive, isExpanded }: NavItemProps) {
     'flex w-full min-w-0 items-center overflow-hidden rounded-lg no-underline transition-colors duration-150',
     isExpanded ? 'gap-3 px-2 py-1.5' : 'h-9 w-9 justify-center p-0',
     isActive
-      ? 'bg-indigo-500/12 text-indigo-400'
-      : 'text-gray-400 hover:bg-white/8 hover:text-gray-100',
+      ? 'bg-primary-soft text-primary'
+      : 'text-muted-foreground hover:bg-hover-overlay hover:text-foreground',
   ].join(' ');
 
   const iconClassName = [
     'flex shrink-0 items-center justify-center transition-colors',
-    isActive ? 'text-indigo-400' : 'text-gray-500',
+    isActive ? 'text-primary' : 'text-subtle-foreground',
   ].join(' ');
 
   const content = (
@@ -47,15 +47,15 @@ export function NavItem({ item, isActive, isExpanded }: NavItemProps) {
             className={[
               'min-w-0 truncate whitespace-nowrap text-sm',
               isActive
-                ? 'font-medium text-indigo-400'
-                : 'font-normal text-gray-200',
+                ? 'font-medium text-primary'
+                : 'font-normal text-foreground',
             ].join(' ')}
           >
             {item.displayName}
           </span>
           {item.badge != null && (
-            <span className="flex h-5 min-w-5 shrink-0 flex-col items-center justify-center rounded-md bg-indigo-500 px-1.5 py-0.5">
-              <span className="text-center text-[11px] font-medium leading-normal text-white">
+            <span className="flex h-5 min-w-5 shrink-0 flex-col items-center justify-center rounded-md bg-primary px-1.5 py-0.5">
+              <span className="text-center text-[11px] font-medium leading-normal text-primary-foreground">
                 {item.badge}
               </span>
             </span>

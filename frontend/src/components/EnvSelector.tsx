@@ -1,4 +1,5 @@
 import { AlertTriangle, ChevronDown } from 'lucide-react';
+import { cn } from '../lib/utils';
 import {
   ENVIRONMENTS,
   PRODUCTION_ENVIRONMENTS,
@@ -20,11 +21,7 @@ export function EnvSelector() {
     <div className="flex items-center gap-2">
       {isProduction && (
         <span
-          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
-          style={{
-            backgroundColor: 'rgba(239, 68, 68, 0.15)',
-            color: 'var(--color-danger)',
-          }}
+          className="inline-flex items-center gap-1 rounded-full bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger"
           title="Changes here affect a production environment"
         >
           <AlertTriangle size={12} />
@@ -37,14 +34,10 @@ export function EnvSelector() {
           value={env}
           onChange={(e) => setEnv(e.target.value as Environment)}
           aria-label="Environment"
-          className="appearance-none rounded-md border pl-3 pr-8 py-1.5 text-sm font-medium cursor-pointer"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: isProduction
-              ? 'rgba(239, 68, 68, 0.5)'
-              : 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
+          className={cn(
+            'cursor-pointer appearance-none rounded-md border bg-card-background pl-3 pr-8 py-1.5 text-sm font-medium text-foreground',
+            isProduction ? 'border-danger-border' : 'border-border'
+          )}
         >
           {ENVIRONMENTS.map((name) => (
             <option key={name} value={name}>
@@ -55,8 +48,7 @@ export function EnvSelector() {
         </select>
         <ChevronDown
           size={14}
-          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2"
-          style={{ color: 'var(--color-text-muted)' }}
+          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
         />
       </div>
     </div>

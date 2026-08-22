@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useEnvironment } from '@/lib/environment';
 import { toast } from '@/hooks/useToast';
+import { cn } from '@/lib/utils';
 import {
   getOrgStatus,
   getDefaultRateLimits,
@@ -52,6 +53,24 @@ import {
 } from '@/types';
 
 // ---------------------------------------------------------------------------
+// Shared control styling
+// ---------------------------------------------------------------------------
+
+const FIELD =
+  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
+
+const FIELD_MONO = `${FIELD} font-mono`;
+
+const FIELD_LABEL = 'text-xs mb-1 block text-muted-foreground';
+
+const PRIMARY_BUTTON =
+  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
+
+// Radix owns the active state, so the tab colors ride on data attributes.
+const TAB_TRIGGER =
+  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=inactive]:border-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:text-foreground';
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -71,11 +90,10 @@ function Card({
 }) {
   return (
     <div
-      className={`rounded-lg border p-5 ${className}`}
-      style={{
-        borderColor: 'var(--color-border)',
-        backgroundColor: 'var(--color-surface)',
-      }}
+      className={cn(
+        'rounded-lg border border-border bg-card-background p-5',
+        className
+      )}
     >
       {children}
     </div>
@@ -84,10 +102,7 @@ function Card({
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2
-      className="font-semibold text-sm uppercase tracking-wider mb-4"
-      style={{ color: 'var(--color-text-muted)' }}
-    >
+    <h2 className="font-semibold text-sm uppercase tracking-wider mb-4 text-muted-foreground">
       {children}
     </h2>
   );
@@ -95,22 +110,11 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function Field({ label: l, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div
-      className="flex items-start gap-4 text-sm py-2 border-b last:border-0"
-      style={{ borderColor: 'var(--color-border)' }}
-    >
-      <span
-        className="w-40 shrink-0 font-medium"
-        style={{ color: 'var(--color-text-muted)' }}
-      >
+    <div className="flex items-start gap-4 text-sm py-2 border-b border-border last:border-0">
+      <span className="w-40 shrink-0 font-medium text-muted-foreground">
         {l}
       </span>
-      <span
-        className="font-mono break-all"
-        style={{ color: 'var(--color-text)' }}
-      >
-        {value}
-      </span>
+      <span className="font-mono break-all text-foreground">{value}</span>
     </div>
   );
 }
@@ -118,19 +122,20 @@ function Field({ label: l, value }: { label: string; value: React.ReactNode }) {
 function ProdWarning({ env }: { env: string }) {
   if (env !== 'preprod' && env !== 'prod') return null;
   return (
-    <div
-      className="flex items-center gap-2 rounded-lg border px-4 py-3 text-sm mb-4"
-      style={{
-        borderColor: 'var(--color-warning, #f59e0b)',
-        color: 'var(--color-warning, #f59e0b)',
-        backgroundColor: 'rgba(245, 158, 11, 0.08)',
-      }}
-    >
+    <div className="flex items-center gap-2 rounded-lg border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning mb-4">
       <AlertTriangle size={16} className="shrink-0" />
       <span>
         You are targeting <strong>{env.toUpperCase()}</strong>
         {env === 'prod' ? ' — writes affect live customers.' : ''}
       </span>
+    </div>
+  );
+}
+
+function WriteWarning({ env }: { env: string }) {
+  return (
+    <div className="flex items-center gap-2 text-xs mb-4 px-3 py-2 rounded-md bg-warning-soft text-warning">
+      <AlertTriangle size={13} /> This will write to {env.toUpperCase()}.
     </div>
   );
 }
@@ -149,43 +154,28 @@ function RateLimitRow({
   isProduction: boolean;
 }) {
   return (
-    <div
-      className="rounded-lg border px-4 py-3 text-sm space-y-1"
-      style={{
-        borderColor: 'var(--color-border)',
-        backgroundColor: 'var(--color-surface)',
-      }}
-    >
+    <div className="rounded-lg border border-border bg-card-background px-4 py-3 text-sm space-y-1">
       <div className="flex items-center justify-between">
-        <span className="font-medium" style={{ color: 'var(--color-text)' }}>
+        <span className="font-medium text-foreground">
           {label(RATE_LIMIT_RULE_TYPE_NAMES, rl.rule)}
           {rl.rule_variant ? ` / ${rl.rule_variant}` : ''}
         </span>
         <div className="flex items-center gap-2">
-          <span
-            className="text-xs px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: 'rgba(99,102,241,0.15)',
-              color: 'var(--color-primary)',
-            }}
-          >
+          <span className="text-xs px-2 py-0.5 rounded-full bg-primary-soft text-primary">
             {rl.requests_per_minute} rpm
           </span>
           {onRemove && (
             <button
               onClick={onRemove}
-              className="p-1 rounded hover:bg-red-500/10 transition-colors"
+              className="p-1 rounded text-danger transition-colors hover:bg-danger-soft"
               title={`Remove this rate limit${isProduction ? ' (LIVE)' : ''}`}
             >
-              <Trash2 size={14} style={{ color: 'var(--color-danger)' }} />
+              <Trash2 size={14} />
             </button>
           )}
         </div>
       </div>
-      <div
-        className="text-xs space-x-3"
-        style={{ color: 'var(--color-text-muted)' }}
-      >
+      <div className="text-xs space-x-3 text-muted-foreground">
         <span>Category: {label(RATE_LIMIT_RULE_TYPE_NAMES, rl.category)}</span>
         <span>
           Remediation: {label(RATE_LIMIT_REMEDIATION_NAMES, rl.remediation)}
@@ -372,16 +362,8 @@ export function OrgOpsPage() {
     <div className="p-8 max-w-4xl space-y-6">
       {/* Header */}
       <div>
-        <h1
-          className="text-2xl font-bold"
-          style={{ color: 'var(--color-text)' }}
-        >
-          Org Operations
-        </h1>
-        <p
-          className="text-sm mt-1"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+        <h1 className="text-2xl font-bold text-foreground">Org Operations</h1>
+        <p className="text-sm mt-1 text-muted-foreground">
           Manage rate limits, quotas, interdictions, and cache for a specific
           organization.
         </p>
@@ -397,19 +379,13 @@ export function OrgOpsPage() {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && orgInput.trim()) setOrgId(orgInput.trim());
           }}
-          className="flex-1 px-3 py-2 rounded-lg border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
+          className={cn(FIELD_MONO, 'flex-1')}
         />
         <button
           onClick={() => {
             if (orgInput.trim()) setOrgId(orgInput.trim());
           }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-          style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
+          className={PRIMARY_BUTTON}
         >
           <Search size={14} />
           Load Org
@@ -418,23 +394,14 @@ export function OrgOpsPage() {
 
       {/* Error state */}
       {orgId && error && (
-        <div
-          className="rounded-lg border px-4 py-3 text-sm"
-          style={{
-            borderColor: 'var(--color-danger)',
-            color: 'var(--color-danger)',
-          }}
-        >
+        <div className="rounded-lg border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger">
           {(error as Error).message}
         </div>
       )}
 
       {/* Loading state */}
       {orgId && isLoading && (
-        <div
-          className="py-8 text-center text-sm animate-pulse"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+        <div className="py-8 text-center text-sm animate-pulse text-muted-foreground">
           Loading org data…
         </div>
       )}
@@ -445,10 +412,7 @@ export function OrgOpsPage() {
           <ProdWarning env={env} />
 
           <Tabs.Root defaultValue="status">
-            <Tabs.List
-              className="flex gap-1 border-b mb-6"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
+            <Tabs.List className="flex gap-1 border-b border-border mb-6">
               {[
                 { value: 'status', label: 'Org Status' },
                 {
@@ -468,18 +432,7 @@ export function OrgOpsPage() {
                 <Tabs.Trigger
                   key={tab.value}
                   value={tab.value}
-                  className="px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-indigo-500 data-[state=inactive]:border-transparent"
-                  style={{ color: 'var(--color-text-muted)' }}
-                  onMouseEnter={(e) => {
-                    if (e.currentTarget.getAttribute('data-state') !== 'active')
-                      (e.currentTarget as HTMLElement).style.color =
-                        'var(--color-text)';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (e.currentTarget.getAttribute('data-state') !== 'active')
-                      (e.currentTarget as HTMLElement).style.color =
-                        'var(--color-text-muted)';
-                  }}
+                  className={TAB_TRIGGER}
                 >
                   {tab.label}
                 </Tabs.Trigger>
@@ -515,11 +468,11 @@ export function OrgOpsPage() {
                   label="Cached"
                   value={
                     <span
-                      style={{
-                        color: status.refs.is_cached
-                          ? 'var(--color-success)'
-                          : 'var(--color-text-muted)',
-                      }}
+                      className={
+                        status.refs.is_cached
+                          ? 'text-success'
+                          : 'text-muted-foreground'
+                      }
                     >
                       {status.refs.is_cached ? 'Yes' : 'No'}
                     </span>
@@ -529,44 +482,26 @@ export function OrgOpsPage() {
 
               <div className="mt-4 grid grid-cols-3 gap-4">
                 <Card>
-                  <p
-                    className="text-xs uppercase tracking-wider mb-1"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
+                  <p className="text-xs uppercase tracking-wider mb-1 text-muted-foreground">
                     Rate Limits
                   </p>
-                  <p
-                    className="text-2xl font-bold"
-                    style={{ color: 'var(--color-text)' }}
-                  >
+                  <p className="text-2xl font-bold text-foreground">
                     {rateLimits.length}
                   </p>
                 </Card>
                 <Card>
-                  <p
-                    className="text-xs uppercase tracking-wider mb-1"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
+                  <p className="text-xs uppercase tracking-wider mb-1 text-muted-foreground">
                     Interdictions
                   </p>
-                  <p
-                    className="text-2xl font-bold"
-                    style={{ color: 'var(--color-text)' }}
-                  >
+                  <p className="text-2xl font-bold text-foreground">
                     {interdictions.length}
                   </p>
                 </Card>
                 <Card>
-                  <p
-                    className="text-xs uppercase tracking-wider mb-1"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
+                  <p className="text-xs uppercase tracking-wider mb-1 text-muted-foreground">
                     Quota Overrides
                   </p>
-                  <p
-                    className="text-2xl font-bold"
-                    style={{ color: 'var(--color-text)' }}
-                  >
+                  <p className="text-2xl font-bold text-foreground">
                     {quotas.length}
                   </p>
                 </Card>
@@ -581,10 +516,7 @@ export function OrgOpsPage() {
               <Card>
                 <SectionTitle>Current Rate Limits</SectionTitle>
                 {rateLimits.length === 0 ? (
-                  <p
-                    className="text-sm"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
+                  <p className="text-sm text-muted-foreground">
                     No rate limits found for this org.
                   </p>
                 ) : (
@@ -608,55 +540,24 @@ export function OrgOpsPage() {
               {/* Set rate limit */}
               <Card>
                 <SectionTitle>Set Rate Limit Override</SectionTitle>
-                {isProduction && (
-                  <div
-                    className="flex items-center gap-2 text-xs mb-4 px-3 py-2 rounded-md"
-                    style={{
-                      backgroundColor: 'rgba(245,158,11,0.10)',
-                      color: 'var(--color-warning, #f59e0b)',
-                    }}
-                  >
-                    <AlertTriangle size={13} /> This will write to{' '}
-                    {env.toUpperCase()}.
-                  </div>
-                )}
+                {isProduction && <WriteWarning env={env} />}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Requests / Second
-                    </label>
+                    <label className={FIELD_LABEL}>Requests / Second</label>
                     <input
                       type="number"
                       value={rlRps}
                       onChange={(e) => setRlRps(e.target.value)}
                       min={1}
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     />
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Rule
-                    </label>
+                    <label className={FIELD_LABEL}>Rule</label>
                     <select
                       value={rlRule}
                       onChange={(e) => setRlRule(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     >
                       {RATE_LIMIT_RULE_TYPES.map(({ value, label: lbl }) => (
                         <option key={value} value={value}>
@@ -666,10 +567,7 @@ export function OrgOpsPage() {
                     </select>
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
+                    <label className={FIELD_LABEL}>
                       Rule Variant (optional)
                     </label>
                     <input
@@ -677,30 +575,15 @@ export function OrgOpsPage() {
                       value={rlRuleVariant}
                       onChange={(e) => setRlRuleVariant(e.target.value)}
                       placeholder="e.g. variant name"
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     />
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Remediation
-                    </label>
+                    <label className={FIELD_LABEL}>Remediation</label>
                     <select
                       value={rlRemediation}
                       onChange={(e) => setRlRemediation(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     >
                       {RATE_LIMIT_REMEDIATIONS.map(({ value, label: lbl }) => (
                         <option key={value} value={value}>
@@ -710,21 +593,11 @@ export function OrgOpsPage() {
                     </select>
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Bucket Type
-                    </label>
+                    <label className={FIELD_LABEL}>Bucket Type</label>
                     <select
                       value={rlBucketType}
                       onChange={(e) => setRlBucketType(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     >
                       {RATE_LIMIT_BUCKET_TYPES.map(({ value, label: lbl }) => (
                         <option key={value} value={value}>
@@ -734,34 +607,20 @@ export function OrgOpsPage() {
                     </select>
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Notes
-                    </label>
+                    <label className={FIELD_LABEL}>Notes</label>
                     <input
                       type="text"
                       value={rlNotes}
                       onChange={(e) => setRlNotes(e.target.value)}
                       placeholder="Optional notes"
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     />
                   </div>
                 </div>
                 <button
                   onClick={() => setRlMut.mutate()}
                   disabled={setRlMut.isPending}
-                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
-                  style={{
-                    backgroundColor: 'var(--color-primary)',
-                    color: 'white',
-                  }}
+                  className={cn(PRIMARY_BUTTON, 'mt-4')}
                 >
                   <Plus size={14} />
                   {setRlMut.isPending ? 'Setting…' : 'Set Rate Limit'}
@@ -792,10 +651,7 @@ export function OrgOpsPage() {
               <Card>
                 <SectionTitle>Active Interdictions</SectionTitle>
                 {interdictions.length === 0 ? (
-                  <p
-                    className="text-sm"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
+                  <p className="text-sm text-muted-foreground">
                     No interdictions for this org.
                   </p>
                 ) : (
@@ -803,23 +659,13 @@ export function OrgOpsPage() {
                     {interdictions.map((int) => (
                       <div
                         key={int.key}
-                        className="rounded-lg border px-4 py-3 text-sm"
-                        style={{
-                          borderColor: 'var(--color-border)',
-                          backgroundColor: 'var(--color-surface)',
-                        }}
+                        className="rounded-lg border border-border bg-card-background px-4 py-3 text-sm"
                       >
-                        <p
-                          className="font-mono font-medium"
-                          style={{ color: 'var(--color-text)' }}
-                        >
+                        <p className="font-mono font-medium text-foreground">
                           {int.key}
                         </p>
                         {int.owners.length > 0 && (
-                          <p
-                            className="text-xs mt-1"
-                            style={{ color: 'var(--color-text-muted)' }}
-                          >
+                          <p className="text-xs mt-1 text-muted-foreground">
                             Owners: {int.owners.join(', ')}
                           </p>
                         )}
@@ -831,110 +677,60 @@ export function OrgOpsPage() {
 
               <Card>
                 <SectionTitle>Set / Remove Interdictor Block</SectionTitle>
-                {isProduction && (
-                  <div
-                    className="flex items-center gap-2 text-xs mb-4 px-3 py-2 rounded-md"
-                    style={{
-                      backgroundColor: 'rgba(245,158,11,0.10)',
-                      color: 'var(--color-warning, #f59e0b)',
-                    }}
-                  >
-                    <AlertTriangle size={13} /> This will write to{' '}
-                    {env.toUpperCase()}.
-                  </div>
-                )}
+                {isProduction && <WriteWarning env={env} />}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Scope
-                    </label>
+                    <label className={FIELD_LABEL}>Scope</label>
                     <input
                       type="text"
                       value={intScope}
                       onChange={(e) => setIntScope(e.target.value)}
                       placeholder="e.g. org"
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     />
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Op
-                    </label>
+                    <label className={FIELD_LABEL}>Op</label>
                     <input
                       type="text"
                       value={intOp}
                       onChange={(e) => setIntOp(e.target.value)}
                       placeholder="e.g. all"
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     />
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Sub-Org ID (optional)
-                    </label>
+                    <label className={FIELD_LABEL}>Sub-Org ID (optional)</label>
                     <input
                       type="text"
                       value={intSubOrgId}
                       onChange={(e) => setIntSubOrgId(e.target.value)}
                       placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                      className="w-full px-3 py-2 rounded-lg border text-sm font-mono focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD_MONO}
                     />
                   </div>
                   <div className="flex flex-col justify-end">
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Action
-                    </label>
+                    <label className={FIELD_LABEL}>Action</label>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => {
-                          setIntBlocked(true);
-                        }}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${intBlocked ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-transparent'}`}
-                        style={{
-                          color: intBlocked
-                            ? 'var(--color-primary)'
-                            : 'var(--color-text-muted)',
-                        }}
+                        onClick={() => setIntBlocked(true)}
+                        className={cn(
+                          'px-3 py-2 rounded-lg text-sm font-medium border transition-colors',
+                          intBlocked
+                            ? 'border-primary-border bg-primary-soft text-primary'
+                            : 'border-transparent text-muted-foreground'
+                        )}
                       >
                         Block
                       </button>
                       <button
-                        onClick={() => {
-                          setIntBlocked(false);
-                        }}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${!intBlocked ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-transparent'}`}
-                        style={{
-                          color: !intBlocked
-                            ? 'var(--color-primary)'
-                            : 'var(--color-text-muted)',
-                        }}
+                        onClick={() => setIntBlocked(false)}
+                        className={cn(
+                          'px-3 py-2 rounded-lg text-sm font-medium border transition-colors',
+                          !intBlocked
+                            ? 'border-primary-border bg-primary-soft text-primary'
+                            : 'border-transparent text-muted-foreground'
+                        )}
                       >
                         Unblock
                       </button>
@@ -944,13 +740,12 @@ export function OrgOpsPage() {
                 <button
                   onClick={() => setIntMut.mutate()}
                   disabled={setIntMut.isPending}
-                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
-                  style={{
-                    backgroundColor: intBlocked
-                      ? 'var(--color-danger)'
-                      : 'var(--color-primary)',
-                    color: 'white',
-                  }}
+                  className={cn(
+                    'mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground transition-colors disabled:opacity-40',
+                    intBlocked
+                      ? 'bg-danger hover:opacity-90'
+                      : 'bg-primary hover:bg-primary-hover'
+                  )}
                 >
                   {setIntMut.isPending
                     ? 'Applying…'
@@ -969,53 +764,35 @@ export function OrgOpsPage() {
               <Card>
                 <SectionTitle>Current Quota Overrides</SectionTitle>
                 {quotas.length === 0 ? (
-                  <p
-                    className="text-sm"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
+                  <p className="text-sm text-muted-foreground">
                     No quota overrides for this org.
                   </p>
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
-                      <tr
-                        className="text-xs uppercase tracking-wider"
-                        style={{ color: 'var(--color-text-muted)' }}
-                      >
+                      <tr className="text-xs uppercase tracking-wider text-muted-foreground">
                         <th className="text-left pb-2">Label</th>
                         <th className="text-right pb-2">Count</th>
                         <th className="text-right pb-2">Actions</th>
                       </tr>
                     </thead>
-                    <tbody
-                      className="divide-y"
-                      style={{ borderColor: 'var(--color-border)' }}
-                    >
+                    <tbody className="divide-y divide-border">
                       {quotas.map((q) => (
                         <tr key={q.label}>
-                          <td
-                            className="py-2 font-mono"
-                            style={{ color: 'var(--color-text)' }}
-                          >
+                          <td className="py-2 font-mono text-foreground">
                             {q.label}
                           </td>
-                          <td
-                            className="py-2 text-right font-mono"
-                            style={{ color: 'var(--color-text)' }}
-                          >
+                          <td className="py-2 text-right font-mono text-foreground">
                             {q.count}
                           </td>
                           <td className="py-2 text-right">
                             <button
                               onClick={() => removeQuotaMut.mutate(q)}
                               disabled={removeQuotaMut.isPending}
-                              className="p-1 rounded hover:bg-red-500/10 transition-colors disabled:opacity-40"
+                              className="p-1 rounded text-danger transition-colors hover:bg-danger-soft disabled:opacity-40"
                               title={`Remove override${isProduction ? ' (LIVE)' : ''}`}
                             >
-                              <Trash2
-                                size={14}
-                                style={{ color: 'var(--color-danger)' }}
-                              />
+                              <Trash2 size={14} />
                             </button>
                           </td>
                         </tr>
@@ -1028,67 +805,32 @@ export function OrgOpsPage() {
               {/* Set override */}
               <Card>
                 <SectionTitle>Set Quota Override</SectionTitle>
-                {isProduction && (
-                  <div
-                    className="flex items-center gap-2 text-xs mb-4 px-3 py-2 rounded-md"
-                    style={{
-                      backgroundColor: 'rgba(245,158,11,0.10)',
-                      color: 'var(--color-warning, #f59e0b)',
-                    }}
-                  >
-                    <AlertTriangle size={13} /> This will write to{' '}
-                    {env.toUpperCase()}.
-                  </div>
-                )}
+                {isProduction && <WriteWarning env={env} />}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Label
-                    </label>
+                    <label className={FIELD_LABEL}>Label</label>
                     <input
                       type="text"
                       value={quotaLabel}
                       onChange={(e) => setQuotaLabel(e.target.value)}
                       placeholder="e.g. api_calls_per_month"
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     />
                   </div>
                   <div>
-                    <label
-                      className="text-xs mb-1 block"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      Count
-                    </label>
+                    <label className={FIELD_LABEL}>Count</label>
                     <input
                       type="number"
                       value={quotaCount}
                       onChange={(e) => setQuotaCount(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                      style={{
-                        backgroundColor: 'var(--color-surface)',
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
-                      }}
+                      className={FIELD}
                     />
                   </div>
                 </div>
                 <button
                   onClick={() => setQuotaMut.mutate()}
                   disabled={setQuotaMut.isPending || !quotaLabel}
-                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
-                  style={{
-                    backgroundColor: 'var(--color-primary)',
-                    color: 'white',
-                  }}
+                  className={cn(PRIMARY_BUTTON, 'mt-4')}
                 >
                   <Plus size={14} />
                   {setQuotaMut.isPending ? 'Setting…' : 'Set Override'}
@@ -1098,10 +840,7 @@ export function OrgOpsPage() {
               {/* Evaluate quota dry-run */}
               <Card>
                 <SectionTitle>Evaluate Quota (Dry-run)</SectionTitle>
-                <p
-                  className="text-sm mb-4"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <p className="text-sm mb-4 text-muted-foreground">
                   Runs a quota evaluation in dry-run mode — emits logs for
                   troubleshooting without actually blocking or unblocking.
                 </p>
@@ -1111,21 +850,12 @@ export function OrgOpsPage() {
                     value={evalLabel}
                     onChange={(e) => setEvalLabel(e.target.value)}
                     placeholder="Label, e.g. api_calls_per_month"
-                    className="flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none"
-                    style={{
-                      backgroundColor: 'var(--color-surface)',
-                      borderColor: 'var(--color-border)',
-                      color: 'var(--color-text)',
-                    }}
+                    className={cn(FIELD, 'flex-1')}
                   />
                   <button
                     onClick={() => evalQuotaMut.mutate()}
                     disabled={evalQuotaMut.isPending || !evalLabel}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
-                    style={{
-                      backgroundColor: 'var(--color-primary)',
-                      color: 'white',
-                    }}
+                    className={PRIMARY_BUTTON}
                   >
                     <Play size={14} />
                     {evalQuotaMut.isPending ? 'Running…' : 'Evaluate'}
@@ -1144,11 +874,11 @@ export function OrgOpsPage() {
                   label="Currently cached"
                   value={
                     <span
-                      style={{
-                        color: status.refs.is_cached
-                          ? 'var(--color-success)'
-                          : 'var(--color-text-muted)',
-                      }}
+                      className={
+                        status.refs.is_cached
+                          ? 'text-success'
+                          : 'text-muted-foreground'
+                      }
                     >
                       {status.refs.is_cached
                         ? 'Yes — org refs are in Redis cache'
@@ -1160,35 +890,17 @@ export function OrgOpsPage() {
 
               <Card>
                 <SectionTitle>Clear Cache for Org</SectionTitle>
-                <p
-                  className="text-sm mb-4"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <p className="text-sm mb-4 text-muted-foreground">
                   Forces a cache eviction for this org, triggering a fresh pull
                   of billing ID and product type from the database on the next
                   request.
                 </p>
-                {isProduction && (
-                  <div
-                    className="flex items-center gap-2 text-xs mb-4 px-3 py-2 rounded-md"
-                    style={{
-                      backgroundColor: 'rgba(245,158,11,0.10)',
-                      color: 'var(--color-warning, #f59e0b)',
-                    }}
-                  >
-                    <AlertTriangle size={13} /> This will write to{' '}
-                    {env.toUpperCase()}.
-                  </div>
-                )}
+                {isProduction && <WriteWarning env={env} />}
                 <div className="flex gap-3">
                   <button
                     onClick={() => clearCacheMut.mutate(false)}
                     disabled={clearCacheMut.isPending}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
-                    style={{
-                      backgroundColor: 'var(--color-primary)',
-                      color: 'white',
-                    }}
+                    className={PRIMARY_BUTTON}
                   >
                     <RefreshCw size={14} />
                     {clearCacheMut.isPending
@@ -1198,11 +910,7 @@ export function OrgOpsPage() {
                   <button
                     onClick={() => clearCacheMut.mutate(true)}
                     disabled={clearCacheMut.isPending}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border disabled:opacity-40"
-                    style={{
-                      borderColor: 'var(--color-border)',
-                      color: 'var(--color-text-muted)',
-                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-border text-muted-foreground transition-colors hover:bg-hover-overlay hover:text-foreground disabled:opacity-40"
                   >
                     <RefreshCw size={14} />
                     {clearCacheMut.isPending
@@ -1218,10 +926,7 @@ export function OrgOpsPage() {
 
       {/* Prompt when no org is loaded yet */}
       {!orgId && (
-        <div
-          className="py-12 text-center text-sm"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+        <div className="py-12 text-center text-sm text-muted-foreground">
           Enter an org UUID above to load its operations panel.
         </div>
       )}

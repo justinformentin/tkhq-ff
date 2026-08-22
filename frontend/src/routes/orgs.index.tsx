@@ -32,16 +32,8 @@ function OrgSearchRouteComponent() {
   return (
     <div className="p-8 max-w-2xl space-y-6">
       <div>
-        <h1
-          className="text-2xl font-bold"
-          style={{ color: 'var(--color-text)' }}
-        >
-          Search by Org
-        </h1>
-        <p
-          className="text-sm mt-1"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+        <h1 className="text-2xl font-bold text-foreground">Search by Org</h1>
+        <p className="text-sm mt-1 text-muted-foreground">
           Enter an org UUID to see which feature flags it has overrides for.
         </p>
       </div>
@@ -55,17 +47,11 @@ function OrgSearchRouteComponent() {
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSearch();
           }}
-          className="flex-1 px-3 py-2 rounded-lg border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
+          className="flex-1 px-3 py-2 rounded-lg border border-border bg-card-background text-sm font-mono text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <button
           onClick={handleSearch}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-          style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           <Search size={14} />
           Search
@@ -75,28 +61,16 @@ function OrgSearchRouteComponent() {
       {searchedOrg && (
         <div className="space-y-3">
           {isLoading ? (
-            <div
-              className="py-8 text-center text-sm animate-pulse"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
+            <div className="py-8 text-center text-sm animate-pulse text-muted-foreground">
               Searching...
             </div>
           ) : error ? (
-            <div
-              className="rounded-lg border px-4 py-3 text-sm"
-              style={{
-                borderColor: 'var(--color-danger)',
-                color: 'var(--color-danger)',
-              }}
-            >
+            <div className="rounded-lg border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger">
               {error instanceof Error ? error.message : 'Search failed'}
             </div>
           ) : (
             <>
-              <p
-                className="text-sm"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
+              <p className="text-sm text-muted-foreground">
                 {!results?.length
                   ? `No flag overrides found for ${searchedOrg}`
                   : `${results.length} flag${results.length !== 1 ? 's' : ''} with overrides for this org`}
@@ -108,55 +82,23 @@ function OrgSearchRouteComponent() {
                   params={{ flag: flag.flag }}
                   className="block no-underline"
                 >
-                  <div
-                    className="flex items-center justify-between rounded-lg border px-4 py-3 transition-colors"
-                    style={{
-                      borderColor: 'var(--color-border)',
-                      backgroundColor: 'var(--color-surface)',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor =
-                        'var(--color-surface-2)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor =
-                        'var(--color-surface)';
-                    }}
-                  >
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card-background px-4 py-3 transition-colors hover:bg-card-background-hover">
                     <div>
-                      <div
-                        className="font-medium text-sm"
-                        style={{ color: 'var(--color-text)' }}
-                      >
+                      <div className="font-medium text-sm text-foreground">
                         {formatFlagName(flag.flag)}
                       </div>
-                      <div
-                        className="text-xs font-mono mt-0.5"
-                        style={{ color: 'var(--color-text-muted)' }}
-                      >
+                      <div className="text-xs font-mono mt-0.5 text-muted-foreground">
                         {flag.flag}
                       </div>
                     </div>
                     <div className="flex gap-2">
                       {in_allowed && (
-                        <span
-                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                          style={{
-                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                            color: 'var(--color-success)',
-                          }}
-                        >
+                        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-success-soft text-success">
                           Allowed
                         </span>
                       )}
                       {in_disallowed && (
-                        <span
-                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                          style={{
-                            backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                            color: 'var(--color-danger)',
-                          }}
-                        >
+                        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-danger-soft text-danger">
                           Denied
                         </span>
                       )}

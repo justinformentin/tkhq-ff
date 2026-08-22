@@ -22,7 +22,7 @@ export function NavSection({
 
   return (
     <div className="mt-2">
-      <div className="mb-1 h-px bg-white/8" />
+      <div className="mb-1 h-px bg-border" />
       {showHeader && (
         <button
           onClick={onToggle}
@@ -39,10 +39,10 @@ export function NavSection({
               isExpanded ? 'max-h-6 opacity-100' : 'max-h-0 opacity-0',
             ].join(' ')}
           >
-            <span className="min-w-0 truncate whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <span className="min-w-0 truncate whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-subtle-foreground">
               {section.title}
             </span>
-            <span aria-hidden className="text-gray-500">
+            <span aria-hidden className="text-subtle-foreground">
               {isCollapsed ? (
                 <ChevronDown size={14} />
               ) : (

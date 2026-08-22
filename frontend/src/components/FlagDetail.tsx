@@ -13,6 +13,11 @@ interface FlagDetailProps {
   flagName: string;
 }
 
+// Radix drives the active state, so the tab's colors come from data attributes
+// rather than the mouse handlers this used to need.
+const TAB_TRIGGER =
+  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=inactive]:border-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:text-foreground';
+
 export function FlagDetail({ flagName }: FlagDetailProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -57,14 +62,7 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
 
   if (error) {
     return (
-      <div
-        className="rounded-lg border px-4 py-3 text-sm"
-        style={{
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          borderColor: 'rgba(239, 68, 68, 0.3)',
-          color: 'var(--color-danger)',
-        }}
-      >
+      <div className="rounded-lg border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger">
         Failed to load flag: {(error as Error).message}
       </div>
     );
@@ -82,44 +80,23 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
       {/* Header */}
       {isLoading ? (
         <div className="space-y-2 animate-pulse">
-          <div
-            className="h-8 rounded w-64"
-            style={{ backgroundColor: 'var(--color-surface-2)' }}
-          />
-          <div
-            className="h-4 rounded w-48"
-            style={{ backgroundColor: 'var(--color-surface-2)' }}
-          />
+          <div className="h-8 rounded w-64 bg-elevated-background" />
+          <div className="h-4 rounded w-48 bg-elevated-background" />
         </div>
       ) : (
         <div>
-          <h1
-            className="text-2xl font-bold"
-            style={{ color: 'var(--color-text)' }}
-          >
+          <h1 className="text-2xl font-bold text-foreground">
             {formatFlagName(flagName)}
           </h1>
-          <p
-            className="text-sm font-mono mt-1"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
+          <p className="text-sm font-mono mt-1 text-muted-foreground">
             {flagName}
           </p>
         </div>
       )}
 
       {/* Global settings card */}
-      <div
-        className="rounded-lg border p-6 space-y-6"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-        }}
-      >
-        <h2
-          className="font-semibold text-sm uppercase tracking-wider"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+      <div className="rounded-lg border border-border bg-card-background p-6 space-y-6">
+        <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
           Global Settings
         </h2>
 
@@ -127,16 +104,12 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
         <div className="flex items-center gap-4">
           <label
             htmlFor="enabled-toggle"
-            className="text-sm font-medium"
-            style={{ color: 'var(--color-text)' }}
+            className="text-sm font-medium text-foreground"
           >
             Enabled
           </label>
           {isLoading ? (
-            <div
-              className="h-5 w-9 rounded-full animate-pulse"
-              style={{ backgroundColor: 'var(--color-surface-2)' }}
-            />
+            <div className="h-5 w-9 rounded-full animate-pulse bg-elevated-background" />
           ) : (
             <Switch
               id="enabled-toggle"
@@ -144,10 +117,7 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
               onCheckedChange={setLocalEnabled}
             />
           )}
-          <span
-            className="text-xs"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
+          <span className="text-xs text-muted-foreground">
             {enabled
               ? 'Globally enabled'
               : 'Globally disabled — overrides all org/product rules'}
@@ -159,23 +129,16 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
           <div className="flex items-center justify-between">
             <label
               htmlFor="rollout-slider"
-              className="text-sm font-medium"
-              style={{ color: 'var(--color-text)' }}
+              className="text-sm font-medium text-foreground"
             >
               Rollout Percentage
             </label>
-            <span
-              className="text-sm font-mono font-bold"
-              style={{ color: 'var(--color-primary)' }}
-            >
+            <span className="text-sm font-mono font-bold text-primary">
               {rollout}%
             </span>
           </div>
           {isLoading ? (
-            <div
-              className="h-2 rounded-full w-full animate-pulse"
-              style={{ backgroundColor: 'var(--color-surface-2)' }}
-            />
+            <div className="h-2 rounded-full w-full animate-pulse bg-elevated-background" />
           ) : (
             <input
               id="rollout-slider"
@@ -184,14 +147,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
               max={100}
               value={rollout}
               onChange={(e) => setLocalRollout(Number(e.target.value))}
-              className="w-full cursor-pointer"
-              style={{ accentColor: 'var(--color-primary)' }}
+              className="w-full cursor-pointer accent-primary"
             />
           )}
-          <div
-            className="flex justify-between text-xs"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
+          <div className="flex justify-between text-xs text-muted-foreground">
             <span>0%</span>
             <span>50%</span>
             <span>100%</span>
@@ -202,8 +161,7 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
         <button
           onClick={() => saveMutation.mutate()}
           disabled={!isDirty || saveMutation.isPending || isLoading}
-          className="px-4 py-2 rounded-md text-sm font-medium transition-opacity disabled:opacity-40"
-          style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
+          className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40"
         >
           {saveMutation.isPending ? 'Saving...' : 'Save Changes'}
         </button>
@@ -211,16 +169,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
 
       {/* Tabs */}
       {isLoading ? (
-        <div
-          className="h-48 rounded-lg animate-pulse"
-          style={{ backgroundColor: 'var(--color-surface)' }}
-        />
+        <div className="h-48 rounded-lg animate-pulse bg-card-background" />
       ) : flagData ? (
         <Tabs.Root defaultValue="orgs">
-          <Tabs.List
-            className="flex gap-1 border-b"
-            style={{ borderColor: 'var(--color-border)' }}
-          >
+          <Tabs.List className="flex gap-1 border-b border-border">
             {[
               { value: 'orgs', label: `Orgs (${orgCount})` },
               { value: 'products', label: `Products (${productCount})` },
@@ -228,22 +180,7 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
               <Tabs.Trigger
                 key={tab.value}
                 value={tab.value}
-                className="px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-indigo-500 data-[state=inactive]:border-transparent"
-                style={{
-                  color: 'var(--color-text-muted)',
-                }}
-                onMouseEnter={(e) => {
-                  if (e.currentTarget.getAttribute('data-state') !== 'active') {
-                    (e.currentTarget as HTMLElement).style.color =
-                      'var(--color-text)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (e.currentTarget.getAttribute('data-state') !== 'active') {
-                    (e.currentTarget as HTMLElement).style.color =
-                      'var(--color-text-muted)';
-                  }
-                }}
+                className={TAB_TRIGGER}
               >
                 {tab.label}
               </Tabs.Trigger>

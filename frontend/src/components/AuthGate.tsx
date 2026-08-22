@@ -25,10 +25,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div
-        className="flex min-h-screen items-center justify-center text-sm"
-        style={{ color: 'var(--color-text-muted)' }}
-      >
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
         Checking sign-in…
       </div>
     );
@@ -41,23 +38,11 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <div
-          className="w-full max-w-md rounded-lg border p-6 text-center"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          <h1
-            className="text-lg font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
+        <div className="w-full max-w-md rounded-lg border border-border bg-card-background p-6 text-center">
+          <h1 className="text-lg font-semibold text-foreground">
             Sign in required
           </h1>
-          <p
-            className="mt-2 whitespace-pre-line text-sm"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
+          <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
             {message}
           </p>
 
@@ -66,8 +51,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
               href={`${loginUrl}?returnTo=${encodeURIComponent(
                 window.location.pathname + window.location.search
               )}`}
-              className="mt-5 inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white"
-              style={{ backgroundColor: 'var(--color-primary)' }}
+              className="mt-5 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
             >
               <LogIn size={14} />
               Sign in with Turnkey SSO

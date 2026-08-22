@@ -8,16 +8,8 @@ function HomeRouteComponent() {
   return (
     <div className="p-8 space-y-8">
       <div>
-        <h1
-          className="text-2xl font-bold"
-          style={{ color: 'var(--color-text)' }}
-        >
-          Home
-        </h1>
-        <p
-          className="text-sm mt-1"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+        <h1 className="text-2xl font-bold text-foreground">Home</h1>
+        <p className="text-sm mt-1 text-muted-foreground">
           Welcome to tkhq-ff — the Turnkey feature flag admin dashboard.
         </p>
       </div>
@@ -39,38 +31,18 @@ function HomeRouteComponent() {
         />
       </div>
 
-      <div
-        className="rounded-lg border p-6 space-y-3"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-        }}
-      >
-        <h2
-          className="font-semibold text-sm uppercase tracking-wider"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+      <div className="rounded-lg border border-border bg-card-background p-6 space-y-3">
+        <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
           Quick Links
         </h2>
-        <ul
-          className="space-y-2 text-sm"
-          style={{ color: 'var(--color-text)' }}
-        >
+        <ul className="space-y-2 text-sm text-foreground">
           <li>
-            <a
-              href="/flags"
-              className="hover:underline"
-              style={{ color: 'var(--color-primary)' }}
-            >
+            <a href="/flags" className="text-primary hover:underline">
               Browse all feature flags →
             </a>
           </li>
           <li>
-            <a
-              href="/orgs"
-              className="hover:underline"
-              style={{ color: 'var(--color-primary)' }}
-            >
+            <a href="/orgs" className="text-primary hover:underline">
               Search by org →
             </a>
           </li>
@@ -90,23 +62,9 @@ function PlaceholderCard({
   href?: string;
 }) {
   const inner = (
-    <div
-      className="rounded-lg border p-5 space-y-2 h-full"
-      style={{
-        borderColor: 'var(--color-border)',
-        backgroundColor: 'var(--color-surface)',
-      }}
-    >
-      <h3
-        className="font-semibold text-sm"
-        style={{ color: 'var(--color-text)' }}
-      >
-        {title}
-      </h3>
-      <p
-        className="text-xs leading-relaxed"
-        style={{ color: 'var(--color-text-muted)' }}
-      >
+    <div className="rounded-lg border border-border bg-card-background p-5 space-y-2 h-full">
+      <h3 className="font-semibold text-sm text-foreground">{title}</h3>
+      <p className="text-xs leading-relaxed text-muted-foreground">
         {description}
       </p>
     </div>

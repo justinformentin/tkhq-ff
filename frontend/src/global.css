@@ -1,0 +1,177 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+ * Theme tokens
+ *
+ * Light is the default on :root; dark is a full override keyed on the
+ * data-theme attribute that ThemeProvider stamps onto <html>. Every variable
+ * here is bound 1:1 to a Tailwind color token in the @theme block below, so
+ * --card-background is spelled bg-card-background in markup and nothing needs
+ * a `dark:` variant or an inline style to change with the theme.
+ *
+ * The `-soft` tokens are the tinted fills behind status pills and banners and
+ * the `-border` tokens are their matching hairlines. In light mode they are
+ * opaque rather than alpha-blended so a pill reads the same on a white card as
+ * it does on the page background.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --background: #f5f7fa;
+  --card-background: #ffffff;
+  --card-background-hover: #f7f9fb;
+  --elevated-background: #eef1f5;
+  --hover-overlay: rgba(16, 24, 40, 0.05);
+
+  /* Text */
+  --foreground: #101828;
+  --muted-foreground: #59637a;
+  --subtle-foreground: #8792a6;
+
+  /* Lines */
+  --border: #e2e6ed;
+  --border-strong: #cbd2dd;
+
+  /* Brand */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-foreground: #ffffff;
+  --primary-soft: #ecebfd;
+  --primary-border: #b4b0f4;
+
+  /* Status */
+  --success: #067a53;
+  --success-soft: #e2f5ed;
+  --success-border: #a3ddc8;
+
+  --danger: #d02626;
+  --danger-soft: #fdeaea;
+  --danger-border: #f4b5b5;
+
+  --warning: #a85803;
+  --warning-soft: #fdf1e0;
+  --warning-border: #f0c78c;
+
+  /* Controls */
+  --ring: #6366f1;
+  --switch-off: #c2c9d4;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --background: #0a0f1e;
+  --card-background: #111827;
+  --card-background-hover: #182132;
+  --elevated-background: #1f2937;
+  --hover-overlay: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --foreground: #f9fafb;
+  --muted-foreground: #9ca3af;
+  --subtle-foreground: #6b7280;
+
+  /* Lines */
+  --border: #1f2937;
+  --border-strong: #374151;
+
+  /* Brand */
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-foreground: #ffffff;
+  --primary-soft: rgba(99, 102, 241, 0.15);
+  --primary-border: rgba(99, 102, 241, 0.5);
+
+  /* Status */
+  --success: #10b981;
+  --success-soft: rgba(16, 185, 129, 0.15);
+  --success-border: rgba(16, 185, 129, 0.4);
+
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.15);
+  --danger-border: rgba(239, 68, 68, 0.4);
+
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.4);
+
+  /* Controls */
+  --ring: #6366f1;
+  --switch-off: #4b5563;
+}
+
+/* ---------------------------------------------------------------------------
+ * Tailwind color tokens
+ *
+ * `inline` is what makes this work: each utility compiles to a direct
+ * var(--token) reference rather than a copy of the value, so one utility
+ * written once resolves to whichever theme is active at runtime.
+ * ------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-card-background: var(--card-background);
+  --color-card-background-hover: var(--card-background-hover);
+  --color-elevated-background: var(--elevated-background);
+  --color-hover-overlay: var(--hover-overlay);
+
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-border: var(--primary-border);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+
+  --color-ring: var(--ring);
+  --color-switch-off: var(--switch-off);
+}
+
+@layer base {
+  /* A bare `border` utility should draw the theme hairline, not currentColor. */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      'Helvetica Neue',
+      Arial,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}

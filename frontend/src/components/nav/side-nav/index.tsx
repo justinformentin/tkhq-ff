@@ -64,13 +64,10 @@ export function SideNav({
   return (
     <aside
       className={[
-        'fixed left-0 top-0 z-40 h-screen border-r border-white/10 transition-[width] duration-300 ease-out',
+        'fixed left-0 top-0 z-40 h-screen border-r border-border bg-card-background transition-[width] duration-300 ease-out',
         className ?? '',
       ].join(' ')}
-      style={{
-        width: getSideNavWidth(isExpanded),
-        backgroundColor: 'var(--color-surface)',
-      }}
+      style={{ width: getSideNavWidth(isExpanded) }}
     >
       <div
         className={[
@@ -90,10 +87,7 @@ export function SideNav({
               href="/"
               className="flex min-w-0 flex-1 items-center gap-2 no-underline"
             >
-              <span
-                className="font-bold text-base tracking-tight"
-                style={{ color: 'var(--color-text)' }}
-              >
+              <span className="font-bold text-base tracking-tight text-foreground">
                 tkhq-ff
               </span>
             </a>
@@ -101,7 +95,7 @@ export function SideNav({
           <button
             type="button"
             onClick={toggleExpanded}
-            className="flex size-8 items-center justify-center rounded-lg text-gray-500 hover:bg-white/8 hover:text-gray-200 transition-colors focus:outline-none"
+            className="flex size-8 items-center justify-center rounded-lg text-subtle-foreground hover:bg-hover-overlay hover:text-foreground transition-colors focus:outline-none"
             aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
             title={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
           >

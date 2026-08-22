@@ -13,7 +13,7 @@ function FooterIcon({ name, size = 18 }: { name: string; size?: number }) {
 
 function footerItemClassName(isExpanded: boolean) {
   return [
-    'flex items-center rounded-lg text-sm text-gray-500 hover:bg-white/8 hover:text-gray-200 transition-colors',
+    'flex items-center rounded-lg text-sm text-subtle-foreground transition-colors hover:bg-hover-overlay hover:text-foreground',
     isExpanded ? 'gap-2 px-2 py-1.5' : 'h-9 w-9 justify-center p-0',
   ].join(' ');
 }
@@ -50,7 +50,7 @@ type SideNavFooterProps = {
 export function SideNavFooter({ items, isExpanded }: SideNavFooterProps) {
   return (
     <div className="flex flex-col">
-      <div className="mb-2 h-px bg-white/8" />
+      <div className="mb-2 h-px bg-border" />
       <div
         className={[
           'flex',

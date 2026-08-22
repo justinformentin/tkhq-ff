@@ -15,8 +15,8 @@ export function Toaster() {
           className={cn(
             'flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg text-sm',
             t.variant === 'destructive'
-              ? 'bg-red-950 border-red-800 text-red-200'
-              : 'bg-gray-800 border-gray-700 text-gray-100'
+              ? 'bg-danger-soft border-danger-border text-danger'
+              : 'bg-elevated-background border-border text-foreground'
           )}
         >
           <div className="flex-1">
@@ -27,7 +27,7 @@ export function Toaster() {
           </div>
           <button
             onClick={() => dismiss(t.id)}
-            className="text-gray-400 hover:text-gray-200 transition-colors shrink-0"
+            className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
           >
             <X size={14} />
           </button>

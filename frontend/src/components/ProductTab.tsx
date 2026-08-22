@@ -12,12 +12,17 @@ import {
 } from '../types';
 import { useToast } from '../hooks/useToast';
 import { Trash2, Plus } from 'lucide-react';
+import { cn } from '../lib/utils';
+import { RuleToggle } from './RuleToggle';
 
 interface ProductTabProps {
   flagName: string;
   allowedProducts: ProductRule[];
   disallowedProducts: ProductRule[];
 }
+
+const SELECT =
+  'w-full rounded-md border border-border bg-elevated-background px-2 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
 
 export function ProductTab({
   flagName,
@@ -74,45 +79,22 @@ export function ProductTab({
     ...disallowedProducts.map((p) => ({ ...p, ruleType: 'deny' as const })),
   ];
 
-  const selectStyle = {
-    backgroundColor: 'var(--color-surface-2)',
-    borderColor: 'var(--color-border)',
-    color: 'var(--color-text)',
-    border: '1px solid var(--color-border)',
-    borderRadius: '6px',
-    padding: '6px 8px',
-    fontSize: '13px',
-    width: '100%',
-  } as React.CSSProperties;
-
   return (
     <div className="space-y-6">
       {/* Add form */}
-      <div
-        className="rounded-lg border p-4 space-y-4"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-        }}
-      >
-        <h3
-          className="text-sm font-semibold"
-          style={{ color: 'var(--color-text)' }}
-        >
+      <div className="rounded-lg border border-border bg-card-background p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-foreground">
           Add Product Rule
         </h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label
-              className="text-xs font-medium"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
+            <label className="text-xs font-medium text-muted-foreground">
               Product Type
             </label>
             <select
               value={productType}
               onChange={(e) => setProductType(e.target.value)}
-              style={selectStyle}
+              className={SELECT}
             >
               {PRODUCT_TYPES.map((pt) => (
                 <option key={pt.value} value={pt.value}>
@@ -122,16 +104,13 @@ export function ProductTab({
             </select>
           </div>
           <div className="space-y-1.5">
-            <label
-              className="text-xs font-medium"
-              style={{ color: 'var(--color-text-muted)' }}
-            >
+            <label className="text-xs font-medium text-muted-foreground">
               Sub-Type
             </label>
             <select
               value={productSubType}
               onChange={(e) => setProductSubType(e.target.value)}
-              style={selectStyle}
+              className={SELECT}
             >
               {PRODUCT_SUB_TYPES.map((pst) => (
                 <option key={pst.value} value={pst.value}>
@@ -141,51 +120,11 @@ export function ProductTab({
             </select>
           </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setProductEnabled(true)}
-            className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-            style={
-              productEnabled
-                ? {
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    color: 'var(--color-success)',
-                    border: '1px solid rgba(16,185,129,0.4)',
-                  }
-                : {
-                    backgroundColor: 'transparent',
-                    color: 'var(--color-text-muted)',
-                    border: '1px solid var(--color-border)',
-                  }
-            }
-          >
-            Allow
-          </button>
-          <button
-            onClick={() => setProductEnabled(false)}
-            className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-            style={
-              !productEnabled
-                ? {
-                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                    color: 'var(--color-danger)',
-                    border: '1px solid rgba(239,68,68,0.4)',
-                  }
-                : {
-                    backgroundColor: 'transparent',
-                    color: 'var(--color-text-muted)',
-                    border: '1px solid var(--color-border)',
-                  }
-            }
-          >
-            Deny
-          </button>
-        </div>
+        <RuleToggle value={productEnabled} onChange={setProductEnabled} />
         <button
           onClick={() => addMutation.mutate()}
           disabled={addMutation.isPending}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-opacity disabled:opacity-50"
-          style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
         >
           <Plus size={14} />
           {addMutation.isPending ? 'Adding...' : 'Add Rule'}
@@ -195,50 +134,31 @@ export function ProductTab({
       {/* Rules list */}
       <div className="space-y-2">
         {allRules.length === 0 ? (
-          <div
-            className="py-10 text-center text-sm rounded-lg border"
-            style={{
-              borderColor: 'var(--color-border)',
-              color: 'var(--color-text-muted)',
-            }}
-          >
+          <div className="py-10 text-center text-sm rounded-lg border border-border text-muted-foreground">
             No product rules configured
           </div>
         ) : (
           allRules.map((rule, i) => (
             <div
               key={i}
-              className="flex items-center justify-between rounded-lg border px-4 py-3"
-              style={{
-                borderColor: 'var(--color-border)',
-                backgroundColor: 'var(--color-surface)',
-              }}
+              className="flex items-center justify-between rounded-lg border border-border bg-card-background px-4 py-3"
             >
               <div className="flex items-center gap-3">
                 <span
-                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={
+                  className={cn(
+                    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
                     rule.ruleType === 'allow'
-                      ? {
-                          backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                          color: 'var(--color-success)',
-                        }
-                      : {
-                          backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                          color: 'var(--color-danger)',
-                        }
-                  }
+                      ? 'bg-success-soft text-success'
+                      : 'bg-danger-soft text-danger'
+                  )}
                 >
                   {rule.ruleType === 'allow' ? 'Allow' : 'Deny'}
                 </span>
-                <span
-                  className="text-sm"
-                  style={{ color: 'var(--color-text)' }}
-                >
+                <span className="text-sm text-foreground">
                   {PRODUCT_TYPE_NAMES[rule.product_type] ||
                     `type:${rule.product_type}`}
                   {rule.product_sub_type !== ANY_SUB_TYPE && (
-                    <span style={{ color: 'var(--color-text-muted)' }}>
+                    <span className="text-muted-foreground">
                       {' / '}
                       {PRODUCT_SUB_TYPE_NAMES[rule.product_sub_type] ||
                         `sub:${rule.product_sub_type}`}
@@ -254,8 +174,7 @@ export function ProductTab({
                   })
                 }
                 disabled={removeMutation.isPending}
-                className="p-1.5 rounded-md transition-colors hover:bg-red-900/20 disabled:opacity-50"
-                style={{ color: 'var(--color-text-muted)' }}
+                className="p-1.5 rounded-md text-muted-foreground transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
                 title="Remove"
               >
                 <Trash2 size={14} />
