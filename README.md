@@ -26,9 +26,9 @@ Dockerfile    Multi-stage: frontend build → backend serves static
 
 Chosen by the header dropdown, persisted in `?env=` and localStorage. Every request carries `?env=`; an unknown value 400s rather than falling back, so a typo can't write to the wrong place. **Preprod and prod are flagged in the UI — writes there are live.**
 
-| Environment | Endpoint | Transport |
-|---|---|---|
-| `local` | `localhost:4452` | gRPC over h2c |
+| Environment                | Endpoint                          | Transport               |
+| -------------------------- | --------------------------------- | ----------------------- |
+| `local`                    | `localhost:4452`                  | gRPC over h2c           |
 | `dev` / `preprod` / `prod` | `agent.<env>.turnkey.engineering` | Connect-JSON over HTTPS |
 
 Endpoints mirror `mono/src/go/pkg/environments/environments.go`. `local` needs the agent running (`make launch` in mono).
@@ -39,7 +39,7 @@ Both transports exist because neither works everywhere: the local agent speaks g
 
 The agent authenticates every call with a Keycloak ID token (`X-ID-Token`) and decides what that identity may do. Click **Sign in with Turnkey SSO**; Keycloak opens in the browser.
 
-**Locally** the callback lands on `http://localhost:36987`, a listener the backend binds at startup. That's tkinfra's loopback URI, borrowed because `kubelogin` is the only Keycloak client that exists today and accepts no other redirect URI — `/api/auth/callback` is rejected with *Invalid parameter: redirect_uri*. Only works because backend and browser share a machine. A recent `tkinfra login` is reused if present, skipping the click; a stale one just shows the sign-in button.
+**Locally** the callback lands on `http://localhost:36987`, a listener the backend binds at startup. That's tkinfra's loopback URI, borrowed because `kubelogin` is the only Keycloak client that exists today and accepts no other redirect URI — `/api/auth/callback` is rejected with _Invalid parameter: redirect_uri_. Only works because backend and browser share a machine. A recent `tkinfra login` is reused if present, skipping the click; a stale one just shows the sign-in button.
 
 **Deployed** needs its own Keycloak client (redirect URI `https://<host>/api/auth/callback`) from the `staff` realm admins. Setting `OIDC_CLIENT_ID` + `OIDC_REDIRECT_URI` leaves loopback mode and disables the tkinfra fallback, so each visitor acts as themselves. Optional: `OIDC_CLIENT_SECRET` (confidential clients), `CORS_ORIGIN`, `OIDC_IDP_HINT=google` to skip Keycloak's chooser. Whether a Google button appears is a realm setting, not ours. Sessions are in-memory: single replica, and a restart signs everyone out.
 
@@ -51,7 +51,7 @@ The agent authenticates every call with a Keycloak ID token (`X-ID-Token`) and d
 - It resolves every transitive `import`, so the whole closure comes across, not one file.
 - `dev`/`preprod`/`prod` never touch them; Connect-JSON needs only a URL and hand-written types (`grpc/types.ts`).
 
-**Is this necessary?** Only for `local`. Drop local support and the protos, `sync-proto.js`, and both `@grpc/*` packages go too, leaving plain `fetch`. A hand-trimmed proto is not a safe shortcut: over gRPC the enum *numbers* are the wire format, and the original placeholder had `FEATURE_FLAG_TVC = 8` against a real value of 24 — writes would have silently hit a different flag. Better ideas welcome.
+**Is this necessary?** Only for `local`. Drop local support and the protos, `sync-proto.js`, and both `@grpc/*` packages go too, leaving plain `fetch`. A hand-trimmed proto is not a safe shortcut: over gRPC the enum _numbers_ are the wire format, and the original placeholder had `FEATURE_FLAG_TVC = 8` against a real value of 24 — writes would have silently hit a different flag. Better ideas welcome.
 
 Re-run `npm run sync-proto` (`MONO_DIR=...` if your checkout isn't at `~/tkhq/code/mono`) when the proto changes upstream.
 
@@ -59,16 +59,16 @@ Re-run `npm run sync-proto` (`MONO_DIR=...` if your checkout isn't at `~/tkhq/co
 
 All routes take `?env=`. Mutating RPCs return empty messages upstream, so each mutation re-reads the flag and returns fresh state.
 
-| Method | Path | |
-|---|---|---|
-| `GET` | `/api/environments` | Selectable environments |
-| `GET` | `/api/flags` | Non-deprecated flags. `?with_orgs=true` fills org lists (one call per flag) |
-| `GET` | `/api/flags/:flag` | Detail with org/product rules |
-| `PUT` | `/api/flags/:flag` | `{ enabled, rollout_percent }` |
-| `POST`/`DELETE` | `/api/flags/:flag/orgs[/:org_id]` | Allow/deny (`{ org_id, enabled }`) or remove an org |
-| `POST`/`DELETE` | `/api/flags/:flag/products[/:type/:sub_type]` | Allow/deny or remove a product rule |
-| `GET` | `/api/orgs/:org_id/flags` | Flags carrying an override for one org |
-| `GET` | `/api/auth/me`, `/login`, `/callback`, `POST /logout` | Sign-in |
+| Method          | Path                                                  |                                                                             |
+| --------------- | ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| `GET`           | `/api/environments`                                   | Selectable environments                                                     |
+| `GET`           | `/api/flags`                                          | Non-deprecated flags. `?with_orgs=true` fills org lists (one call per flag) |
+| `GET`           | `/api/flags/:flag`                                    | Detail with org/product rules                                               |
+| `PUT`           | `/api/flags/:flag`                                    | `{ enabled, rollout_percent }`                                              |
+| `POST`/`DELETE` | `/api/flags/:flag/orgs[/:org_id]`                     | Allow/deny (`{ org_id, enabled }`) or remove an org                         |
+| `POST`/`DELETE` | `/api/flags/:flag/products[/:type/:sub_type]`         | Allow/deny or remove a product rule                                         |
+| `GET`           | `/api/orgs/:org_id/flags`                             | Flags carrying an override for one org                                      |
+| `GET`           | `/api/auth/me`, `/login`, `/callback`, `POST /logout` | Sign-in                                                                     |
 
 `product_type` / `product_sub_type` are proto enum names (`PRODUCT_TYPE_ENTERPRISE`, `PRODUCT_SUB_TYPE_ENTERPRISE_SCALE`), passed through untouched; `PRODUCT_SUB_TYPE_UNSPECIFIED` targets a whole type. Remapping them onto local integers is what made the placeholder write to the wrong product.
 
@@ -76,12 +76,12 @@ All routes take `?env=`. Mutating RPCs return empty messages upstream, so each m
 
 ## Environment variables
 
-| Variable | Default | |
-|---|---|---|
-| `PORT` | `3001` | Backend HTTP port |
-| `DEFAULT_ENVIRONMENT` | `local` | Used when a request omits `?env=` |
-| `OPERATOR_AGENT_GRPC_HOST` / `_PORT` | `localhost` / `4452` | Override the `local` target only |
-| `APP_URL` | `http://localhost:5173` | Sign-in return target when the referring page can't be read |
+| Variable                             | Default                 |                                                             |
+| ------------------------------------ | ----------------------- | ----------------------------------------------------------- |
+| `PORT`                               | `3001`                  | Backend HTTP port                                           |
+| `DEFAULT_ENVIRONMENT`                | `local`                 | Used when a request omits `?env=`                           |
+| `OPERATOR_AGENT_GRPC_HOST` / `_PORT` | `localhost` / `4452`    | Override the `local` target only                            |
+| `APP_URL`                            | `http://localhost:5173` | Sign-in return target when the referring page can't be read |
 
 Plus the deployment-only `OIDC_*` / `CORS_ORIGIN` above. See `backend/.env.example`.
 

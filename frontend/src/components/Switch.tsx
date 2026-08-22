@@ -8,7 +8,12 @@ interface SwitchProps {
   id?: string;
 }
 
-export function Switch({ checked, onCheckedChange, disabled, id }: SwitchProps) {
+export function Switch({
+  checked,
+  onCheckedChange,
+  disabled,
+  id,
+}: SwitchProps) {
   return (
     <RadixSwitch.Root
       id={id}

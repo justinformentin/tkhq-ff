@@ -157,9 +157,9 @@ export const RATE_LIMIT_RULE_TYPE_NAMES: Record<string, string> = {
   RATE_LIMIT_RULE_TYPE_SIGN: 'Sign',
 };
 
-export const RATE_LIMIT_RULE_TYPES = Object.entries(RATE_LIMIT_RULE_TYPE_NAMES).map(
-  ([value, label]) => ({ value, label })
-);
+export const RATE_LIMIT_RULE_TYPES = Object.entries(
+  RATE_LIMIT_RULE_TYPE_NAMES
+).map(([value, label]) => ({ value, label }));
 
 export const RATE_LIMIT_REMEDIATION_NAMES: Record<string, string> = {
   RATE_LIMIT_REMEDIATION_UNSPECIFIED: 'Unspecified',
@@ -169,9 +169,9 @@ export const RATE_LIMIT_REMEDIATION_NAMES: Record<string, string> = {
   RATE_LIMIT_REMEDIATION_HARD_BLOCK: 'Hard Block',
 };
 
-export const RATE_LIMIT_REMEDIATIONS = Object.entries(RATE_LIMIT_REMEDIATION_NAMES).map(
-  ([value, label]) => ({ value, label })
-);
+export const RATE_LIMIT_REMEDIATIONS = Object.entries(
+  RATE_LIMIT_REMEDIATION_NAMES
+).map(([value, label]) => ({ value, label }));
 
 export const RATE_LIMIT_BUCKET_TYPE_NAMES: Record<string, string> = {
   RATE_LIMIT_BUCKET_TYPE_UNSPECIFIED: 'Unspecified',
@@ -180,6 +180,6 @@ export const RATE_LIMIT_BUCKET_TYPE_NAMES: Record<string, string> = {
   RATE_LIMIT_BUCKET_TYPE_SELF: 'Self',
 };
 
-export const RATE_LIMIT_BUCKET_TYPES = Object.entries(RATE_LIMIT_BUCKET_TYPE_NAMES).map(
-  ([value, label]) => ({ value, label })
-);
+export const RATE_LIMIT_BUCKET_TYPES = Object.entries(
+  RATE_LIMIT_BUCKET_TYPE_NAMES
+).map(([value, label]) => ({ value, label }));

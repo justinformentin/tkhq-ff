@@ -15,8 +15,9 @@ export interface EnvironmentContextValue {
   isProduction: boolean;
 }
 
-export const EnvironmentContext =
-  createContext<EnvironmentContextValue | null>(null);
+export const EnvironmentContext = createContext<EnvironmentContextValue | null>(
+  null
+);
 
 export function isEnvironment(value: unknown): value is Environment {
   return ENVIRONMENTS.includes(value as Environment);
@@ -26,7 +27,9 @@ export function useEnvironment(): EnvironmentContextValue {
   const context = useContext(EnvironmentContext);
 
   if (!context) {
-    throw new Error('useEnvironment must be used within an EnvironmentProvider');
+    throw new Error(
+      'useEnvironment must be used within an EnvironmentProvider'
+    );
   }
 
   return context;

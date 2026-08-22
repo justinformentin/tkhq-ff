@@ -7,12 +7,7 @@
  * than one replica would need a shared store (Redis) instead.
  */
 import crypto from 'crypto';
-import {
-  OidcConfig,
-  TokenSet,
-  refreshTokens,
-  claimsOf,
-} from './oidc';
+import { OidcConfig, TokenSet, refreshTokens, claimsOf } from './oidc';
 
 export const SESSION_COOKIE = 'tkhq_ff_session';
 

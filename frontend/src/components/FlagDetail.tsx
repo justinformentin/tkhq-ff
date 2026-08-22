@@ -47,7 +47,11 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
       toast({ title: 'Saved', description: 'Feature flag updated.' });
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -78,15 +82,27 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
       {/* Header */}
       {isLoading ? (
         <div className="space-y-2 animate-pulse">
-          <div className="h-8 rounded w-64" style={{ backgroundColor: 'var(--color-surface-2)' }} />
-          <div className="h-4 rounded w-48" style={{ backgroundColor: 'var(--color-surface-2)' }} />
+          <div
+            className="h-8 rounded w-64"
+            style={{ backgroundColor: 'var(--color-surface-2)' }}
+          />
+          <div
+            className="h-4 rounded w-48"
+            style={{ backgroundColor: 'var(--color-surface-2)' }}
+          />
         </div>
       ) : (
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text)' }}>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: 'var(--color-text)' }}
+          >
             {formatFlagName(flagName)}
           </h1>
-          <p className="text-sm font-mono mt-1" style={{ color: 'var(--color-text-muted)' }}>
+          <p
+            className="text-sm font-mono mt-1"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             {flagName}
           </p>
         </div>
@@ -95,9 +111,15 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
       {/* Global settings card */}
       <div
         className="rounded-lg border p-6 space-y-6"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+        style={{
+          borderColor: 'var(--color-border)',
+          backgroundColor: 'var(--color-surface)',
+        }}
       >
-        <h2 className="font-semibold text-sm uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+        <h2
+          className="font-semibold text-sm uppercase tracking-wider"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
           Global Settings
         </h2>
 
@@ -111,7 +133,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
             Enabled
           </label>
           {isLoading ? (
-            <div className="h-5 w-9 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-surface-2)' }} />
+            <div
+              className="h-5 w-9 rounded-full animate-pulse"
+              style={{ backgroundColor: 'var(--color-surface-2)' }}
+            />
           ) : (
             <Switch
               id="enabled-toggle"
@@ -119,7 +144,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
               onCheckedChange={setLocalEnabled}
             />
           )}
-          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          <span
+            className="text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             {enabled
               ? 'Globally enabled'
               : 'Globally disabled — overrides all org/product rules'}
@@ -144,7 +172,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
             </span>
           </div>
           {isLoading ? (
-            <div className="h-2 rounded-full w-full animate-pulse" style={{ backgroundColor: 'var(--color-surface-2)' }} />
+            <div
+              className="h-2 rounded-full w-full animate-pulse"
+              style={{ backgroundColor: 'var(--color-surface-2)' }}
+            />
           ) : (
             <input
               id="rollout-slider"
@@ -157,7 +188,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
               style={{ accentColor: 'var(--color-primary)' }}
             />
           )}
-          <div className="flex justify-between text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          <div
+            className="flex justify-between text-xs"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             <span>0%</span>
             <span>50%</span>
             <span>100%</span>
@@ -177,7 +211,10 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
 
       {/* Tabs */}
       {isLoading ? (
-        <div className="h-48 rounded-lg animate-pulse" style={{ backgroundColor: 'var(--color-surface)' }} />
+        <div
+          className="h-48 rounded-lg animate-pulse"
+          style={{ backgroundColor: 'var(--color-surface)' }}
+        />
       ) : flagData ? (
         <Tabs.Root defaultValue="orgs">
           <Tabs.List
@@ -197,12 +234,14 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
                 }}
                 onMouseEnter={(e) => {
                   if (e.currentTarget.getAttribute('data-state') !== 'active') {
-                    (e.currentTarget as HTMLElement).style.color = 'var(--color-text)';
+                    (e.currentTarget as HTMLElement).style.color =
+                      'var(--color-text)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (e.currentTarget.getAttribute('data-state') !== 'active') {
-                    (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)';
+                    (e.currentTarget as HTMLElement).style.color =
+                      'var(--color-text-muted)';
                   }
                 }}
               >

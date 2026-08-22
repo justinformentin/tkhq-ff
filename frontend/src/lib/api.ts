@@ -264,7 +264,11 @@ export async function evaluateOrgQuota(
   env: Environment,
   label: string
 ): Promise<{ org_id: string; label: string; evaluated: boolean }> {
-  const res = await api.post<{ org_id: string; label: string; evaluated: boolean }>(
+  const res = await api.post<{
+    org_id: string;
+    label: string;
+    evaluated: boolean;
+  }>(
     `/orgs/${encodeURIComponent(orgId)}/quota/evaluate`,
     { label },
     forEnv(env)

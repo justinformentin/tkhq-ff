@@ -2,7 +2,10 @@ import * as LucideIcons from 'lucide-react';
 import type { TSideNavFooterItem } from './types';
 
 function FooterIcon({ name, size = 18 }: { name: string; size?: number }) {
-  const icons = LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number }>>;
+  const icons = LucideIcons as unknown as Record<
+    string,
+    React.ComponentType<{ size?: number }>
+  >;
   const Icon = icons[name];
   if (!Icon) return null;
   return <Icon size={size} />;
@@ -51,7 +54,9 @@ export function SideNavFooter({ items, isExpanded }: SideNavFooterProps) {
       <div
         className={[
           'flex',
-          isExpanded ? 'flex-row items-center gap-2 px-2 py-1' : 'flex-col items-center gap-1',
+          isExpanded
+            ? 'flex-row items-center gap-2 px-2 py-1'
+            : 'flex-col items-center gap-1',
         ].join(' ')}
       >
         {items.map((item) => {

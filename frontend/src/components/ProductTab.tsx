@@ -3,7 +3,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addFlagProduct, removeFlagProduct } from '../lib/api';
 import { useEnvironment } from '../lib/environment';
 import type { ProductRule } from '../types';
-import { PRODUCT_TYPES, PRODUCT_SUB_TYPES, PRODUCT_TYPE_NAMES, PRODUCT_SUB_TYPE_NAMES, ANY_SUB_TYPE } from '../types';
+import {
+  PRODUCT_TYPES,
+  PRODUCT_SUB_TYPES,
+  PRODUCT_TYPE_NAMES,
+  PRODUCT_SUB_TYPE_NAMES,
+  ANY_SUB_TYPE,
+} from '../types';
 import { useToast } from '../hooks/useToast';
 import { Trash2, Plus } from 'lucide-react';
 
@@ -26,13 +32,24 @@ export function ProductTab({
   const { toast } = useToast();
 
   const addMutation = useMutation({
-    mutationFn: () => addFlagProduct(flagName, env, productType, productSubType, productEnabled),
+    mutationFn: () =>
+      addFlagProduct(
+        flagName,
+        env,
+        productType,
+        productSubType,
+        productEnabled
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
       toast({ title: 'Product rule added' });
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -44,7 +61,11 @@ export function ProductTab({
       toast({ title: 'Product rule removed' });
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -69,14 +90,23 @@ export function ProductTab({
       {/* Add form */}
       <div
         className="rounded-lg border p-4 space-y-4"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+        style={{
+          borderColor: 'var(--color-border)',
+          backgroundColor: 'var(--color-surface)',
+        }}
       >
-        <h3 className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+        <h3
+          className="text-sm font-semibold"
+          style={{ color: 'var(--color-text)' }}
+        >
           Add Product Rule
         </h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+            <label
+              className="text-xs font-medium"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
               Product Type
             </label>
             <select
@@ -92,7 +122,10 @@ export function ProductTab({
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+            <label
+              className="text-xs font-medium"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
               Sub-Type
             </label>
             <select
@@ -114,8 +147,16 @@ export function ProductTab({
             className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
             style={
               productEnabled
-                ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', color: 'var(--color-success)', border: '1px solid rgba(16,185,129,0.4)' }
-                : { backgroundColor: 'transparent', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }
+                ? {
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    color: 'var(--color-success)',
+                    border: '1px solid rgba(16,185,129,0.4)',
+                  }
+                : {
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-muted)',
+                    border: '1px solid var(--color-border)',
+                  }
             }
           >
             Allow
@@ -125,8 +166,16 @@ export function ProductTab({
             className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
             style={
               !productEnabled
-                ? { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: 'var(--color-danger)', border: '1px solid rgba(239,68,68,0.4)' }
-                : { backgroundColor: 'transparent', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }
+                ? {
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    color: 'var(--color-danger)',
+                    border: '1px solid rgba(239,68,68,0.4)',
+                  }
+                : {
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-muted)',
+                    border: '1px solid var(--color-border)',
+                  }
             }
           >
             Deny
@@ -148,7 +197,10 @@ export function ProductTab({
         {allRules.length === 0 ? (
           <div
             className="py-10 text-center text-sm rounded-lg border"
-            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
+            style={{
+              borderColor: 'var(--color-border)',
+              color: 'var(--color-text-muted)',
+            }}
           >
             No product rules configured
           </div>
@@ -157,25 +209,39 @@ export function ProductTab({
             <div
               key={i}
               className="flex items-center justify-between rounded-lg border px-4 py-3"
-              style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+              style={{
+                borderColor: 'var(--color-border)',
+                backgroundColor: 'var(--color-surface)',
+              }}
             >
               <div className="flex items-center gap-3">
                 <span
                   className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                   style={
                     rule.ruleType === 'allow'
-                      ? { backgroundColor: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)' }
-                      : { backgroundColor: 'rgba(239, 68, 68, 0.15)', color: 'var(--color-danger)' }
+                      ? {
+                          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                          color: 'var(--color-success)',
+                        }
+                      : {
+                          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                          color: 'var(--color-danger)',
+                        }
                   }
                 >
                   {rule.ruleType === 'allow' ? 'Allow' : 'Deny'}
                 </span>
-                <span className="text-sm" style={{ color: 'var(--color-text)' }}>
-                  {PRODUCT_TYPE_NAMES[rule.product_type] || `type:${rule.product_type}`}
+                <span
+                  className="text-sm"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {PRODUCT_TYPE_NAMES[rule.product_type] ||
+                    `type:${rule.product_type}`}
                   {rule.product_sub_type !== ANY_SUB_TYPE && (
                     <span style={{ color: 'var(--color-text-muted)' }}>
                       {' / '}
-                      {PRODUCT_SUB_TYPE_NAMES[rule.product_sub_type] || `sub:${rule.product_sub_type}`}
+                      {PRODUCT_SUB_TYPE_NAMES[rule.product_sub_type] ||
+                        `sub:${rule.product_sub_type}`}
                     </span>
                   )}
                 </span>

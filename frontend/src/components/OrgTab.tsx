@@ -24,10 +24,17 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flag', env, flagName] });
       setOrgId('');
-      toast({ title: 'Org added', description: `Org ${orgEnabled ? 'allowed' : 'denied'} successfully.` });
+      toast({
+        title: 'Org added',
+        description: `Org ${orgEnabled ? 'allowed' : 'denied'} successfully.`,
+      });
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -38,7 +45,11 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
       toast({ title: 'Org removed' });
     },
     onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err.message,
+        variant: 'destructive',
+      });
     },
   });
 
@@ -52,9 +63,15 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
       {/* Add form */}
       <div
         className="rounded-lg border p-4 space-y-4"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+        style={{
+          borderColor: 'var(--color-border)',
+          backgroundColor: 'var(--color-surface)',
+        }}
       >
-        <h3 className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+        <h3
+          className="text-sm font-semibold"
+          style={{ color: 'var(--color-text)' }}
+        >
           Add Org Override
         </h3>
         <div className="space-y-1.5">
@@ -85,8 +102,16 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
             className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
             style={
               orgEnabled
-                ? { backgroundColor: 'rgba(16, 185, 129, 0.2)', color: 'var(--color-success)', border: '1px solid rgba(16,185,129,0.4)' }
-                : { backgroundColor: 'transparent', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }
+                ? {
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    color: 'var(--color-success)',
+                    border: '1px solid rgba(16,185,129,0.4)',
+                  }
+                : {
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-muted)',
+                    border: '1px solid var(--color-border)',
+                  }
             }
           >
             Allow
@@ -96,8 +121,16 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
             className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
             style={
               !orgEnabled
-                ? { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: 'var(--color-danger)', border: '1px solid rgba(239,68,68,0.4)' }
-                : { backgroundColor: 'transparent', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }
+                ? {
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    color: 'var(--color-danger)',
+                    border: '1px solid rgba(239,68,68,0.4)',
+                  }
+                : {
+                    backgroundColor: 'transparent',
+                    color: 'var(--color-text-muted)',
+                    border: '1px solid var(--color-border)',
+                  }
             }
           >
             Deny
@@ -119,7 +152,10 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
         {allOrgs.length === 0 ? (
           <div
             className="py-10 text-center text-sm rounded-lg border"
-            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
+            style={{
+              borderColor: 'var(--color-border)',
+              color: 'var(--color-text-muted)',
+            }}
           >
             No org overrides configured
           </div>
@@ -128,20 +164,32 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
             <div
               key={org.org_id}
               className="flex items-center justify-between rounded-lg border px-4 py-3"
-              style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+              style={{
+                borderColor: 'var(--color-border)',
+                backgroundColor: 'var(--color-surface)',
+              }}
             >
               <div className="flex items-center gap-3">
                 <span
                   className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                   style={
                     org.ruleType === 'allow'
-                      ? { backgroundColor: 'rgba(16, 185, 129, 0.15)', color: 'var(--color-success)' }
-                      : { backgroundColor: 'rgba(239, 68, 68, 0.15)', color: 'var(--color-danger)' }
+                      ? {
+                          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                          color: 'var(--color-success)',
+                        }
+                      : {
+                          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                          color: 'var(--color-danger)',
+                        }
                   }
                 >
                   {org.ruleType === 'allow' ? 'Allow' : 'Deny'}
                 </span>
-                <span className="font-mono text-sm" style={{ color: 'var(--color-text)' }}>
+                <span
+                  className="font-mono text-sm"
+                  style={{ color: 'var(--color-text)' }}
+                >
                   {org.org_id}
                 </span>
               </div>

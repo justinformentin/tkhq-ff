@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type * as React from 'react';
-import {
-  getStoredExpanded,
-  SideNav,
-} from '@/components/nav/side-nav';
+import { getStoredExpanded, SideNav } from '@/components/nav/side-nav';
 import {
   getSideNavWidth,
   SIDE_NAV_EXPANDED_KEY,
@@ -12,7 +9,9 @@ import {
 import { TopNav } from '@/components/nav/top-nav';
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [sidebarExpanded, setSidebarExpanded] = useState(() => getStoredExpanded());
+  const [sidebarExpanded, setSidebarExpanded] = useState(() =>
+    getStoredExpanded()
+  );
 
   useEffect(() => {
     setSidebarExpanded(getStoredExpanded());
