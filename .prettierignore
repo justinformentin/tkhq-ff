@@ -1,0 +1,12 @@
+# Dependencies and build output
+node_modules/
+dist/
+.vite/
+
+# Lockfiles
+package-lock.json
+
+# backend/ and frontend/ are independent projects — each has its own
+# .prettierignore and its own format scripts, which the root scripts delegate to.
+backend/
+frontend/
