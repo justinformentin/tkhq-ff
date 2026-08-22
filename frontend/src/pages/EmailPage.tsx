@@ -7,15 +7,12 @@
  *   - VerificationTab  — email verification lookup and override
  */
 
-import * as Tabs from '@radix-ui/react-tabs';
 import { useEnvironment } from '@/lib/environment';
 import { ProdWarning } from '@/components/ui/prod-warning';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SuppressionsTab } from './email-components/SuppressionsTab';
 import { SesDomainTab } from './email-components/SesDomainTab';
 import { VerificationTab } from './email-components/VerificationTab';
-
-const TAB_TRIGGER =
-  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=inactive]:border-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:text-foreground';
 
 const TABS = [
   { value: 'suppressions', label: 'Suppressions' },
@@ -37,27 +34,27 @@ export function EmailPage() {
 
       <ProdWarning env={env} />
 
-      <Tabs.Root defaultValue="suppressions">
-        <Tabs.List className="flex gap-1 border-b border-border mb-6">
+      <Tabs defaultValue="suppressions">
+        <TabsList className="mb-6">
           {TABS.map((tab) => (
-            <Tabs.Trigger key={tab.value} value={tab.value} className={TAB_TRIGGER}>
+            <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
-            </Tabs.Trigger>
+            </TabsTrigger>
           ))}
-        </Tabs.List>
+        </TabsList>
 
-        <Tabs.Content value="suppressions">
+        <TabsContent value="suppressions">
           <SuppressionsTab env={env} isProduction={isProduction} />
-        </Tabs.Content>
+        </TabsContent>
 
-        <Tabs.Content value="ses-domain">
+        <TabsContent value="ses-domain">
           <SesDomainTab env={env} isProduction={isProduction} />
-        </Tabs.Content>
+        </TabsContent>
 
-        <Tabs.Content value="verification">
+        <TabsContent value="verification">
           <VerificationTab env={env} isProduction={isProduction} />
-        </Tabs.Content>
-      </Tabs.Root>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

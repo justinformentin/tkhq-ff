@@ -3,18 +3,16 @@
  */
 
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
 import { WriteWarning } from '@/components/ui/write-warning';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { ToggleGroup } from '@/components/ui/toggle-group';
 import { useSetOrgInterdiction } from '@/hooks/org-ops/useOrgInterdiction';
 import type { Interdiction } from '@/types';
 import type { Environment } from '@/lib/environment';
-
-const FIELD =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const FIELD_MONO = `${FIELD} font-mono`;
-const FIELD_LABEL = 'text-xs mb-1 block text-muted-foreground';
 
 interface InterdictionsTabProps {
   env: Environment;
@@ -65,65 +63,44 @@ export function InterdictionsTab({
         <SectionTitle>Set / Remove Interdictor Block</SectionTitle>
         {isProduction && <WriteWarning env={env} />}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={FIELD_LABEL}>Scope</label>
-            <input
-              type="text"
+          <Field label="Scope" htmlFor="int-scope">
+            <Input
+              id="int-scope"
               value={intScope}
               onChange={(e) => setIntScope(e.target.value)}
               placeholder="e.g. org"
-              className={FIELD}
             />
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Op</label>
-            <input
-              type="text"
+          </Field>
+          <Field label="Op" htmlFor="int-op">
+            <Input
+              id="int-op"
               value={intOp}
               onChange={(e) => setIntOp(e.target.value)}
               placeholder="e.g. all"
-              className={FIELD}
             />
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Sub-Org ID (optional)</label>
-            <input
-              type="text"
+          </Field>
+          <Field label="Sub-Org ID (optional)" htmlFor="int-sub-org-id">
+            <Input
+              id="int-sub-org-id"
+              mono
               value={intSubOrgId}
               onChange={(e) => setIntSubOrgId(e.target.value)}
               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-              className={FIELD_MONO}
             />
-          </div>
-          <div className="flex flex-col justify-end">
-            <label className={FIELD_LABEL}>Action</label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setIntBlocked(true)}
-                className={cn(
-                  'px-3 py-2 rounded-lg text-sm font-medium border transition-colors',
-                  intBlocked
-                    ? 'border-primary-border bg-primary-soft text-primary'
-                    : 'border-transparent text-muted-foreground'
-                )}
-              >
-                Block
-              </button>
-              <button
-                onClick={() => setIntBlocked(false)}
-                className={cn(
-                  'px-3 py-2 rounded-lg text-sm font-medium border transition-colors',
-                  !intBlocked
-                    ? 'border-primary-border bg-primary-soft text-primary'
-                    : 'border-transparent text-muted-foreground'
-                )}
-              >
-                Unblock
-              </button>
-            </div>
-          </div>
+          </Field>
+          <Field label="Action" className="flex flex-col justify-end">
+            <ToggleGroup
+              value={intBlocked}
+              onChange={setIntBlocked}
+              options={[
+                { value: true, label: 'Block' },
+                { value: false, label: 'Unblock' },
+              ]}
+            />
+          </Field>
         </div>
-        <button
+        <Button
+          variant={intBlocked ? 'danger' : 'primary'}
           onClick={() =>
             setIntMut.mutate({
               scope: intScope,
@@ -133,17 +110,14 @@ export function InterdictionsTab({
             })
           }
           disabled={setIntMut.isPending}
-          className={cn(
-            'mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground transition-colors disabled:opacity-40',
-            intBlocked ? 'bg-danger hover:opacity-90' : 'bg-primary hover:bg-primary-hover'
-          )}
+          className="mt-4"
         >
           {setIntMut.isPending
             ? 'Applying…'
             : intBlocked
               ? 'Set Block'
               : 'Remove Block'}
-        </button>
+        </Button>
       </Card>
     </div>
   );

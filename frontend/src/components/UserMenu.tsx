@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
-import { getIdentity, logout } from '../lib/api';
+import { Button } from '@/components/ui/button';
+import { getIdentity, logout } from '@/lib/api';
 
 /**
  * Names the identity the backend acts as. Worth showing even in cache mode:
@@ -45,14 +46,15 @@ export function UserMenu() {
         </span>
       )}
       {data.source === 'session' && (
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => signOut.mutate()}
           disabled={signOut.isPending}
-          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-hover-overlay hover:text-foreground disabled:opacity-50"
           title="Sign out"
         >
           <LogOut size={14} />
-        </button>
+        </Button>
       )}
     </div>
   );

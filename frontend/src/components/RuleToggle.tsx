@@ -1,7 +1,4 @@
-import { cn } from '../lib/utils';
-
-const BASE = 'px-3 py-1.5 rounded-md text-sm font-medium border transition-colors';
-const UNSELECTED = 'bg-transparent text-muted-foreground border-border';
+import { ToggleGroup } from '@/components/ui/toggle-group';
 
 /**
  * The Allow/Deny pair that fronts both the org and product override forms.
@@ -15,27 +12,13 @@ export function RuleToggle({
   onChange: (allow: boolean) => void;
 }) {
   return (
-    <div className="flex gap-2">
-      <button
-        type="button"
-        onClick={() => onChange(true)}
-        className={cn(
-          BASE,
-          value ? 'bg-success-soft text-success border-success-border' : UNSELECTED
-        )}
-      >
-        Allow
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange(false)}
-        className={cn(
-          BASE,
-          value ? UNSELECTED : 'bg-danger-soft text-danger border-danger-border'
-        )}
-      >
-        Deny
-      </button>
-    </div>
+    <ToggleGroup
+      value={value}
+      onChange={onChange}
+      options={[
+        { value: true, label: 'Allow', tone: 'success' },
+        { value: false, label: 'Deny', tone: 'danger' },
+      ]}
+    />
   );
 }

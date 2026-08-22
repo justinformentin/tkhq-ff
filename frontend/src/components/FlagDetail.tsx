@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { formatFlagName } from '@/lib/utils';
 import { OrgTab } from './OrgTab';
 import { ProductTab } from './ProductTab';
-import { Switch } from './Switch';
-import * as Tabs from '@radix-ui/react-tabs';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEnvironment } from '@/lib/environment';
 import { useFlagDetail } from '@/hooks/flags/useFlagDetail';
 import { useSetFlag } from '@/hooks/flags/useSetFlag';
@@ -11,9 +14,6 @@ import { useSetFlag } from '@/hooks/flags/useSetFlag';
 interface FlagDetailProps {
   flagName: string;
 }
-
-const TAB_TRIGGER =
-  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=inactive]:border-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:text-foreground';
 
 export function FlagDetail({ flagName }: FlagDetailProps) {
   const { env } = useEnvironment();
@@ -71,12 +71,9 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
 
         {/* Enabled toggle */}
         <div className="flex items-center gap-4">
-          <label
-            htmlFor="enabled-toggle"
-            className="text-sm font-medium text-foreground"
-          >
+          <Label htmlFor="enabled-toggle" className="mb-0 text-sm font-medium text-foreground">
             Enabled
-          </label>
+          </Label>
           {isLoading ? (
             <div className="h-5 w-9 rounded-full animate-pulse bg-elevated-background" />
           ) : (
@@ -96,12 +93,9 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
         {/* Rollout slider */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label
-              htmlFor="rollout-slider"
-              className="text-sm font-medium text-foreground"
-            >
+            <Label htmlFor="rollout-slider" className="mb-0 text-sm font-medium text-foreground">
               Rollout Percentage
-            </label>
+            </Label>
             <span className="text-sm font-mono font-bold text-primary">
               {rollout}%
             </span>
@@ -109,14 +103,12 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
           {isLoading ? (
             <div className="h-2 rounded-full w-full animate-pulse bg-elevated-background" />
           ) : (
-            <input
+            <Slider
               id="rollout-slider"
-              type="range"
               min={0}
               max={100}
               value={rollout}
               onChange={(e) => setLocalRollout(Number(e.target.value))}
-              className="w-full cursor-pointer accent-primary"
             />
           )}
           <div className="flex justify-between text-xs text-muted-foreground">
@@ -127,49 +119,44 @@ export function FlagDetail({ flagName }: FlagDetailProps) {
         </div>
 
         {/* Save button */}
-        <button
+        <Button
           onClick={() => saveMutation.mutate({ enabled, rollout })}
           disabled={!isDirty || saveMutation.isPending || isLoading}
-          className="px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40"
         >
           {saveMutation.isPending ? 'Saving...' : 'Save Changes'}
-        </button>
+        </Button>
       </div>
 
       {/* Tabs */}
       {isLoading ? (
         <div className="h-48 rounded-lg animate-pulse bg-card-background" />
       ) : flagData ? (
-        <Tabs.Root defaultValue="orgs">
-          <Tabs.List className="flex gap-1 border-b border-border">
+        <Tabs defaultValue="orgs">
+          <TabsList>
             {[
               { value: 'orgs', label: `Orgs (${orgCount})` },
               { value: 'products', label: `Products (${productCount})` },
             ].map((tab) => (
-              <Tabs.Trigger
-                key={tab.value}
-                value={tab.value}
-                className={TAB_TRIGGER}
-              >
+              <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}
-              </Tabs.Trigger>
+              </TabsTrigger>
             ))}
-          </Tabs.List>
-          <Tabs.Content value="orgs" className="mt-4">
+          </TabsList>
+          <TabsContent value="orgs" className="mt-4">
             <OrgTab
               flagName={flagName}
               allowedOrgs={flagData.allowed_orgs || []}
               disallowedOrgs={flagData.disallowed_orgs || []}
             />
-          </Tabs.Content>
-          <Tabs.Content value="products" className="mt-4">
+          </TabsContent>
+          <TabsContent value="products" className="mt-4">
             <ProductTab
               flagName={flagName}
               allowedProducts={flagData.allowed_products || []}
               disallowedProducts={flagData.disallowed_products || []}
             />
-          </Tabs.Content>
-        </Tabs.Root>
+          </TabsContent>
+        </Tabs>
       ) : null}
     </div>
   );

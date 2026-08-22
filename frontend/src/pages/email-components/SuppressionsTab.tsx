@@ -12,13 +12,16 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { formatProtoDate } from '@/lib/format';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
 import { FieldDisplay } from '@/components/ui/field-display';
 import { WriteWarning } from '@/components/ui/write-warning';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { SuppressionRow } from './SuppressionRow';
 import { useSuppressionList } from '@/hooks/email/useSuppressionList';
 import { useSuppressionLookup } from '@/hooks/email/useSuppressionLookup';
@@ -27,13 +30,6 @@ import { useDeleteSuppression } from '@/hooks/email/useDeleteSuppression';
 import type { SuppressionListReason } from '@/types';
 import { SUPPRESSION_REASON_NAMES, SUPPRESSION_REASONS } from '@/types';
 import type { Environment } from '@/lib/environment';
-
-const FIELD =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const FIELD_MONO = `${FIELD} font-mono`;
-const FIELD_LABEL = 'text-xs mb-1 block text-muted-foreground';
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
 
 interface SuppressionsTabProps {
   env: Environment;
@@ -154,20 +150,22 @@ export function SuppressionsTab({ env, isProduction }: SuppressionsTabProps) {
               </div>
             )}
             <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={goPrev}
                 disabled={!hasPrev}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-border text-muted-foreground transition-colors hover:bg-hover-overlay disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ChevronLeft size={14} /> Prev
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={goNext}
                 disabled={!hasNext}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-border text-muted-foreground transition-colors hover:bg-hover-overlay disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Next <ChevronRight size={14} />
-              </button>
+              </Button>
               <span className="text-xs text-muted-foreground ml-auto">
                 {items.length} item{items.length !== 1 ? 's' : ''} on this page
               </span>
@@ -181,45 +179,42 @@ export function SuppressionsTab({ env, isProduction }: SuppressionsTabProps) {
         <SectionTitle>Add Suppression</SectionTitle>
         {isProduction && <WriteWarning env={env} />}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={FIELD_LABEL}>Email Address</label>
-            <input
+          <Field label="Email Address" htmlFor="add-suppression-email">
+            <Input
+              id="add-suppression-email"
               type="email"
+              mono
               value={addEmail}
               onChange={(e) => setAddEmail(e.target.value)}
               placeholder="user@example.com"
-              className={FIELD_MONO}
             />
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Reason</label>
-            <select
+          </Field>
+          <Field label="Reason" htmlFor="add-suppression-reason">
+            <Select
+              id="add-suppression-reason"
               value={addReason}
               onChange={(e) => setAddReason(e.target.value as SuppressionListReason)}
-              className={FIELD}
-            >
-              {SUPPRESSION_REASONS.map(({ value, label }) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
+              options={SUPPRESSION_REASONS}
+            />
+          </Field>
         </div>
-        <button
+        <Button
           onClick={() => addMut.mutate({ email: addEmail.trim(), reason: addReason })}
           disabled={addMut.isPending || !addEmail.trim()}
-          className={cn(PRIMARY_BUTTON, 'mt-4')}
+          className="mt-4"
         >
           <Plus size={14} />
           {addMut.isPending ? 'Adding…' : 'Add Suppression'}
-        </button>
+        </Button>
       </Card>
 
       {/* Lookup one address */}
       <Card>
         <SectionTitle>Lookup Suppressed Address</SectionTitle>
         <div className="flex gap-3">
-          <input
+          <Input
             type="email"
+            mono
             value={lookupEmail}
             onChange={(e) => setLookupEmail(e.target.value)}
             onKeyDown={(e) => {
@@ -227,15 +222,14 @@ export function SuppressionsTab({ env, isProduction }: SuppressionsTabProps) {
                 setLookedUp(lookupEmail.trim());
             }}
             placeholder="user@example.com"
-            className={cn(FIELD_MONO, 'flex-1')}
+            className="flex-1"
           />
-          <button
+          <Button
             onClick={() => { if (lookupEmail.trim()) setLookedUp(lookupEmail.trim()); }}
-            className={PRIMARY_BUTTON}
           >
             <Search size={14} />
             Lookup
-          </button>
+          </Button>
         </div>
         {lookedUp && lookupLoading && (
           <p className="text-sm animate-pulse text-muted-foreground mt-4">Looking up…</p>
@@ -270,14 +264,14 @@ export function SuppressionsTab({ env, isProduction }: SuppressionsTabProps) {
             )}
             <div className="pt-3">
               {isProduction && <WriteWarning env={env} />}
-              <button
+              <Button
+                variant="danger"
                 onClick={() => setConfirmDelete(lookupResult.email_address)}
                 disabled={deleteMut.isPending}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-danger text-primary-foreground transition-colors hover:opacity-90 disabled:opacity-40"
               >
                 <Trash2 size={14} />
                 Remove Suppression
-              </button>
+              </Button>
             </div>
           </div>
         )}

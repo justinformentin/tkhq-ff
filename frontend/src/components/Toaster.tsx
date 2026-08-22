@@ -1,5 +1,6 @@
-import { useToasts } from '../hooks/useToast';
-import { cn } from '../lib/utils';
+import { useToasts } from '@/hooks/useToast';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
 export function Toaster() {
@@ -25,12 +26,15 @@ export function Toaster() {
               <p className="mt-0.5 text-xs opacity-75">{t.description}</p>
             )}
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => dismiss(t.id)}
-            className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+            className="shrink-0 p-0 hover:bg-transparent"
+            aria-label="Dismiss"
           >
             <X size={14} />
-          </button>
+          </Button>
         </div>
       ))}
     </div>

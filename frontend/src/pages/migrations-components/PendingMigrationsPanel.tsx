@@ -4,17 +4,13 @@
 
 import { useState } from 'react';
 import { Search, RefreshCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { AppliedBadge } from './AppliedBadge';
 import { usePendingMigrations } from '@/hooks/migrations/usePendingMigrations';
 import { useEnvironment } from '@/lib/environment';
-
-const FIELD_MONO =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm font-mono text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
 
 export function PendingMigrationsPanel() {
   const { env } = useEnvironment();
@@ -51,26 +47,26 @@ export function PendingMigrationsPanel() {
       </p>
 
       <div className="flex gap-3 mb-4">
-        <input
-          type="text"
+        <Input
+          mono
           placeholder="migration-id-1, migration-id-2, … (optional)"
           value={idsInput}
           onChange={(e) => setIdsInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') handleFilter(); }}
-          className={cn(FIELD_MONO, 'flex-1')}
+          className="flex-1"
         />
-        <button onClick={handleFilter} className={PRIMARY_BUTTON}>
+        <Button onClick={handleFilter}>
           <Search size={14} />
           Filter
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="secondary"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-border text-muted-foreground transition-colors hover:bg-hover-overlay hover:text-foreground disabled:opacity-40"
           title="Refresh"
         >
           <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />
-        </button>
+        </Button>
       </div>
 
       {isLoading ? (

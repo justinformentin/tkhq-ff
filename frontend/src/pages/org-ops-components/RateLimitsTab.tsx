@@ -4,10 +4,13 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
 import { WriteWarning } from '@/components/ui/write-warning';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { RateLimitRow } from './RateLimitRow';
 import {
   useSetOrgRateLimit,
@@ -21,12 +24,6 @@ import {
   RATE_LIMIT_BUCKET_TYPES,
 } from '@/types';
 import type { Environment } from '@/lib/environment';
-
-const FIELD =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const FIELD_LABEL = 'text-xs mb-1 block text-muted-foreground';
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
 
 interface RateLimitsTabProps {
   env: Environment;
@@ -80,70 +77,57 @@ export function RateLimitsTab({
         <SectionTitle>Set Rate Limit Override</SectionTitle>
         {isProduction && <WriteWarning env={env} />}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={FIELD_LABEL}>Requests / Second</label>
-            <input
+          <Field label="Requests / Second" htmlFor="rl-rps">
+            <Input
+              id="rl-rps"
               type="number"
               value={rlRps}
               onChange={(e) => setRlRps(e.target.value)}
               min={1}
-              className={FIELD}
             />
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Rule</label>
-            <select value={rlRule} onChange={(e) => setRlRule(e.target.value)} className={FIELD}>
-              {RATE_LIMIT_RULE_TYPES.map(({ value, label: lbl }) => (
-                <option key={value} value={value}>{lbl}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Rule Variant (optional)</label>
-            <input
-              type="text"
+          </Field>
+          <Field label="Rule" htmlFor="rl-rule">
+            <Select
+              id="rl-rule"
+              value={rlRule}
+              onChange={(e) => setRlRule(e.target.value)}
+              options={RATE_LIMIT_RULE_TYPES}
+            />
+          </Field>
+          <Field label="Rule Variant (optional)" htmlFor="rl-rule-variant">
+            <Input
+              id="rl-rule-variant"
               value={rlRuleVariant}
               onChange={(e) => setRlRuleVariant(e.target.value)}
               placeholder="e.g. variant name"
-              className={FIELD}
             />
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Remediation</label>
-            <select
+          </Field>
+          <Field label="Remediation" htmlFor="rl-remediation">
+            <Select
+              id="rl-remediation"
               value={rlRemediation}
               onChange={(e) => setRlRemediation(e.target.value)}
-              className={FIELD}
-            >
-              {RATE_LIMIT_REMEDIATIONS.map(({ value, label: lbl }) => (
-                <option key={value} value={value}>{lbl}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Bucket Type</label>
-            <select
+              options={RATE_LIMIT_REMEDIATIONS}
+            />
+          </Field>
+          <Field label="Bucket Type" htmlFor="rl-bucket-type">
+            <Select
+              id="rl-bucket-type"
               value={rlBucketType}
               onChange={(e) => setRlBucketType(e.target.value)}
-              className={FIELD}
-            >
-              {RATE_LIMIT_BUCKET_TYPES.map(({ value, label: lbl }) => (
-                <option key={value} value={value}>{lbl}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Notes</label>
-            <input
-              type="text"
+              options={RATE_LIMIT_BUCKET_TYPES}
+            />
+          </Field>
+          <Field label="Notes" htmlFor="rl-notes">
+            <Input
+              id="rl-notes"
               value={rlNotes}
               onChange={(e) => setRlNotes(e.target.value)}
               placeholder="Optional notes"
-              className={FIELD}
             />
-          </div>
+          </Field>
         </div>
-        <button
+        <Button
           onClick={() =>
             setRlMut.mutate({
               requests_per_second: Number(rlRps),
@@ -155,11 +139,11 @@ export function RateLimitsTab({
             })
           }
           disabled={setRlMut.isPending}
-          className={cn(PRIMARY_BUTTON, 'mt-4')}
+          className="mt-4"
         >
           <Plus size={14} />
           {setRlMut.isPending ? 'Setting…' : 'Set Rate Limit'}
-        </button>
+        </Button>
       </Card>
 
       {defaults && defaults.limits && defaults.limits.length > 0 && (

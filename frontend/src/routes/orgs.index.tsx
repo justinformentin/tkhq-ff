@@ -4,6 +4,8 @@ import { Search } from 'lucide-react';
 import { formatFlagName } from '@/lib/utils';
 import { useEnvironment } from '@/lib/environment';
 import { useOrgSearch } from '@/hooks/orgs/useOrgSearch';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export const Route = createFileRoute('/orgs/')({
   component: OrgSearchRouteComponent,
@@ -30,21 +32,18 @@ function OrgSearchRouteComponent() {
       </div>
 
       <div className="flex gap-3">
-        <input
-          type="text"
+        <Input
+          mono
           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
           value={orgInput}
           onChange={(e) => setOrgInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
-          className="flex-1 px-3 py-2 rounded-lg border border-border bg-card-background text-sm font-mono text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="flex-1"
         />
-        <button
-          onClick={handleSearch}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover"
-        >
+        <Button onClick={handleSearch}>
           <Search size={14} />
           Search
-        </button>
+        </Button>
       </div>
 
       {searchedOrg && (

@@ -1,6 +1,7 @@
 import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatProtoDate } from '@/lib/format';
+import { Button } from '@/components/ui/button';
 import { SUPPRESSION_REASON_NAMES } from '@/types';
 import type { SuppressedEmailSummary } from '@/types';
 
@@ -36,14 +37,15 @@ export function SuppressionRow({ row, onDelete, isPending }: SuppressionRowProps
         {ts}
       </td>
       <td className="py-2 text-right">
-        <button
+        <Button
+          variant="ghost-danger"
+          size="icon"
           onClick={onDelete}
           disabled={isPending}
-          className="p-1 rounded text-danger transition-colors hover:bg-danger-soft disabled:opacity-40"
           title="Remove from suppression list"
         >
           <Trash2 size={14} />
-        </button>
+        </Button>
       </td>
     </tr>
   );

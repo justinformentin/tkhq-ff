@@ -1,11 +1,12 @@
-import { AlertTriangle, ChevronDown } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { AlertTriangle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Select } from '@/components/ui/select';
 import {
   ENVIRONMENTS,
   PRODUCTION_ENVIRONMENTS,
   useEnvironment,
   type Environment,
-} from '../lib/environment';
+} from '@/lib/environment';
 
 const LABELS: Record<Environment, string> = {
   local: 'Local',
@@ -29,28 +30,19 @@ export function EnvSelector() {
         </span>
       )}
 
-      <div className="relative">
-        <select
-          value={env}
-          onChange={(e) => setEnv(e.target.value as Environment)}
-          aria-label="Environment"
-          className={cn(
-            'cursor-pointer appearance-none rounded-md border bg-card-background pl-3 pr-8 py-1.5 text-sm font-medium text-foreground',
-            isProduction ? 'border-danger-border' : 'border-border'
-          )}
-        >
-          {ENVIRONMENTS.map((name) => (
-            <option key={name} value={name}>
-              {LABELS[name]}
-              {PRODUCTION_ENVIRONMENTS.includes(name) ? ' ⚠' : ''}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          size={14}
-          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
-        />
-      </div>
+      <Select
+        value={env}
+        onChange={(e) => setEnv(e.target.value as Environment)}
+        aria-label="Environment"
+        options={ENVIRONMENTS.map((name) => ({
+          value: name,
+          label: `${LABELS[name]}${PRODUCTION_ENVIRONMENTS.includes(name) ? ' ⚠' : ''}`,
+        }))}
+        className={cn(
+          'w-auto py-1.5 font-medium',
+          isProduction && 'border-danger-border'
+        )}
+      />
     </div>
   );
 }

@@ -6,11 +6,12 @@
  */
 
 import { useState } from 'react';
-import * as Tabs from '@radix-ui/react-tabs';
 import { Search } from 'lucide-react';
 import { useEnvironment } from '@/lib/environment';
-import { cn } from '@/lib/utils';
 import { ProdWarning } from '@/components/ui/prod-warning';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrgStatus } from '@/hooks/org-ops/useOrgStatus';
 import { OrgStatusTab } from './org-ops-components/OrgStatusTab';
 import { RateLimitsTab } from './org-ops-components/RateLimitsTab';
@@ -18,13 +19,6 @@ import { InterdictionsTab } from './org-ops-components/InterdictionsTab';
 import { QuotasTab } from './org-ops-components/QuotasTab';
 import { CacheTab } from './org-ops-components/CacheTab';
 import type { RateLimit, Interdiction, QuotaOverride } from '@/types';
-
-const FIELD_MONO =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm font-mono text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
-const TAB_TRIGGER =
-  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=inactive]:border-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:text-foreground';
 
 export function OrgOpsPage() {
   const { env, isProduction } = useEnvironment();
@@ -55,23 +49,20 @@ export function OrgOpsPage() {
       </div>
 
       <div className="flex gap-3">
-        <input
-          type="text"
+        <Input
+          mono
           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
           value={orgInput}
           onChange={(e) => setOrgInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && orgInput.trim()) setOrgId(orgInput.trim());
           }}
-          className={cn(FIELD_MONO, 'flex-1')}
+          className="flex-1"
         />
-        <button
-          onClick={() => { if (orgInput.trim()) setOrgId(orgInput.trim()); }}
-          className={PRIMARY_BUTTON}
-        >
+        <Button onClick={() => { if (orgInput.trim()) setOrgId(orgInput.trim()); }}>
           <Search size={14} />
           Load Org
-        </button>
+        </Button>
       </div>
 
       {orgId && error && (
@@ -90,60 +81,60 @@ export function OrgOpsPage() {
         <>
           <ProdWarning env={env} />
 
-          <Tabs.Root defaultValue="status">
-            <Tabs.List className="flex gap-1 border-b border-border mb-6">
+          <Tabs defaultValue="status">
+            <TabsList className="mb-6">
               {tabs.map((tab) => (
-                <Tabs.Trigger key={tab.value} value={tab.value} className={TAB_TRIGGER}>
+                <TabsTrigger key={tab.value} value={tab.value}>
                   {tab.label}
-                </Tabs.Trigger>
+                </TabsTrigger>
               ))}
-            </Tabs.List>
+            </TabsList>
 
-            <Tabs.Content value="status">
+            <TabsContent value="status">
               <OrgStatusTab
                 status={status}
                 rateLimits={rateLimits}
                 interdictions={interdictions}
                 quotas={quotas}
               />
-            </Tabs.Content>
+            </TabsContent>
 
-            <Tabs.Content value="rate-limits">
+            <TabsContent value="rate-limits">
               <RateLimitsTab
                 env={env}
                 orgId={orgId}
                 rateLimits={rateLimits}
                 isProduction={isProduction}
               />
-            </Tabs.Content>
+            </TabsContent>
 
-            <Tabs.Content value="interdictions">
+            <TabsContent value="interdictions">
               <InterdictionsTab
                 env={env}
                 orgId={orgId}
                 interdictions={interdictions}
                 isProduction={isProduction}
               />
-            </Tabs.Content>
+            </TabsContent>
 
-            <Tabs.Content value="quotas">
+            <TabsContent value="quotas">
               <QuotasTab
                 env={env}
                 orgId={orgId}
                 quotas={quotas}
                 isProduction={isProduction}
               />
-            </Tabs.Content>
+            </TabsContent>
 
-            <Tabs.Content value="cache">
+            <TabsContent value="cache">
               <CacheTab
                 env={env}
                 orgId={orgId}
                 status={status}
                 isProduction={isProduction}
               />
-            </Tabs.Content>
-          </Tabs.Root>
+            </TabsContent>
+          </Tabs>
         </>
       )}
 

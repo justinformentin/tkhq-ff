@@ -3,6 +3,9 @@ import { Trash2, Plus } from 'lucide-react';
 import { useEnvironment } from '@/lib/environment';
 import { cn } from '@/lib/utils';
 import { RuleToggle } from './RuleToggle';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import { useFlagOrgMutations } from '@/hooks/flags/useFlagOrgMutations';
 import type { OrgRule } from '@/types';
 
@@ -30,33 +33,25 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
         <h3 className="text-sm font-semibold text-foreground">
           Add Org Override
         </h3>
-        <div className="space-y-1.5">
-          <label
-            className="text-xs font-medium text-muted-foreground"
-            htmlFor="org-id-input"
-          >
-            Org UUID
-          </label>
-          <input
+        <Field label="Org UUID" htmlFor="org-id-input">
+          <Input
             id="org-id-input"
-            type="text"
+            mono
             placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             value={orgId}
             onChange={(e) => setOrgId(e.target.value)}
-            className="w-full px-3 py-2 rounded-md border border-border bg-elevated-background text-sm font-mono text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
-        </div>
+        </Field>
         <RuleToggle value={orgEnabled} onChange={setOrgEnabled} />
-        <button
+        <Button
           onClick={() =>
             addMutation.mutate({ orgId: orgId.trim(), enabled: orgEnabled })
           }
           disabled={!orgId.trim() || addMutation.isPending}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
         >
           <Plus size={14} />
           {addMutation.isPending ? 'Adding...' : 'Add Org'}
-        </button>
+        </Button>
       </div>
 
       {/* Org list */}
@@ -86,14 +81,15 @@ export function OrgTab({ flagName, allowedOrgs, disallowedOrgs }: OrgTabProps) {
                   {org.org_id}
                 </span>
               </div>
-              <button
+              <Button
+                variant="ghost-danger"
+                size="icon"
                 onClick={() => removeMutation.mutate(org.org_id)}
                 disabled={removeMutation.isPending}
-                className="p-1.5 rounded-md text-muted-foreground transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
                 title="Remove"
               >
                 <Trash2 size={14} />
-              </button>
+              </Button>
             </div>
           ))
         )}

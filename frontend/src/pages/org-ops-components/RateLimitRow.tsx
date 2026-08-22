@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   RATE_LIMIT_RULE_TYPE_NAMES,
   RATE_LIMIT_REMEDIATION_NAMES,
@@ -32,13 +33,14 @@ export function RateLimitRow({ rl, onRemove, isProduction }: RateLimitRowProps) 
             {rl.requests_per_minute} rpm
           </span>
           {onRemove && (
-            <button
+            <Button
+              variant="ghost-danger"
+              size="icon"
               onClick={onRemove}
-              className="p-1 rounded text-danger transition-colors hover:bg-danger-soft"
               title={`Remove this rate limit${isProduction ? ' (LIVE)' : ''}`}
             >
               <Trash2 size={14} />
-            </button>
+            </Button>
           )}
         </div>
       </div>

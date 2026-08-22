@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { FieldDisplay } from '@/components/ui/field-display';
 import { VerBadge } from '@/components/ui/ver-badge';
+import { Button } from '@/components/ui/button';
 import type { SesDomainResponse } from '@/types';
 
 interface SesDomainPanelProps {
@@ -113,14 +114,14 @@ export function SesDomainPanel({
             <AlertTriangle size={13} /> Refreshing resets DNS verification.
           </div>
         )}
-        <button
+        <Button
+          variant="warning-soft"
           onClick={onRefresh}
           disabled={refreshPending}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-warning-border text-warning bg-warning-soft hover:opacity-90 transition-colors disabled:opacity-40"
         >
           <RefreshCw size={14} />
           {refreshPending ? 'Refreshing…' : 'Refresh SES Domain'}
-        </button>
+        </Button>
       </div>
     </div>
   );

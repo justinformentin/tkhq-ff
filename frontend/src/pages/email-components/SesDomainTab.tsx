@@ -4,11 +4,13 @@
 
 import { useState } from 'react';
 import { Search, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
 import { WriteWarning } from '@/components/ui/write-warning';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import { SesDomainPanel } from './SesDomainPanel';
 import {
   useSesDomainQuery,
@@ -16,13 +18,6 @@ import {
   useCreateSesDomain,
 } from '@/hooks/email/useSesDomain';
 import type { Environment } from '@/lib/environment';
-
-const FIELD =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const FIELD_MONO = `${FIELD} font-mono`;
-const FIELD_LABEL = 'text-xs mb-1 block text-muted-foreground';
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
 
 interface SesDomainTabProps {
   env: Environment;
@@ -63,8 +58,8 @@ export function SesDomainTab({ env, isProduction }: SesDomainTabProps) {
       <Card>
         <SectionTitle>SES Domain Lookup</SectionTitle>
         <div className="flex gap-3">
-          <input
-            type="text"
+          <Input
+            mono
             value={sesDomainInput}
             onChange={(e) => setSesDomainInput(e.target.value)}
             onKeyDown={(e) => {
@@ -72,15 +67,14 @@ export function SesDomainTab({ env, isProduction }: SesDomainTabProps) {
                 setSesDomain(sesDomainInput.trim());
             }}
             placeholder="example.com"
-            className={cn(FIELD_MONO, 'flex-1')}
+            className="flex-1"
           />
-          <button
+          <Button
             onClick={() => { if (sesDomainInput.trim()) setSesDomain(sesDomainInput.trim()); }}
-            className={PRIMARY_BUTTON}
           >
             <Search size={14} />
             Load Domain
-          </button>
+          </Button>
         </div>
         {sesDomain && sesLoading && (
           <p className="text-sm animate-pulse text-muted-foreground mt-4">Loading domain…</p>
@@ -106,37 +100,35 @@ export function SesDomainTab({ env, isProduction }: SesDomainTabProps) {
         </p>
         {isProduction && <WriteWarning env={env} />}
         {!showCreateSes ? (
-          <button onClick={() => setShowCreateSes(true)} className={PRIMARY_BUTTON}>
+          <Button onClick={() => setShowCreateSes(true)}>
             <Plus size={14} />
             Create SES Domain…
-          </button>
+          </Button>
         ) : (
           <div className="space-y-4">
-            <div>
-              <label className={FIELD_LABEL}>Domain</label>
-              <input
-                type="text"
+            <Field label="Domain" htmlFor="create-ses-domain">
+              <Input
+                id="create-ses-domain"
+                mono
                 value={createSesDomainInput}
                 onChange={(e) => setCreateSesDomainInput(e.target.value)}
                 placeholder="example.com"
-                className={FIELD_MONO}
               />
-            </div>
+            </Field>
             <div className="flex gap-3">
-              <button
+              <Button
                 onClick={() => createSesMut.mutate(createSesDomainInput.trim())}
                 disabled={createSesMut.isPending || !createSesDomainInput.trim()}
-                className={PRIMARY_BUTTON}
               >
                 <Plus size={14} />
                 {createSesMut.isPending ? 'Creating…' : 'Confirm Create'}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={() => { setShowCreateSes(false); setCreateSesDomainInput(''); }}
-                className="px-4 py-2 rounded-lg text-sm font-medium border border-border text-muted-foreground hover:bg-hover-overlay transition-colors"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         )}

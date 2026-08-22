@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { formatFlagName } from '@/lib/utils';
-import { Switch } from './Switch';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import { ChevronRight, Search } from 'lucide-react';
 import { useEnvironment } from '@/lib/environment';
 import { useFlagList } from '@/hooks/flags/useFlagList';
@@ -56,12 +57,11 @@ export function FlagTable() {
           size={14}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
         />
-        <input
-          type="text"
+        <Input
           placeholder="Search flags..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="pl-9"
         />
       </div>
 

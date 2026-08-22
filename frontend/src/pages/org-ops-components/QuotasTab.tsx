@@ -4,10 +4,12 @@
 
 import { useState } from 'react';
 import { Trash2, Plus, Play } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
 import { WriteWarning } from '@/components/ui/write-warning';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import {
   useEvaluateOrgQuota,
   useSetOrgQuota,
@@ -15,12 +17,6 @@ import {
 } from '@/hooks/org-ops/useOrgQuotaMutations';
 import type { QuotaOverride } from '@/types';
 import type { Environment } from '@/lib/environment';
-
-const FIELD =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const FIELD_LABEL = 'text-xs mb-1 block text-muted-foreground';
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
 
 interface QuotasTabProps {
   env: Environment;
@@ -59,14 +55,15 @@ export function QuotasTab({ env, orgId, quotas, isProduction }: QuotasTabProps) 
                   <td className="py-2 font-mono text-foreground">{q.label}</td>
                   <td className="py-2 text-right font-mono text-foreground">{q.count}</td>
                   <td className="py-2 text-right">
-                    <button
+                    <Button
+                      variant="ghost-danger"
+                      size="icon"
                       onClick={() => removeQuotaMut.mutate(q)}
                       disabled={removeQuotaMut.isPending}
-                      className="p-1 rounded text-danger transition-colors hover:bg-danger-soft disabled:opacity-40"
                       title={`Remove override${isProduction ? ' (LIVE)' : ''}`}
                     >
                       <Trash2 size={14} />
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -79,36 +76,33 @@ export function QuotasTab({ env, orgId, quotas, isProduction }: QuotasTabProps) 
         <SectionTitle>Set Quota Override</SectionTitle>
         {isProduction && <WriteWarning env={env} />}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={FIELD_LABEL}>Label</label>
-            <input
-              type="text"
+          <Field label="Label" htmlFor="quota-label">
+            <Input
+              id="quota-label"
               value={quotaLabel}
               onChange={(e) => setQuotaLabel(e.target.value)}
               placeholder="e.g. api_calls_per_month"
-              className={FIELD}
             />
-          </div>
-          <div>
-            <label className={FIELD_LABEL}>Count</label>
-            <input
+          </Field>
+          <Field label="Count" htmlFor="quota-count">
+            <Input
+              id="quota-count"
               type="number"
               value={quotaCount}
               onChange={(e) => setQuotaCount(e.target.value)}
-              className={FIELD}
             />
-          </div>
+          </Field>
         </div>
-        <button
+        <Button
           onClick={() =>
             setQuotaMut.mutate({ label: quotaLabel, count: Number(quotaCount) })
           }
           disabled={setQuotaMut.isPending || !quotaLabel}
-          className={cn(PRIMARY_BUTTON, 'mt-4')}
+          className="mt-4"
         >
           <Plus size={14} />
           {setQuotaMut.isPending ? 'Setting…' : 'Set Override'}
-        </button>
+        </Button>
       </Card>
 
       <Card>
@@ -118,21 +112,19 @@ export function QuotasTab({ env, orgId, quotas, isProduction }: QuotasTabProps) 
           actually blocking or unblocking.
         </p>
         <div className="flex gap-3">
-          <input
-            type="text"
+          <Input
             value={evalLabel}
             onChange={(e) => setEvalLabel(e.target.value)}
             placeholder="Label, e.g. api_calls_per_month"
-            className={cn(FIELD, 'flex-1')}
+            className="flex-1"
           />
-          <button
+          <Button
             onClick={() => evalQuotaMut.mutate(evalLabel)}
             disabled={evalQuotaMut.isPending || !evalLabel}
-            className={PRIMARY_BUTTON}
           >
             <Play size={14} />
             {evalQuotaMut.isPending ? 'Running…' : 'Evaluate'}
-          </button>
+          </Button>
         </div>
       </Card>
     </div>

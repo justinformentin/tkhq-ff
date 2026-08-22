@@ -4,24 +4,19 @@
 
 import { useState } from 'react';
 import { Search, CheckCircle, XCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { formatProtoDate } from '@/lib/format';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
 import { FieldDisplay } from '@/components/ui/field-display';
 import { WriteWarning } from '@/components/ui/write-warning';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   useEmailVerificationQuery,
   useUpdateEmailVerification,
 } from '@/hooks/email/useEmailVerification';
 import type { Environment } from '@/lib/environment';
-
-const FIELD =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const FIELD_MONO = `${FIELD} font-mono`;
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
 
 interface VerificationTabProps {
   env: Environment;
@@ -56,8 +51,9 @@ export function VerificationTab({ env, isProduction }: VerificationTabProps) {
       <Card>
         <SectionTitle>Email Verification Lookup</SectionTitle>
         <div className="flex gap-3">
-          <input
+          <Input
             type="email"
+            mono
             value={verEmailInput}
             onChange={(e) => setVerEmailInput(e.target.value)}
             onKeyDown={(e) => {
@@ -65,15 +61,14 @@ export function VerificationTab({ env, isProduction }: VerificationTabProps) {
                 setVerEmail(verEmailInput.trim());
             }}
             placeholder="user@example.com"
-            className={cn(FIELD_MONO, 'flex-1')}
+            className="flex-1"
           />
-          <button
+          <Button
             onClick={() => { if (verEmailInput.trim()) setVerEmail(verEmailInput.trim()); }}
-            className={PRIMARY_BUTTON}
           >
             <Search size={14} />
             Lookup
-          </button>
+          </Button>
         </div>
 
         {verEmail && verLoading && (
@@ -114,20 +109,20 @@ export function VerificationTab({ env, isProduction }: VerificationTabProps) {
                 Override the cached validity — use with care.
               </p>
               <div className="flex gap-3">
-                <button
+                <Button
+                  variant="success-soft"
                   onClick={() => setConfirmUpdateVer({ valid: true })}
                   disabled={updateVerMut.isPending}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-success-border text-success bg-success-soft hover:opacity-90 transition-colors disabled:opacity-40"
                 >
                   <CheckCircle size={14} /> Mark Valid
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="danger"
                   onClick={() => setConfirmUpdateVer({ valid: false })}
                   disabled={updateVerMut.isPending}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-danger text-primary-foreground hover:opacity-90 transition-colors disabled:opacity-40"
                 >
                   <XCircle size={14} /> Mark Invalid
-                </button>
+                </Button>
               </div>
             </div>
           </div>

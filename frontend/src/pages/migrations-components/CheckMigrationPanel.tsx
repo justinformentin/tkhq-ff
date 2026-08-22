@@ -4,17 +4,13 @@
 
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { SectionTitle } from '@/components/ui/section-title';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { AppliedBadge } from './AppliedBadge';
 import { useCheckMigration } from '@/hooks/migrations/useCheckMigration';
 import { useEnvironment } from '@/lib/environment';
-
-const FIELD_MONO =
-  'w-full px-3 py-2 rounded-lg border border-border bg-card-background text-sm font-mono text-foreground placeholder:text-subtle-foreground focus:outline-none focus:ring-2 focus:ring-ring';
-const PRIMARY_BUTTON =
-  'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-40';
 
 export function CheckMigrationPanel() {
   const { env } = useEnvironment();
@@ -35,22 +31,18 @@ export function CheckMigrationPanel() {
       </p>
 
       <div className="flex gap-3 mb-4">
-        <input
-          type="text"
+        <Input
+          mono
           placeholder="migration-id"
           value={idInput}
           onChange={(e) => setIdInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') handleCheck(); }}
-          className={cn(FIELD_MONO, 'flex-1')}
+          className="flex-1"
         />
-        <button
-          onClick={handleCheck}
-          disabled={!idInput.trim()}
-          className={PRIMARY_BUTTON}
-        >
+        <Button onClick={handleCheck} disabled={!idInput.trim()}>
           <Search size={14} />
           Check
-        </button>
+        </Button>
       </div>
 
       {checkedId && isLoading ? (

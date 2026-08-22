@@ -3,6 +3,9 @@ import { Trash2, Plus } from 'lucide-react';
 import { useEnvironment } from '@/lib/environment';
 import { cn } from '@/lib/utils';
 import { RuleToggle } from './RuleToggle';
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { Select } from '@/components/ui/select';
 import { useFlagProductMutations } from '@/hooks/flags/useFlagProductMutations';
 import type { ProductRule } from '@/types';
 import {
@@ -18,9 +21,6 @@ interface ProductTabProps {
   allowedProducts: ProductRule[];
   disallowedProducts: ProductRule[];
 }
-
-const SELECT =
-  'w-full rounded-md border border-border bg-elevated-background px-2 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
 
 export function ProductTab({
   flagName,
@@ -46,41 +46,25 @@ export function ProductTab({
           Add Product Rule
         </h3>
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
-              Product Type
-            </label>
-            <select
+          <Field label="Product Type" htmlFor="product-type">
+            <Select
+              id="product-type"
               value={productType}
               onChange={(e) => setProductType(e.target.value)}
-              className={SELECT}
-            >
-              {PRODUCT_TYPES.map((pt) => (
-                <option key={pt.value} value={pt.value}>
-                  {pt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
-              Sub-Type
-            </label>
-            <select
+              options={PRODUCT_TYPES}
+            />
+          </Field>
+          <Field label="Sub-Type" htmlFor="product-sub-type">
+            <Select
+              id="product-sub-type"
               value={productSubType}
               onChange={(e) => setProductSubType(e.target.value)}
-              className={SELECT}
-            >
-              {PRODUCT_SUB_TYPES.map((pst) => (
-                <option key={pst.value} value={pst.value}>
-                  {pst.label}
-                </option>
-              ))}
-            </select>
-          </div>
+              options={PRODUCT_SUB_TYPES}
+            />
+          </Field>
         </div>
         <RuleToggle value={productEnabled} onChange={setProductEnabled} />
-        <button
+        <Button
           onClick={() =>
             addMutation.mutate({
               productType,
@@ -89,11 +73,10 @@ export function ProductTab({
             })
           }
           disabled={addMutation.isPending}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
         >
           <Plus size={14} />
           {addMutation.isPending ? 'Adding...' : 'Add Rule'}
-        </button>
+        </Button>
       </div>
 
       {/* Rules list */}
@@ -131,7 +114,9 @@ export function ProductTab({
                   )}
                 </span>
               </div>
-              <button
+              <Button
+                variant="ghost-danger"
+                size="icon"
                 onClick={() =>
                   removeMutation.mutate({
                     type: rule.product_type,
@@ -139,11 +124,10 @@ export function ProductTab({
                   })
                 }
                 disabled={removeMutation.isPending}
-                className="p-1.5 rounded-md text-muted-foreground transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
                 title="Remove"
               >
                 <Trash2 size={14} />
-              </button>
+              </Button>
             </div>
           ))
         )}

@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { Button } from './button';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -30,23 +30,15 @@ export function ConfirmDialog({
         <h3 className="font-semibold text-foreground">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
         <div className="flex gap-3 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 rounded-lg text-sm font-medium border border-border text-muted-foreground hover:bg-hover-overlay transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={dangerous ? 'danger' : 'primary'}
             onClick={onConfirm}
-            className={cn(
-              'px-4 py-2 rounded-lg text-sm font-medium text-primary-foreground transition-colors',
-              dangerous
-                ? 'bg-danger hover:opacity-90'
-                : 'bg-primary hover:bg-primary-hover'
-            )}
           >
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

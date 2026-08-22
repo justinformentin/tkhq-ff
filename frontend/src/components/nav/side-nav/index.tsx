@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from '@tanstack/react-router';
 import { ChevronLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { SIDE_NAV_EXPANDED_KEY, getSideNavWidth } from './constants';
 import { mainNavItems, navSections, footerItems } from './nav-config';
 import { NavItem } from './nav-item';
@@ -92,10 +93,11 @@ export function SideNav({
               </span>
             </a>
           )}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={toggleExpanded}
-            className="flex size-8 items-center justify-center rounded-lg text-subtle-foreground hover:bg-hover-overlay hover:text-foreground transition-colors focus:outline-none"
+            className="size-8 rounded-lg p-0 text-subtle-foreground"
             aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
             title={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
           >
@@ -106,7 +108,7 @@ export function SideNav({
                 isExpanded ? 'rotate-0' : 'rotate-180',
               ].join(' ')}
             />
-          </button>
+          </Button>
         </div>
 
         {/* Main nav */}
