@@ -75,10 +75,11 @@ export const PRODUCT_SUB_TYPES = [
 // Org Operations types (mirror backend/grpc/types.ts wire shapes)
 // ---------------------------------------------------------------------------
 
-export interface ProtoTimestamp {
-  seconds: string;
-  nanos: number;
-}
+// google.protobuf.Timestamp reaches us in two shapes: the local gRPC transport
+// yields { seconds, nanos } (and proto3 JSON drops either half when it's zero),
+// while the Connect transport used by dev/preprod/prod encodes it as an RFC-3339
+// string. Render these with formatProtoDate() rather than reading .seconds.
+export type ProtoTimestamp = string | { seconds?: string; nanos?: number };
 
 export interface OrgRefs {
   org_id: string;

@@ -27,6 +27,7 @@ import {
 import { useEnvironment } from '@/lib/environment';
 import { toast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
+import { formatProtoDate } from '@/lib/format';
 import {
   listSuppressedEmails,
   getSuppressedEmail,
@@ -219,9 +220,7 @@ function SuppressionRow({
 }) {
   const reasonLabel =
     SUPPRESSION_REASON_NAMES[row.reason as keyof typeof SUPPRESSION_REASON_NAMES] ?? row.reason;
-  const ts = row.last_update_time
-    ? new Date(Number(row.last_update_time.seconds) * 1000).toISOString()
-    : '—';
+  const ts = formatProtoDate(row.last_update_time);
   return (
     <tr className="border-b border-border last:border-0">
       <td className="py-2 pr-4 font-mono text-sm text-foreground break-all">
@@ -687,9 +686,7 @@ export function EmailPage() {
                 {lookupResult.last_update_time && (
                   <Field
                     label="Last Updated"
-                    value={new Date(
-                      Number(lookupResult.last_update_time.seconds) * 1000
-                    ).toISOString()}
+                    value={formatProtoDate(lookupResult.last_update_time)}
                   />
                 )}
                 {lookupResult.attributes?.feedback_id && (
@@ -884,17 +881,13 @@ export function EmailPage() {
                 {verData.created_at && (
                   <Field
                     label="Created"
-                    value={new Date(
-                      Number(verData.created_at.seconds) * 1000
-                    ).toISOString()}
+                    value={formatProtoDate(verData.created_at)}
                   />
                 )}
                 {verData.updated_at && (
                   <Field
                     label="Updated"
-                    value={new Date(
-                      Number(verData.updated_at.seconds) * 1000
-                    ).toISOString()}
+                    value={formatProtoDate(verData.updated_at)}
                   />
                 )}
 
