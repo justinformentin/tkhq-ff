@@ -35,13 +35,14 @@ export const navSections: TNavSection[] = [
     ],
   },
   {
-    title: 'Email',
+    title: 'Engineering',
     items: [
       {
-        pathname: '/email',
-        displayName: 'Email / SES',
-        iconName: 'Mail',
+        pathname: '/migrations',
+        displayName: 'Migrations',
+        iconName: 'Database',
       },
+      { pathname: '/email', displayName: 'Email / SES', iconName: 'Mail' },
     ],
   },
 ];

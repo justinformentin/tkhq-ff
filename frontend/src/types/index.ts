@@ -186,6 +186,22 @@ export const RATE_LIMIT_BUCKET_TYPES = Object.entries(
 ).map(([value, label]) => ({ value, label }));
 
 // ---------------------------------------------------------------------------
+// Migration types (mirror backend/grpc/types.ts wire shapes)
+//
+// RBAC note: CheckMigration and GetPendingMigrations require `migration:read`,
+// which is an engineering-only permission enforced by the backend gateway and
+// K8s RBAC. The UI does not implement its own RBAC check.
+// ---------------------------------------------------------------------------
+
+export interface CheckMigrationResponse {
+  migration_id: string;
+  applied: boolean;
+}
+
+export interface GetPendingMigrationsResponse {
+  results: CheckMigrationResponse[];
+}
+
 // Email / SES types (mirror backend/grpc/types.ts wire shapes)
 // ---------------------------------------------------------------------------
 

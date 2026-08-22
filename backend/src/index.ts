@@ -6,6 +6,7 @@ import path from 'path';
 import authRouter from './routes/auth';
 import emailRouter from './routes/email';
 import flagsRouter from './routes/flags';
+import migrationsRouter from './routes/migrations';
 import orgsRouter from './routes/orgs';
 import rateLimitsRouter from './routes/rateLimits';
 import { errorHandler } from './middleware/errorHandler';
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRouter);
 app.use('/api/email', requireIdentity, emailRouter);
 app.use('/api/flags', requireIdentity, flagsRouter);
+app.use('/api/migrations', requireIdentity, migrationsRouter);
 app.use('/api/orgs', requireIdentity, orgsRouter);
 app.use('/api/rate-limits', requireIdentity, rateLimitsRouter);
 
