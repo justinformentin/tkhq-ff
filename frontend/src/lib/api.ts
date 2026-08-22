@@ -1,8 +1,10 @@
 import axios from 'axios';
 import type {
+  CheckMigrationResponse,
   FeatureFlag,
   GetDefaultRateLimitsResponse,
   GetInterdictionsResponse,
+  GetPendingMigrationsResponse,
   GetQuotaOverridesResponse,
   GetRateLimitResponse,
   ListFlagsResponse,
@@ -311,6 +313,41 @@ export async function removeOrgQuota(
 ): Promise<GetQuotaOverridesResponse> {
   const res = await api.delete<GetQuotaOverridesResponse>(
     `/orgs/${encodeURIComponent(orgId)}/quotas/${encodeURIComponent(label)}`,
+    forEnv(env)
+  );
+  return res.data;
+}
+
+// ---------------------------------------------------------------------------
+// Migrations API
+//
+// RBAC note: these endpoints require `migration:read` (engineering-only).
+// Enforcement is handled by the backend gateway and K8s RBAC.
+// ---------------------------------------------------------------------------
+
+/** GetPendingMigrations — lists pending migrations.
+ *  Pass an optional array of specific migration IDs to narrow the check. */
+export async function getPendingMigrations(
+  env: Environment,
+  migrationIds: string[] = []
+): Promise<GetPendingMigrationsResponse> {
+  const params: Record<string, string> = { env };
+  if (migrationIds.length > 0) {
+    params.ids = migrationIds.join(',');
+  }
+  const res = await api.get<GetPendingMigrationsResponse>('/migrations/pending', {
+    params,
+  });
+  return res.data;
+}
+
+/** CheckMigration — check whether a specific migration has been applied. */
+export async function checkMigration(
+  migrationId: string,
+  env: Environment
+): Promise<CheckMigrationResponse> {
+  const res = await api.get<CheckMigrationResponse>(
+    `/migrations/${encodeURIComponent(migrationId)}/check`,
     forEnv(env)
   );
   return res.data;

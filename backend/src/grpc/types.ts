@@ -220,3 +220,32 @@ export interface RemoveQuotaOverrideRequest {
   org_id: string;
   label: string;
 }
+
+// ---------------------------------------------------------------------------
+// Migration wire types (mirror operator_agent.proto exactly)
+//
+// RBAC note: CheckMigration and GetPendingMigrations require the
+// `migration:read` permission, which is restricted to engineering roles.
+// The backend gateway and K8s RBAC enforce this — the UI does not need to
+// implement its own RBAC check.
+// ---------------------------------------------------------------------------
+
+// CheckMigration
+export interface CheckMigrationRequest {
+  migration_id: string;
+}
+
+export interface CheckMigrationResponse {
+  migration_id: string;
+  applied: boolean;
+}
+
+// GetPendingMigrations
+export interface GetPendingMigrationsRequest {
+  /** Optional list of specific migration IDs to check; empty = all pending. */
+  migration_ids: string[];
+}
+
+export interface GetPendingMigrationsResponse {
+  results: CheckMigrationResponse[];
+}

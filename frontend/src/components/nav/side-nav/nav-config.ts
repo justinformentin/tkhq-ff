@@ -34,6 +34,16 @@ export const navSections: TNavSection[] = [
       },
     ],
   },
+  {
+    title: 'Engineering',
+    items: [
+      {
+        pathname: '/migrations',
+        displayName: 'Migrations',
+        iconName: 'Database',
+      },
+    ],
+  },
 ];
 
 export const footerItems: TSideNavFooterItem[] = [
