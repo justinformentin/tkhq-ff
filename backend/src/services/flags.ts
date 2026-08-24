@@ -40,6 +40,12 @@ const MAX_CONCURRENT_READS = 8;
 
 /** Flags the UI can actually address: named, and not retired. */
 function isListable(def: FeatureFlagDefinition): boolean {
+  // An enum value the vendored proto doesn't know decodes as its raw number
+  // rather than a name (proto-loader can only apply `enums: String` to values
+  // it has). Those rows aren't addressable by name either, so drop them the
+  // same way as the zero value — the fix is `npm run sync-proto`.
+  if (typeof def.flag !== 'string') return false;
+
   if (!def.flag || def.flag === UNNAMED_FLAG) return false;
 
   return !def.is_deprecated && !DEPRECATED_FLAGS.has(def.flag);

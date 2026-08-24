@@ -144,6 +144,20 @@ service DashboardApiService {
     };
   }
 
+  rpc EthSendTransaction(external.activity.v1.EthSendTransactionRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/submit/eth_send_transaction"
+      body: "*"
+    };
+  }
+
+  rpc SolSendTransaction(external.activity.v1.SolSendTransactionRequest) returns (ActivityResponse) {
+    option (google.api.http) = {
+      post: "/tkhq/api/v1/submit/sol_send_transaction"
+      body: "*"
+    };
+  }
+
   rpc GetWalletAccounts(GetWalletAccountsRequest) returns (GetWalletAccountsResponse) {
     option (google.api.http) = {get: "/tkhq/api/v1/organizations/{organization_id}/wallets/{wallet_id}/accounts"};
   }

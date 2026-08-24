@@ -580,6 +580,9 @@ enum FeatureFlag {
   FEATURE_FLAG_TIME_BASED_POLICIES = 53; // gates time-based (time/CronSpan) policy creation and updates
 
   FEATURE_FLAG_SEND_WHATSAPP = 54; // gates sending WhatsApp messages via the SendOtp activity
+  FEATURE_FLAG_WALLET_ACCOUNT_SEND_RECEIVE = 55; // gates wallet account send and receive actions in dashboard-v2
+
+  FEATURE_FLAG_EMAIL_EVENTS_SUBSTRING_SEARCH = 56; // gates substring search for email events
 }
 
 message FeatureFlagDefinition {
