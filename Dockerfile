@@ -1,48 +1,41 @@
 # ─────────────────────────────────────────────
 # Stage 1: Build frontend
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS frontend-builder
+FROM node:22-slim AS frontend-builder
 WORKDIR /app/frontend
-
 COPY frontend/package*.json ./
 RUN npm ci
-
 COPY frontend/ ./
 RUN npm run build
 
 # ─────────────────────────────────────────────
 # Stage 2: Build backend
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS backend-builder
+FROM node:22-slim AS backend-builder
 WORKDIR /app/backend
-
 COPY backend/package*.json ./
 RUN npm ci
-
 COPY backend/ ./
 RUN npm run build
 
 # ─────────────────────────────────────────────
 # Stage 3: Production image
 # ─────────────────────────────────────────────
-FROM node:20-alpine AS production
+FROM node:22-slim AS production
 WORKDIR /app
 
-# Copy compiled backend + production deps
-COPY --from=backend-builder /app/backend/dist ./dist
-COPY --from=backend-builder /app/backend/node_modules ./node_modules
-
-# Copy the vendored proto tree into dist so it's available at runtime
-# (backend loads it dynamically via @grpc/proto-loader, and the import paths
-# inside the protos require the directory structure to be preserved)
-COPY --from=backend-builder /app/backend/src/grpc/proto ./dist/grpc/proto
-
-# Copy compiled frontend assets into location the backend will serve
+# Backend compiled output at /app/backend/dist
+# __dirname=/app/backend/dist → ../../frontend/dist=/app/frontend/dist ✓
+COPY --from=backend-builder /app/backend/dist ./backend/dist
+COPY --from=backend-builder /app/backend/node_modules ./backend/node_modules
+# Protos are loaded at runtime by @grpc/proto-loader — preserve dir structure
+COPY --from=backend-builder /app/backend/src/grpc/proto ./backend/dist/grpc/proto
+# Frontend static assets served by backend
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=8080
+EXPOSE 8080
+USER 1000:1000
 
-EXPOSE 3001
-
-CMD ["node", "dist/index.js"]
+CMD ["node", "backend/dist/index.js"]
